@@ -14,23 +14,23 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using Imp.PosiStageDotNet.Serialization;
 
 namespace Imp.PosiStageDotNet.DataTrackers
 {
-	public struct DataTrackerStatus : IDataTrackerId, IEquatable<DataTrackerStatus>
+	public class PsnTrackerStatus : PsnTrackerElement, IEquatable<PsnTrackerStatus>
 	{
-		public DataTrackerStatus(float validity)
+		public PsnTrackerStatus(float validity)
 		{
 			Validity = validity;
 		}
 
-		public PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerStatus;
-		public int ByteLength => 4;
+		public override PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerStatus;
+		public override int ByteLength => 4;
 
 		public float Validity { get; }
 
-
-		public bool Equals(DataTrackerStatus other)
+		public bool Equals(PsnTrackerStatus other)
 		{
 			return Validity.Equals(other.Validity);
 		}
@@ -40,7 +40,7 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			if (ReferenceEquals(null, obj))
 				return false;
 
-			return obj is DataTrackerStatus && Equals((DataTrackerStatus)obj);
+			return obj is PsnTrackerStatus && Equals((PsnTrackerStatus)obj);
 		}
 
 		public override int GetHashCode()
@@ -48,14 +48,20 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			return Validity.GetHashCode();
 		}
 
-		public static bool operator ==(DataTrackerStatus left, DataTrackerStatus right)
+		public static bool operator ==(PsnTrackerStatus left, PsnTrackerStatus right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(DataTrackerStatus left, DataTrackerStatus right)
+		public static bool operator !=(PsnTrackerStatus left, PsnTrackerStatus right)
 		{
 			return !left.Equals(right);
+		}
+
+		internal override void Serialize(PsnBinaryWriter writer)
+		{
+			writer.WriteChunkHeader((ushort)Id, ByteLength, false);
+			writer.Write(Validity);
 		}
 	}
 }

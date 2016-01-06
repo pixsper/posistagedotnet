@@ -14,27 +14,27 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using Imp.PosiStageDotNet.Serialization;
 
 namespace Imp.PosiStageDotNet.DataTrackers
 {
-	public struct DataTrackerOrientation : IDataTrackerId, IEquatable<DataTrackerOrientation>
+	public class PsnTrackerSpeed : PsnTrackerElement, IEquatable<PsnTrackerSpeed>
 	{
-		public DataTrackerOrientation(float x, float y, float z)
+		public PsnTrackerSpeed(float x, float y, float z)
 		{
 			X = x;
 			Y = y;
 			Z = z;
 		}
 
-		public PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerOri;
-		public int ByteLength => 12;
+		public override PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerSpeed;
+		public override int ByteLength => 12;
 
 		public float X { get; }
 		public float Y { get; }
 		public float Z { get; }
 
-
-		public bool Equals(DataTrackerOrientation other)
+		public bool Equals(PsnTrackerSpeed other)
 		{
 			return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
@@ -44,7 +44,7 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			if (ReferenceEquals(null, obj))
 				return false;
 
-			return obj is DataTrackerOrientation && Equals((DataTrackerOrientation)obj);
+			return obj is PsnTrackerSpeed && Equals((PsnTrackerSpeed)obj);
 		}
 
 		public override int GetHashCode()
@@ -58,14 +58,23 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			}
 		}
 
-		public static bool operator ==(DataTrackerOrientation left, DataTrackerOrientation right)
+		public static bool operator ==(PsnTrackerSpeed left, PsnTrackerSpeed right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(DataTrackerOrientation left, DataTrackerOrientation right)
+		public static bool operator !=(PsnTrackerSpeed left, PsnTrackerSpeed right)
 		{
 			return !left.Equals(right);
+		}
+
+
+		internal override void Serialize(PsnBinaryWriter writer)
+		{
+			writer.WriteChunkHeader((ushort)Id, ByteLength, false);
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
 		}
 	}
 }

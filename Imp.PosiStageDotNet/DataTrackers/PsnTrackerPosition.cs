@@ -18,31 +18,23 @@ using Imp.PosiStageDotNet.Serialization;
 
 namespace Imp.PosiStageDotNet.DataTrackers
 {
-	public struct DataTrackerAcceleration : IDataTrackerId, IEquatable<DataTrackerAcceleration>
+	public class PsnTrackerPosition : PsnTrackerElement, IEquatable<PsnTrackerPosition>
 	{
-		public DataTrackerAcceleration(float x, float y, float z)
+		public PsnTrackerPosition(float x, float y, float z)
 		{
 			X = x;
 			Y = y;
 			Z = z;
 		}
 
-		public PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerAccel;
-		public int ByteLength => 12;
-
+		public override PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerPos;
+		public override int ByteLength => 12;
 
 		public float X { get; }
 		public float Y { get; }
 		public float Z { get; }
 
-
-
-		public void Serialize(PsnBinaryWriter writer)
-		{
-			
-		}
-
-		public bool Equals(DataTrackerAcceleration other)
+		public bool Equals(PsnTrackerPosition other)
 		{
 			return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
@@ -52,7 +44,7 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			if (ReferenceEquals(null, obj))
 				return false;
 
-			return obj is DataTrackerAcceleration && Equals((DataTrackerAcceleration)obj);
+			return obj is PsnTrackerPosition && Equals((PsnTrackerPosition)obj);
 		}
 
 		public override int GetHashCode()
@@ -66,14 +58,22 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			}
 		}
 
-		public static bool operator ==(DataTrackerAcceleration left, DataTrackerAcceleration right)
+		public static bool operator ==(PsnTrackerPosition left, PsnTrackerPosition right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(DataTrackerAcceleration left, DataTrackerAcceleration right)
+		public static bool operator !=(PsnTrackerPosition left, PsnTrackerPosition right)
 		{
 			return !left.Equals(right);
+		}
+
+		internal override void Serialize(PsnBinaryWriter writer)
+		{
+			writer.WriteChunkHeader((ushort)Id, ByteLength, false);
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
 		}
 	}
 }

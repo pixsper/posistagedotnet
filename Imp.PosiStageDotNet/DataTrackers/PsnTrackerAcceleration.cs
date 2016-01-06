@@ -14,27 +14,28 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using Imp.PosiStageDotNet.Serialization;
 
 namespace Imp.PosiStageDotNet.DataTrackers
 {
-	public struct DataTrackerPosition : IDataTrackerId, IEquatable<DataTrackerPosition>
+	public class PsnTrackerAcceleration : PsnTrackerElement, IEquatable<PsnTrackerAcceleration>
 	{
-		public DataTrackerPosition(float x, float y, float z)
+		public PsnTrackerAcceleration(float x, float y, float z)
 		{
 			X = x;
 			Y = y;
 			Z = z;
 		}
 
-		public PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerPos;
-		public int ByteLength => 12;
+		public override PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerAccel;
+		public override int ByteLength => 12;
+
 
 		public float X { get; }
 		public float Y { get; }
 		public float Z { get; }
 
-
-		public bool Equals(DataTrackerPosition other)
+		public bool Equals(PsnTrackerAcceleration other)
 		{
 			return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
@@ -44,7 +45,7 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			if (ReferenceEquals(null, obj))
 				return false;
 
-			return obj is DataTrackerPosition && Equals((DataTrackerPosition)obj);
+			return obj is PsnTrackerAcceleration && Equals((PsnTrackerAcceleration)obj);
 		}
 
 		public override int GetHashCode()
@@ -58,14 +59,22 @@ namespace Imp.PosiStageDotNet.DataTrackers
 			}
 		}
 
-		public static bool operator ==(DataTrackerPosition left, DataTrackerPosition right)
+		public static bool operator ==(PsnTrackerAcceleration left, PsnTrackerAcceleration right)
 		{
 			return left.Equals(right);
 		}
 
-		public static bool operator !=(DataTrackerPosition left, DataTrackerPosition right)
+		public static bool operator !=(PsnTrackerAcceleration left, PsnTrackerAcceleration right)
 		{
 			return !left.Equals(right);
+		}
+
+		internal override void Serialize(PsnBinaryWriter writer)
+		{
+			writer.WriteChunkHeader((ushort)Id, ByteLength, false);
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
 		}
 	}
 }

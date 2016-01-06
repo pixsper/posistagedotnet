@@ -13,15 +13,27 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
-using Imp.PosiStageDotNet.Serialization;
+using System;
+using System.IO;
+using System.Text;
 
-namespace Imp.PosiStageDotNet
+namespace Imp.PosiStageDotNet.Serialization
 {
-	public interface IDataTrackerId
+	internal class PsnBinaryReader : EndianBinaryReader
 	{
-		PsnDataTrackerChunkId Id { get; }
-		int ByteLength { get; }
+		public const int ChunkHeaderByteLength = 4;
 
-		void Serialize(PsnBinaryWriter writer);
+		private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
+
+		public PsnBinaryReader(Stream stream)
+			: base(BitConverterInstance, stream, Encoding.UTF8) { }
+
+		public Tuple<ushort, int, bool> ReadChunkHeader()
+		{
+			ushort chunkId = ReadUInt16();
+			ushort dataLengthAndSubChunks = ReadUInt16();
+
+			return Tuple.Create(chunkId, dataLengthAndSubChunks & 0x7FFF, (dataLengthAndSubChunks & 0x8000) >> 15 == 1);
+		}
 	}
 }

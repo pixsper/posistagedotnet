@@ -21,11 +21,17 @@ using Imp.PosiStageDotNet.Serialization;
 
 namespace Imp.PosiStageDotNet
 {
-	public class PsnInfoPacket : IPsnPacketId
+	public class PsnInfoPacket : PsnPacket
 	{
 		const int HeaderByteLength = 12;
 
-		public PsnInfoPacket(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount, string systemName,
+		internal static PsnInfoPacket Deserialize(PsnBinaryReader reader)
+		{
+
+		}
+
+		public PsnInfoPacket(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount,
+			string systemName,
 			IDictionary<ushort, string> trackerNames)
 		{
 			TimeStamp = timestamp;
@@ -61,8 +67,6 @@ namespace Imp.PosiStageDotNet
 			TrackerNames = new Dictionary<ushort, string>(trackerNames);
 		}
 
-		public PsnChunkId Id => PsnChunkId.PsnInfoPacket;
-
 		public ulong TimeStamp { get; }
 
 		public int VersionHigh { get; }
@@ -73,6 +77,8 @@ namespace Imp.PosiStageDotNet
 		public string SystemName { get; }
 
 		public IReadOnlyDictionary<ushort, string> TrackerNames { get; }
+
+		public override PsnPacketChunkId Id => PsnPacketChunkId.PsnInfoPacket;
 
 
 

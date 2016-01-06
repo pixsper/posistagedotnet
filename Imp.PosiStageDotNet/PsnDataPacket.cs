@@ -18,15 +18,39 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet
 {
-	public class PsnDataPacket : IPsnPacketId
+	public class PsnDataPacket : PsnPacket
 	{
 		const int HeaderByteLength = 12;
 
+		[CanBeNull]
+		internal static PsnDataPacket Deserialize(PsnBinaryReader reader)
+		{
+			var dataPacketChunkHeader = reader.ReadChunkHeader();
+
+			ulong timestamp = reader.ReadUInt64();
+			int versionHigh = reader.ReadByte();
+			int versionLow = reader.ReadByte();
+			int frameId = reader.ReadByte();
+			int framePacketCount = reader.ReadByte();
+
+			try
+			{
+				return new PsnDataPacket(timestamp, versionHigh, versionLow, frameId, framePacketCount, null);
+			}
+			catch (ArgumentOutOfRangeException)
+			{
+				return null;
+			}
+		}
+
+		
+
 		public PsnDataPacket(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount,
-			IDictionary<ushort, IEnumerable<IDataTrackerId>> dataTrackers)
+			IDictionary<ushort, IEnumerable<PsnTrackerElement>> dataTrackers)
 		{
 			TimeStamp = timestamp;
 
@@ -53,10 +77,8 @@ namespace Imp.PosiStageDotNet
 			if (dataTrackers == null)
 				throw new ArgumentNullException(nameof(dataTrackers));
 
-			DataTrackers = dataTrackers.ToDictionary(p => p.Key, p => (IReadOnlyList<IDataTrackerId>)p.Value.ToList());
+			DataTrackers = dataTrackers.ToDictionary(p => p.Key, p => (IReadOnlyList<PsnTrackerElement>)p.Value.ToList());
 		}
-
-		public PsnChunkId Id => PsnChunkId.PsnDataPacket;
 
 		public ulong TimeStamp { get; }
 
@@ -65,13 +87,16 @@ namespace Imp.PosiStageDotNet
 		public int FrameId { get; }
 		public int FramePacketCount { get; }
 
-		public IReadOnlyDictionary<ushort, IReadOnlyList<IDataTrackerId>> DataTrackers { get; }
-			
+		public IReadOnlyDictionary<ushort, IReadOnlyList<PsnTrackerElement>> DataTrackers { get; }
+
+		public override PsnPacketChunkId Id => PsnPacketChunkId.PsnDataPacket;
+
 
 		public byte[] ToByteArray()
 		{
-			int trackerListChunkByteLength = DataTrackers.Sum(p => PsnBinaryWriter.ChunkHeaderByteLength 
-												+ p.Value.Sum(t => PsnBinaryWriter.ChunkHeaderByteLength + t.ByteLength));
+			int trackerListChunkByteLength = DataTrackers.Sum(p => PsnBinaryWriter.ChunkHeaderByteLength
+			                                                       + p.Value.Sum(
+				                                                       t => PsnBinaryWriter.ChunkHeaderByteLength + t.ByteLength));
 
 			int rootChunkByteLength = PsnBinaryWriter.ChunkHeaderByteLength + HeaderByteLength + trackerListChunkByteLength;
 
@@ -102,7 +127,5 @@ namespace Imp.PosiStageDotNet
 				return ms.ToArray();
 			}
 		}
-
-		
 	}
 }
