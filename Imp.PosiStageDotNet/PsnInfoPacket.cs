@@ -27,7 +27,7 @@ namespace Imp.PosiStageDotNet
 
 		internal static PsnInfoPacket Deserialize(PsnBinaryReader reader)
 		{
-
+			return null;
 		}
 
 		public PsnInfoPacket(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount,
@@ -82,7 +82,7 @@ namespace Imp.PosiStageDotNet
 
 
 
-		public byte[] ToByteArray()
+		public override byte[] ToByteArray()
 		{
 			int trackerListChunkByteLength = TrackerNames.Sum(p => PsnBinaryWriter.ChunkHeaderByteLength * 2 + p.Value.Length);
 

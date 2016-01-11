@@ -92,7 +92,7 @@ namespace Imp.PosiStageDotNet
 		public override PsnPacketChunkId Id => PsnPacketChunkId.PsnDataPacket;
 
 
-		public byte[] ToByteArray()
+		public override byte[] ToByteArray()
 		{
 			int trackerListChunkByteLength = DataTrackers.Sum(p => PsnBinaryWriter.ChunkHeaderByteLength
 			                                                       + p.Value.Sum(
