@@ -48,6 +48,7 @@
     <Compile Include="DataTrackers\PsnTrackerPosition.cs" />
     <Compile Include="DataTrackers\PsnTrackerStatus.cs" />
     <Compile Include="DataTrackers\PsnTrackerSpeed.cs" />
+    <Compile Include="PsnServer.cs" />
     <Compile Include="PsnTrackerElement.cs" />
     <Compile Include="PsnPacket.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -58,6 +59,7 @@
     <Compile Include="Serialization\EndianBitConverter.cs" />
     <Compile Include="Serialization\PsnBinaryReader.cs" />
     <Compile Include="Serialization\PsnBinaryWriter.cs" />
+    <Compile Include="Timer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Sockets.Plugin, Version=1.3.0.0, Culture=neutral, processorArchitecture=MSIL">
