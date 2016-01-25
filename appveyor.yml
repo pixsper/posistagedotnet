@@ -8,6 +8,14 @@ branches:
     - develop
 
 #---------------------------------#
+#    environment configuration    #
+#---------------------------------#
+  
+nuget:
+  account_feed: true
+  project_feed: true
+	
+#---------------------------------#
 #       build configuration       #
 #---------------------------------#
 
@@ -17,6 +25,8 @@ configuration: Release
 
 build:
   project: Imp.PosiStageDotNet.sln
+  publish_nuget: true
+  publish_nuget_symbols: true
   
   
 #---------------------------------#
@@ -25,3 +35,5 @@ build:
   
 before_build:
   - nuget restore
+  
+  
