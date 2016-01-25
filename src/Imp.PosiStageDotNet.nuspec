@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <title>Imp.PosiStageDotNet</title>
+    <licenseUrl>http://www.gnu.org/licenses/lgpl-3.0-standalone.html</licenseUrl>
+    <projectUrl>https://github.com/impsnldavid/posistagedotnet</projectUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <copyright>Copyright 2016</copyright>
+  </metadata>
+</package>
