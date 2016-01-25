@@ -22,6 +22,7 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet
 {
+	[PublicAPI]
 	public class PsnDataPacket : PsnPacket
 	{
 		const int HeaderByteLength = 12;

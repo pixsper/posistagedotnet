@@ -65,7 +65,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Imp.PosiStageDotNet\Imp.PosiStageDotNet.csproj">
+    <ProjectReference Include="..\src\Imp.PosiStageDotNet.csproj">
       <Project>{19c0a570-e2e5-45b4-a2bf-35ac6f8552e5}</Project>
       <Name>Imp.PosiStageDotNet</Name>
     </ProjectReference>

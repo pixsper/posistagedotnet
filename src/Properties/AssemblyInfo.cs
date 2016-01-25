@@ -13,47 +13,21 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace Imp.PosiStageDotNet
-{
-	public enum PsnPacketChunkId : ushort
-	{
-		PsnDataPacket = 0x6755,
-		PsnInfoPacket = 0x6756
-	}
+using System.Reflection;
+using System.Resources;
+using System.Runtime.CompilerServices;
 
+[assembly: AssemblyTitle("Imp.PosiStageDotNet")]
+[assembly: AssemblyDescription("")]
 
+#if DEBUG
+	[assembly: AssemblyConfiguration("Debug")]
+#else
+	[assembly: AssemblyConfiguration("Release")]
+#endif
 
-	public enum PsnInfoChunkId : ushort
-	{
-		PsnInfoPacketHeader = 0x0000,
-		PsnInfoSystemName = 0x0001,
-		PsnInfoTrackerList = 0x0002
-	}
-
-
-
-	public enum PsnInfoTrackerChunkId : ushort
-	{
-		PsnInfoTrackerName = 0x0000
-	}
-
-
-
-	public enum PsnDataChunkId : ushort
-	{
-		PsnDataPacketHeader = 0x0000,
-		PsnDataTrackerList = 0x0001
-	}
-
-
-
-	public enum PsnDataTrackerChunkId : ushort
-	{
-		PsnDataTrackerPos = 0x0000,
-		PsnDataTrackerSpeed = 0x0001,
-		PsnDataTrackerOri = 0x0002,
-		PsnDataTrackerStatus = 0x0003,
-		PsnDataTrackerAccel = 0x0004,
-		PsnDataTrackerTrgtPos = 0x0005
-	}
-}
+[assembly: AssemblyCompany("The Impersonal Stereo")]
+[assembly: AssemblyProduct("Imp.PosiStageDotNet")]
+[assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2016")]
+[assembly: NeutralResourcesLanguage("en")]
+[assembly: InternalsVisibleTo("Imp.PosiStageDotNet.Tests")]

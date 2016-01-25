@@ -14,6 +14,7 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace Imp.PosiStageDotNet.Serialization
@@ -21,8 +22,9 @@ namespace Imp.PosiStageDotNet.Serialization
 	// Note: Based on code from MiscUtil r285 February 26th 2009 - http://www.yoda.arachsys.com/csharp/miscutil/
 
 	/// <summary>
-	///     Equivalent of System.BitConverter, but with either endianness.
+	///     Equivalent of <see cref="BitConverter"/>, but with either endianness.
 	/// </summary>
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	internal abstract class EndianBitConverter
 	{
 		/// <summary>

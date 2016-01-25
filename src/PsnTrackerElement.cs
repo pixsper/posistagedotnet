@@ -13,16 +13,17 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.Reflection;
-using System.Resources;
-using System.Runtime.CompilerServices;
-[assembly: AssemblyTitle("Imp.PosiStageDotNet")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("The Impersonal Stereo")]
-[assembly: AssemblyProduct("Imp.PosiStageDotNet")]
-[assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2016")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
-[assembly: InternalsVisibleTo("Imp.PosiStageDotNet.Tests")]
+using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
+
+namespace Imp.PosiStageDotNet
+{
+	[PublicAPI]
+	public abstract class PsnTrackerElement
+	{
+		public abstract PsnDataTrackerChunkId Id { get; }
+		public abstract int ByteLength { get; }
+
+		internal abstract void Serialize(PsnBinaryWriter writer);
+	}
+}

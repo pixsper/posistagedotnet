@@ -18,16 +18,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet
 {
+	[PublicAPI]
 	public class PsnInfoPacket : PsnPacket
 	{
 		const int HeaderByteLength = 12;
 
 		internal static PsnInfoPacket Deserialize(PsnBinaryReader reader)
 		{
-			return null;
+			throw new NotImplementedException();
 		}
 
 		public PsnInfoPacket(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount,

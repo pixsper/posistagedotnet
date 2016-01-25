@@ -15,9 +15,11 @@
 
 using System;
 using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.DataTrackers
 {
+	[PublicAPI]
 	public class PsnTrackerStatus : PsnTrackerElement, IEquatable<PsnTrackerStatus>
 	{
 		public PsnTrackerStatus(float validity)
@@ -28,34 +30,31 @@ namespace Imp.PosiStageDotNet.DataTrackers
 		public override PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerStatus;
 		public override int ByteLength => 4;
 
+
+
 		public float Validity { get; }
 
-		public bool Equals(PsnTrackerStatus other)
+
+
+		public bool Equals([CanBeNull] PsnTrackerStatus other)
 		{
-			return Validity.Equals(other.Validity);
+			if (ReferenceEquals(null, other))
+				return false;
+			return ReferenceEquals(this, other) || Validity.Equals(other.Validity);
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
-
-			return obj is PsnTrackerStatus && Equals((PsnTrackerStatus)obj);
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == GetType() && Equals((PsnTrackerStatus)obj);
 		}
 
 		public override int GetHashCode()
 		{
 			return Validity.GetHashCode();
-		}
-
-		public static bool operator ==(PsnTrackerStatus left, PsnTrackerStatus right)
-		{
-			return left.Equals(right);
-		}
-
-		public static bool operator !=(PsnTrackerStatus left, PsnTrackerStatus right)
-		{
-			return !left.Equals(right);
 		}
 
 		internal override void Serialize(PsnBinaryWriter writer)

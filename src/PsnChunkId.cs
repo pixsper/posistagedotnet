@@ -13,15 +13,50 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
-using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet
 {
-	public abstract class PsnTrackerElement
+	[PublicAPI]
+	public enum PsnPacketChunkId : ushort
 	{
-		public abstract PsnDataTrackerChunkId Id { get; }
-		public abstract int ByteLength { get; }
+		PsnDataPacket = 0x6755,
+		PsnInfoPacket = 0x6756
+	}
 
-		internal abstract void Serialize(PsnBinaryWriter writer);
+
+	[PublicAPI]
+	public enum PsnInfoChunkId : ushort
+	{
+		PsnInfoPacketHeader = 0x0000,
+		PsnInfoSystemName = 0x0001,
+		PsnInfoTrackerList = 0x0002
+	}
+
+
+	[PublicAPI]
+	public enum PsnInfoTrackerChunkId : ushort
+	{
+		PsnInfoTrackerName = 0x0000
+	}
+
+
+	[PublicAPI]
+	public enum PsnDataChunkId : ushort
+	{
+		PsnDataPacketHeader = 0x0000,
+		PsnDataTrackerList = 0x0001
+	}
+
+
+	[PublicAPI]
+	public enum PsnDataTrackerChunkId : ushort
+	{
+		PsnDataTrackerPos = 0x0000,
+		PsnDataTrackerSpeed = 0x0001,
+		PsnDataTrackerOri = 0x0002,
+		PsnDataTrackerStatus = 0x0003,
+		PsnDataTrackerAccel = 0x0004,
+		PsnDataTrackerTrgtPos = 0x0005
 	}
 }

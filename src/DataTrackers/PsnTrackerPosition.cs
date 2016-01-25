@@ -15,9 +15,11 @@
 
 using System;
 using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.DataTrackers
 {
+	[PublicAPI]
 	public class PsnTrackerPosition : PsnTrackerElement, IEquatable<PsnTrackerPosition>
 	{
 		public PsnTrackerPosition(float x, float y, float z)
@@ -30,21 +32,30 @@ namespace Imp.PosiStageDotNet.DataTrackers
 		public override PsnDataTrackerChunkId Id => PsnDataTrackerChunkId.PsnDataTrackerPos;
 		public override int ByteLength => 12;
 
+
+
 		public float X { get; }
 		public float Y { get; }
 		public float Z { get; }
 
-		public bool Equals(PsnTrackerPosition other)
+
+
+		public bool Equals([CanBeNull] PsnTrackerPosition other)
 		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
 			return X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
 
-		public override bool Equals(object obj)
+		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
-
-			return obj is PsnTrackerPosition && Equals((PsnTrackerPosition)obj);
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == GetType() && Equals((PsnTrackerPosition)obj);
 		}
 
 		public override int GetHashCode()
@@ -56,16 +67,6 @@ namespace Imp.PosiStageDotNet.DataTrackers
 				hashCode = (hashCode * 397) ^ Z.GetHashCode();
 				return hashCode;
 			}
-		}
-
-		public static bool operator ==(PsnTrackerPosition left, PsnTrackerPosition right)
-		{
-			return left.Equals(right);
-		}
-
-		public static bool operator !=(PsnTrackerPosition left, PsnTrackerPosition right)
-		{
-			return !left.Equals(right);
 		}
 
 		internal override void Serialize(PsnBinaryWriter writer)

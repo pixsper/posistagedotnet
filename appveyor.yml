@@ -1,0 +1,26 @@
+#---------------------------------#
+#      general configuration      #
+#---------------------------------#
+
+branches:
+  only:
+    - master
+
+#---------------------------------#
+#       build configuration       #
+#---------------------------------#
+
+platform: Any CPU
+
+configuration: Release
+
+build:
+  project: Imp.PosiStageDotNet.sln
+  
+  
+#---------------------------------#
+#           build events          #
+#---------------------------------#
+  
+before_build:
+  - nuget restore
