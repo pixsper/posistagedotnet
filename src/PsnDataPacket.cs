@@ -27,28 +27,7 @@ namespace Imp.PosiStageDotNet
 	{
 		const int HeaderByteLength = 12;
 
-		[CanBeNull]
-		internal static PsnDataPacket Deserialize(PsnBinaryReader reader)
-		{
-			var dataPacketChunkHeader = reader.ReadChunkHeader();
 
-			ulong timestamp = reader.ReadUInt64();
-			int versionHigh = reader.ReadByte();
-			int versionLow = reader.ReadByte();
-			int frameId = reader.ReadByte();
-			int framePacketCount = reader.ReadByte();
-
-			try
-			{
-				return new PsnDataPacket(timestamp, versionHigh, versionLow, frameId, framePacketCount, null);
-			}
-			catch (ArgumentOutOfRangeException)
-			{
-				return null;
-			}
-		}
-
-		
 
 		public PsnDataPacket(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount,
 			IDictionary<ushort, IEnumerable<PsnTrackerElement>> dataTrackers)
@@ -126,6 +105,27 @@ namespace Imp.PosiStageDotNet
 				}
 
 				return ms.ToArray();
+			}
+		}
+
+		[CanBeNull]
+		internal static PsnDataPacket Deserialize(PsnBinaryReader reader)
+		{
+			var dataPacketChunkHeader = reader.ReadChunkHeader();
+
+			ulong timestamp = reader.ReadUInt64();
+			int versionHigh = reader.ReadByte();
+			int versionLow = reader.ReadByte();
+			int frameId = reader.ReadByte();
+			int framePacketCount = reader.ReadByte();
+
+			try
+			{
+				return new PsnDataPacket(timestamp, versionHigh, versionLow, frameId, framePacketCount, null);
+			}
+			catch (ArgumentOutOfRangeException)
+			{
+				return null;
 			}
 		}
 	}

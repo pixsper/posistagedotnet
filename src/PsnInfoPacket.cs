@@ -27,11 +27,6 @@ namespace Imp.PosiStageDotNet
 	{
 		const int HeaderByteLength = 12;
 
-		internal static PsnInfoPacket Deserialize(PsnBinaryReader reader)
-		{
-			throw new NotImplementedException();
-		}
-
 		public PsnInfoPacket(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount,
 			string systemName,
 			IDictionary<ushort, string> trackerNames)
@@ -115,6 +110,11 @@ namespace Imp.PosiStageDotNet
 
 				return ms.ToArray();
 			}
+		}
+
+		internal static PsnInfoPacket Deserialize(PsnBinaryReader reader)
+		{
+			throw new NotImplementedException();
 		}
 	}
 }

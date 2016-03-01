@@ -1,8 +1,20 @@
-﻿using System;
-using System.IO;
-using System.Runtime.InteropServices;
+﻿// This file is part of PosiStageDotNet.
+// 
+// PosiStageDotNet is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// PosiStageDotNet is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Threading.Tasks;
-using Imp.PosiStageDotNet.Serialization;
 using JetBrains.Annotations;
 using Sockets.Plugin;
 
@@ -14,12 +26,12 @@ namespace Imp.PosiStageDotNet
 		public const string DefaultMulticastIp = "236.10.10.10";
 		public const int DefaultPort = 56565;
 
-		private bool _isDisposed;
-
 		private readonly UdpSocketMulticastClient _socket = new UdpSocketMulticastClient();
 		private readonly Timer _timer;
 
-		
+		private bool _isDisposed;
+
+
 		public PsnServer(int port = DefaultPort, string multicastIp = DefaultMulticastIp)
 		{
 			if (port < ushort.MinValue || port > ushort.MaxValue)
@@ -34,6 +46,9 @@ namespace Imp.PosiStageDotNet
 
 			_timer = new Timer(sendData, 0, 16);
 		}
+
+		public string MulticastIp { get; }
+		public int Port { get; }
 
 		public void Dispose()
 		{
@@ -50,12 +65,6 @@ namespace Imp.PosiStageDotNet
 			return _socket.JoinMulticastGroupAsync(MulticastIp, Port);
 		}
 
-		public string MulticastIp { get; }
-		public int Port { get; }
-
-		private void sendData()
-		{
-			
-		}
+		private void sendData() { }
 	}
 }

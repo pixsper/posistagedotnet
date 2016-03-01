@@ -25,6 +25,7 @@ namespace Imp.PosiStageDotNet
 	}
 
 
+
 	[PublicAPI]
 	public enum PsnInfoChunkId : ushort
 	{
@@ -34,11 +35,13 @@ namespace Imp.PosiStageDotNet
 	}
 
 
+
 	[PublicAPI]
 	public enum PsnInfoTrackerChunkId : ushort
 	{
 		PsnInfoTrackerName = 0x0000
 	}
+
 
 
 	[PublicAPI]
@@ -47,6 +50,7 @@ namespace Imp.PosiStageDotNet
 		PsnDataPacketHeader = 0x0000,
 		PsnDataTrackerList = 0x0001
 	}
+
 
 
 	[PublicAPI]

@@ -23,7 +23,7 @@ namespace Imp.PosiStageDotNet.Serialization
 	// Note: Based on code from MiscUtil r285 February 26th 2009 - http://www.yoda.arachsys.com/csharp/miscutil/
 
 	/// <summary>
-	///     Equivalent of <see cref="BinaryReader"/>, but with either endianness, depending on
+	///     Equivalent of <see cref="BinaryReader" />, but with either endianness, depending on
 	///     the EndianBitConverter it is constructed with. No data is buffered in the
 	///     reader; the client may seek within the stream at will.
 	/// </summary>
@@ -57,8 +57,8 @@ namespace Imp.PosiStageDotNet.Serialization
 
 
 		/// <summary>
-		///     Equivalent of <see cref="BinaryWriter"/>, but with either endianness, depending on
-		///     the <see cref="EndianBitConverter"/> it is constructed with.
+		///     Equivalent of <see cref="BinaryWriter" />, but with either endianness, depending on
+		///     the <see cref="EndianBitConverter" /> it is constructed with.
 		/// </summary>
 		/// <param name="bitConverter">Converter to use when reading data</param>
 		/// <param name="stream">Stream to read data from</param>

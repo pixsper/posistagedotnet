@@ -16,12 +16,12 @@
 using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
-
 [assembly: AssemblyTitle("Imp.PosiStageDotNet")]
 [assembly: AssemblyDescription("C# PCL for sending/receiving PosiStageNet data over Ethernet")]
 
 #if DEBUG
-	[assembly: AssemblyConfiguration("Debug")]
+
+[assembly: AssemblyConfiguration("Debug")]
 #else
 	[assembly: AssemblyConfiguration("Release")]
 #endif

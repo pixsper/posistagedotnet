@@ -23,7 +23,7 @@ namespace Imp.PosiStageDotNet.Serialization
 	// Note: Based on code from MiscUtil r285 February 26th 2009 - http://www.yoda.arachsys.com/csharp/miscutil/
 
 	/// <summary>
-	///     Equivalent of <see cref="BinaryWriter"/>, but with either endianness, depending on
+	///     Equivalent of <see cref="BinaryWriter" />, but with either endianness, depending on
 	///     the EndianBitConverter it is constructed with.
 	/// </summary>
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]

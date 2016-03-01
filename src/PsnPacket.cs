@@ -22,6 +22,8 @@ namespace Imp.PosiStageDotNet
 	[PublicAPI]
 	public abstract class PsnPacket
 	{
+		public abstract PsnPacketChunkId Id { get; }
+
 		[CanBeNull]
 		public static PsnPacket FromByteArray(byte[] data)
 		{
@@ -46,7 +48,7 @@ namespace Imp.PosiStageDotNet
 				{
 					case PsnPacketChunkId.PsnDataPacket:
 						return PsnDataPacket.Deserialize(reader);
-						
+
 					case PsnPacketChunkId.PsnInfoPacket:
 						return PsnInfoPacket.Deserialize(reader);
 
@@ -56,8 +58,6 @@ namespace Imp.PosiStageDotNet
 				}
 			}
 		}
-
-		public abstract PsnPacketChunkId Id { get; }
 
 		public abstract byte[] ToByteArray();
 	}
