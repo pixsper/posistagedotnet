@@ -25,6 +25,7 @@ namespace Imp.PosiStageDotNet.Serialization
 	///     Equivalent of <see cref="BitConverter" />, but with either endianness.
 	/// </summary>
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+	[SuppressMessage("ReSharper", "UnusedParameter.Local")]
 	internal abstract class EndianBitConverter
 	{
 		/// <summary>

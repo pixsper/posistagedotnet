@@ -15,26 +15,64 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
 	internal class PsnDataPacketChunk : PsnChunk
 	{
-		public PsnDataPacketChunk(IEnumerable<PsnChunk> subChunks = null)
-			: base(subChunks)
+		public static PsnDataPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
-			
+			var subChunks = new List<PsnChunk>();
+
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+
+				switch ((PsnDataChunkId)pair.Item1.ChunkId)
+				{
+					case PsnDataChunkId.PsnDataPacketHeader:
+						subChunks.Add(PsnDataPacketHeaderChunk.Deserialize(pair.Item1, reader));
+						break;
+					case PsnDataChunkId.PsnDataTrackerList:
+						subChunks.Add(PsnDataTrackerListChunk.Deserialize(pair.Item1, reader));
+						break;
+					default:
+						subChunks.Add(PsnUnknownChunk.Deserialize(pair.Item1, reader));
+						break;
+				}
+			}
+
+			return new PsnDataPacketChunk(subChunks);
 		}
+
+		public PsnDataPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		public PsnDataPacketChunk(params PsnChunk[] subChunks) : base(subChunks) { }
 
 		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnDataPacket;
 		public override int DataLength => 0;
 	}
 
+
+
 	internal class PsnDataPacketHeaderChunk : PsnChunk
 	{
-		public PsnDataPacketHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount, IEnumerable<PsnChunk> subChunks = null)
-			: base(subChunks)
+		public static PsnDataPacketHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			ulong timeStamp = reader.ReadUInt64();
+			int versionHigh = reader.ReadByte();
+			int versionLow = reader.ReadByte();
+			int frameId = reader.ReadByte();
+			int framePacketCount = reader.ReadByte();
+
+			return new PsnDataPacketHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
+		}
+
+		public PsnDataPacketHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
+			: base(null)
 		{
 			TimeStamp = timestamp;
 

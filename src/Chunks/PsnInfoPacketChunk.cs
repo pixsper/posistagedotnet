@@ -15,26 +15,67 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
 	internal class PsnInfoPacketChunk : PsnChunk
 	{
-		public PsnInfoPacketChunk(IEnumerable<PsnChunk> subChunks = null)
-			: base(subChunks)
+		public static PsnInfoPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
-			
+			var subChunks = new List<PsnChunk>();
+
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+
+				switch ((PsnInfoChunkId)pair.Item1.ChunkId)
+				{
+					case PsnInfoChunkId.PsnInfoPacketHeader:
+						subChunks.Add(PsnInfoPacketHeaderChunk.Deserialize(pair.Item1, reader));
+						break;
+					case PsnInfoChunkId.PsnInfoSystemName:
+						subChunks.Add(PsnInfoSystemNameChunk.Deserialize(pair.Item1, reader));
+						break;
+					case PsnInfoChunkId.PsnInfoTrackerList:
+						subChunks.Add(PsnInfoTrackerListChunk.Deserialize(pair.Item1, reader));
+						break;
+					default:
+						subChunks.Add(PsnUnknownChunk.Deserialize(pair.Item1, reader));
+						break;
+				}
+			}
+
+			return new PsnInfoPacketChunk(subChunks);
 		}
+
+		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		public PsnInfoPacketChunk(params PsnChunk[] subChunks) : base(subChunks) { }
 
 		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnInfoPacket;
 		public override int DataLength => 0;
 	}
 
+
+
 	internal class PsnInfoPacketHeaderChunk : PsnChunk
 	{
-		public PsnInfoPacketHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount, IEnumerable<PsnChunk> subChunks = null)
-			: base(subChunks)
+		public static PsnInfoPacketHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			ulong timeStamp = reader.ReadUInt64();
+			int versionHigh = reader.ReadByte();
+			int versionLow = reader.ReadByte();
+			int frameId = reader.ReadByte();
+			int framePacketCount = reader.ReadByte();
+
+			return new PsnInfoPacketHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
+		}
+
+		public PsnInfoPacketHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
+			: base(null)
 		{
 			TimeStamp = timestamp;
 

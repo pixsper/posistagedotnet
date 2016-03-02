@@ -28,6 +28,9 @@ namespace Imp.PosiStageDotNet.Serialization
 	///     reader; the client may seek within the stream at will.
 	/// </summary>
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
+	[SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
+	[SuppressMessage("ReSharper", "VirtualMemberNeverOverriden.Global")]
 	internal class EndianBinaryReader : IDisposable
 	{
 		/// <summary>
@@ -132,7 +135,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		/// </summary>
 		/// <param name="offset">Offset to seek to.</param>
 		/// <param name="origin">Origin of seek operation.</param>
-		public void Seek(int offset, SeekOrigin origin)
+		public virtual void Seek(long offset, SeekOrigin origin)
 		{
 			checkDisposed();
 			BaseStream.Seek(offset, origin);
@@ -142,7 +145,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     Reads a single byte from the stream.
 		/// </summary>
 		/// <returns>The byte read</returns>
-		public byte ReadByte()
+		public virtual byte ReadByte()
 		{
 			readInternal(_buffer, 1);
 			return _buffer[0];
@@ -152,7 +155,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     Reads a single signed byte from the stream.
 		/// </summary>
 		/// <returns>The byte read</returns>
-		public sbyte ReadSByte()
+		public virtual sbyte ReadSByte()
 		{
 			readInternal(_buffer, 1);
 			return unchecked((sbyte)_buffer[0]);
@@ -162,7 +165,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     Reads a boolean from the stream. 1 byte is read.
 		/// </summary>
 		/// <returns>The boolean read</returns>
-		public bool ReadBoolean()
+		public virtual bool ReadBoolean()
 		{
 			readInternal(_buffer, 1);
 			return BitConverter.ToBoolean(_buffer, 0);
@@ -173,7 +176,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 2 bytes are read.
 		/// </summary>
 		/// <returns>The 16-bit integer read</returns>
-		public short ReadInt16()
+		public virtual short ReadInt16()
 		{
 			readInternal(_buffer, 2);
 			return BitConverter.ToInt16(_buffer, 0);
@@ -184,7 +187,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 4 bytes are read.
 		/// </summary>
 		/// <returns>The 32-bit integer read</returns>
-		public int ReadInt32()
+		public virtual int ReadInt32()
 		{
 			readInternal(_buffer, 4);
 			return BitConverter.ToInt32(_buffer, 0);
@@ -195,7 +198,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 8 bytes are read.
 		/// </summary>
 		/// <returns>The 64-bit integer read</returns>
-		public long ReadInt64()
+		public virtual long ReadInt64()
 		{
 			readInternal(_buffer, 8);
 			return BitConverter.ToInt64(_buffer, 0);
@@ -206,7 +209,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 2 bytes are read.
 		/// </summary>
 		/// <returns>The 16-bit unsigned integer read</returns>
-		public ushort ReadUInt16()
+		public virtual ushort ReadUInt16()
 		{
 			readInternal(_buffer, 2);
 			return BitConverter.ToUInt16(_buffer, 0);
@@ -217,7 +220,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 4 bytes are read.
 		/// </summary>
 		/// <returns>The 32-bit unsigned integer read</returns>
-		public uint ReadUInt32()
+		public virtual uint ReadUInt32()
 		{
 			readInternal(_buffer, 4);
 			return BitConverter.ToUInt32(_buffer, 0);
@@ -228,7 +231,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 8 bytes are read.
 		/// </summary>
 		/// <returns>The 64-bit unsigned integer read</returns>
-		public ulong ReadUInt64()
+		public virtual ulong ReadUInt64()
 		{
 			readInternal(_buffer, 8);
 			return BitConverter.ToUInt64(_buffer, 0);
@@ -239,7 +242,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 4 bytes are read.
 		/// </summary>
 		/// <returns>The floating point value read</returns>
-		public float ReadSingle()
+		public virtual float ReadSingle()
 		{
 			readInternal(_buffer, 4);
 			return BitConverter.ToSingle(_buffer, 0);
@@ -250,7 +253,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 8 bytes are read.
 		/// </summary>
 		/// <returns>The floating point value read</returns>
-		public double ReadDouble()
+		public virtual double ReadDouble()
 		{
 			readInternal(_buffer, 8);
 			return BitConverter.ToDouble(_buffer, 0);
@@ -261,7 +264,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     for this reader. 16 bytes are read.
 		/// </summary>
 		/// <returns>The decimal value read</returns>
-		public decimal ReadDecimal()
+		public virtual decimal ReadDecimal()
 		{
 			readInternal(_buffer, 16);
 			return BitConverter.ToDecimal(_buffer, 0);
@@ -273,7 +276,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     -1 is returned.
 		/// </summary>
 		/// <returns>The character read, or -1 for end of stream.</returns>
-		public int Read()
+		public virtual int Read()
 		{
 			int charsRead = Read(_charBuffer, 0, 1);
 			if (charsRead == 0)
@@ -293,7 +296,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     The number of characters actually read. This will only be less than
 		///     the requested number of characters if the end of the stream is reached.
 		/// </returns>
-		public int Read(char[] data, int index, int count)
+		public virtual int Read(char[] data, int index, int count)
 		{
 			checkDisposed();
 
@@ -359,7 +362,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     The number of bytes actually read. This will only be less than
 		///     the requested number of bytes if the end of the stream is reached.
 		/// </returns>
-		public int Read(byte[] buffer, int index, int count)
+		public virtual int Read(byte[] buffer, int index, int count)
 		{
 			checkDisposed();
 
@@ -394,7 +397,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		/// </summary>
 		/// <param name="count">The number of bytes to read</param>
 		/// <returns>The bytes read</returns>
-		public byte[] ReadBytes(int count)
+		public virtual byte[] ReadBytes(int count)
 		{
 			checkDisposed();
 
@@ -427,7 +430,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		/// </summary>
 		/// <param name="count">The number of bytes to read</param>
 		/// <returns>The bytes read</returns>
-		public byte[] ReadBytesOrThrow(int count)
+		public virtual byte[] ReadBytesOrThrow(int count)
 		{
 			var ret = new byte[count];
 			readInternal(ret, count);
@@ -493,7 +496,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		///     the encoding for this reader.
 		/// </summary>
 		/// <returns>The string read from the stream.</returns>
-		public string ReadString()
+		public virtual string ReadString()
 		{
 			int bytesToRead = Read7BitEncodedInt();
 

@@ -1,13 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using Imp.PosiStageDotNet.Serialization;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
 	internal class PsnInfoSystemNameChunk : PsnChunk
 	{
-		public PsnInfoSystemNameChunk([NotNull] string systemName, IEnumerable<PsnChunk> subChunks = null)
-			: base(subChunks)
+		public static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			string systemName = reader.ReadString();
+
+			return new PsnInfoSystemNameChunk(systemName);
+		}
+
+		public PsnInfoSystemNameChunk([NotNull] string systemName)
+			: base(null)
 		{
 			if (systemName == null)
 				throw new ArgumentNullException(nameof(systemName));

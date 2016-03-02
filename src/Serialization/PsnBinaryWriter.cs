@@ -13,9 +13,9 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Serialization
 {
@@ -28,16 +28,9 @@ namespace Imp.PosiStageDotNet.Serialization
 		public PsnBinaryWriter(Stream stream)
 			: base(BitConverterInstance, stream, Encoding.UTF8) { }
 
-		public void WriteChunkHeader(ushort id, int dataLength, bool hasSubChunks)
+		public void Write(PsnChunkHeader chunkHeader)
 		{
-			if (dataLength > short.MaxValue)
-				throw new ArgumentOutOfRangeException(nameof(dataLength), $"Chunk cannot contain more than {short.MaxValue} bytes");
-
-			if (dataLength <= 0)
-				throw new ArgumentOutOfRangeException(nameof(dataLength), "Chunk data length must be greater than 0");
-
-			Write(id);
-			Write((ushort)(dataLength + (hasSubChunks ? 1 << 15 : 0)));
+			Write(chunkHeader.ToUInt32());
 		}
 
 		public override void Write([CanBeNull] string value)

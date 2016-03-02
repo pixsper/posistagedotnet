@@ -27,6 +27,8 @@ namespace Imp.PosiStageDotNet.Serialization
 	///     the EndianBitConverter it is constructed with.
 	/// </summary>
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
+	[SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
+	[SuppressMessage("ReSharper", "VirtualMemberNeverOverriden.Global")]
 	internal class EndianBinaryWriter : IDisposable
 	{
 		/// <summary>
@@ -128,7 +130,7 @@ namespace Imp.PosiStageDotNet.Serialization
 		/// </summary>
 		/// <param name="offset">Offset to seek to.</param>
 		/// <param name="origin">Origin of seek operation.</param>
-		public virtual void Seek(int offset, SeekOrigin origin)
+		public virtual void Seek(long offset, SeekOrigin origin)
 		{
 			checkDisposed();
 			BaseStream.Seek(offset, origin);

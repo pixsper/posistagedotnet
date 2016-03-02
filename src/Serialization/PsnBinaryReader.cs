@@ -13,7 +13,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
-using System;
 using System.IO;
 using System.Text;
 
@@ -28,12 +27,26 @@ namespace Imp.PosiStageDotNet.Serialization
 		public PsnBinaryReader(Stream stream)
 			: base(BitConverterInstance, stream, Encoding.UTF8) { }
 
-		public Tuple<ushort, int, bool> ReadChunkHeader()
+		public PsnChunkHeader ReadChunkHeader()
 		{
-			ushort chunkId = ReadUInt16();
-			ushort dataLengthAndSubChunks = ReadUInt16();
+			return PsnChunkHeader.FromUInt32(ReadUInt16());
+		}
 
-			return Tuple.Create(chunkId, dataLengthAndSubChunks & 0x7FFF, (dataLengthAndSubChunks & 0x8000) >> 15 == 1);
+		public override string ReadString()
+		{
+			var result = new StringBuilder(32);
+
+			for (int i = 0; i < BaseStream.Length; ++i)
+			{
+				char c = (char)ReadByte();
+
+				if (c == '\0')
+					break;
+
+				result.Append(c);
+			}
+
+			return result.ToString();
 		}
 	}
 }

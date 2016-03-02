@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Annotations.cs" />
+    <Compile Include="PsnChunkHeader.cs" />
     <Compile Include="PsnChunk.cs" />
     <Compile Include="PsnChunkIdEnums.cs" />
     <Compile Include="Chunks\PsnInfoSystemNameChunk.cs" />
