@@ -58,6 +58,7 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
+
 	[PublicAPI]
 	public class PsnDataPacketHeaderChunk : PsnChunk, IEquatable<PsnDataPacketHeaderChunk>
 	{
@@ -123,7 +124,8 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, other))
 				return true;
-			return base.Equals(other) && TimeStamp == other.TimeStamp && VersionHigh == other.VersionHigh && VersionLow == other.VersionLow && FrameId == other.FrameId && FramePacketCount == other.FramePacketCount;
+			return base.Equals(other) && TimeStamp == other.TimeStamp && VersionHigh == other.VersionHigh
+			       && VersionLow == other.VersionLow && FrameId == other.FrameId && FramePacketCount == other.FramePacketCount;
 		}
 
 		public override bool Equals([CanBeNull] object obj)
@@ -132,7 +134,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataPacketHeaderChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataPacketHeaderChunk)obj);
 		}
 
 		public override int GetHashCode()

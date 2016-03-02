@@ -1,4 +1,19 @@
-﻿using System;
+﻿// This file is part of PosiStageDotNet.
+// 
+// PosiStageDotNet is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// PosiStageDotNet is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using Imp.PosiStageDotNet.Serialization;
@@ -29,6 +44,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataTrackerList;
 		public override int DataLength => 0;
 	}
+
 
 
 	[PublicAPI]
@@ -109,7 +125,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataTrackerChunk)obj);
 		}
 
 		public override int GetHashCode()
@@ -119,8 +135,8 @@ namespace Imp.PosiStageDotNet.Chunks
 				return (base.GetHashCode() * 397) ^ ChunkId.GetHashCode();
 			}
 		}
-
 	}
+
 
 
 	[PublicAPI]
@@ -172,7 +188,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerPosChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataTrackerPosChunk)obj);
 		}
 
 		public override int GetHashCode()
@@ -187,6 +203,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 	}
+
 
 
 	[PublicAPI]
@@ -238,7 +255,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerSpeedChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataTrackerSpeedChunk)obj);
 		}
 
 		public override int GetHashCode()
@@ -253,6 +270,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 	}
+
 
 
 	[PublicAPI]
@@ -304,7 +322,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerOriChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataTrackerOriChunk)obj);
 		}
 
 		public override int GetHashCode()
@@ -319,6 +337,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 	}
+
 
 
 	[PublicAPI]
@@ -362,7 +381,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerStatusChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataTrackerStatusChunk)obj);
 		}
 
 		public override int GetHashCode()
@@ -373,6 +392,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 	}
+
 
 
 	[PublicAPI]
@@ -424,7 +444,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerAccelChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataTrackerAccelChunk)obj);
 		}
 
 		public override int GetHashCode()
@@ -439,6 +459,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 	}
+
 
 
 	[PublicAPI]
@@ -490,7 +511,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerTrgtPosChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataTrackerTrgtPosChunk)obj);
 		}
 
 		public override int GetHashCode()
