@@ -35,7 +35,7 @@ namespace Imp.PosiStageDotNet.Serialization
 
 		public override void Write([CanBeNull] string value)
 		{
-			base.Write(Encoding.GetBytes((value ?? string.Empty) + "\0"));
+			base.Write(Encoding.GetBytes(value ?? string.Empty));
 		}
 	}
 }

@@ -33,21 +33,9 @@ namespace Imp.PosiStageDotNet.Serialization
 			return PsnChunkHeader.FromUInt32(ReadUInt32());
 		}
 
-		public override string ReadString()
+		public string ReadString(int length)
 		{
-			var result = new StringBuilder(32);
-
-			while (true)
-			{
-				char c = Convert.ToChar(ReadByte());
-
-				if (c == 0)
-					break;
-
-				result.Append(c);
-			}
-			
-			return result.ToString();
+			return Encoding.GetString(ReadBytes(length), 0, length);
 		}
 	}
 }

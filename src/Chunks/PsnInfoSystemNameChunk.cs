@@ -9,9 +9,7 @@ namespace Imp.PosiStageDotNet.Chunks
 	{
 		internal static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
-			string systemName = reader.ReadString();
-
-			return new PsnInfoSystemNameChunk(systemName);
+			return new PsnInfoSystemNameChunk(reader.ReadString(chunkHeader.DataLength));
 		}
 
 		public PsnInfoSystemNameChunk([NotNull] string systemName)
@@ -26,7 +24,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public string SystemName { get; }
 
 		public override ushort ChunkId => (ushort)PsnInfoChunkId.PsnInfoSystemName;
-		public override int DataLength => SystemName.Length + 1;
+		public override int DataLength => SystemName.Length;
 
 		internal override void SerializeData(PsnBinaryWriter writer)
 		{

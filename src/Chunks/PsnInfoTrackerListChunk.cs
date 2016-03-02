@@ -86,8 +86,7 @@ namespace Imp.PosiStageDotNet.Chunks
 	{
 		internal static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
-			string trackerName = reader.ReadString();
-			return new PsnInfoTrackerName(trackerName);
+			return new PsnInfoTrackerName(reader.ReadString(chunkHeader.DataLength));
 		}
 
 		public PsnInfoTrackerName([NotNull] string trackerName)
@@ -102,7 +101,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public string TrackerName { get; }
 
 		public override ushort ChunkId => (ushort)PsnInfoTrackerChunkId.PsnInfoTrackerName;
-		public override int DataLength => TrackerName.Length + 1;
+		public override int DataLength => TrackerName.Length;
 
 		internal override void SerializeData(PsnBinaryWriter writer)
 		{
