@@ -16,7 +16,6 @@
 using System;
 using System.IO;
 using System.Text;
-using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Serialization
 {

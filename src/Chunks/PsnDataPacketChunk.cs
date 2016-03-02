@@ -17,7 +17,7 @@ using System;
 using System.Collections.Generic;
 using Imp.PosiStageDotNet.Serialization;
 
-namespace Imp.PosiStageDotNet
+namespace Imp.PosiStageDotNet.Chunks
 {
 	internal class PsnDataPacketChunk : PsnChunk
 	{

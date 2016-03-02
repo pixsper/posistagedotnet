@@ -15,7 +15,6 @@
 
 using System;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Sockets.Plugin;
 
 namespace Imp.PosiStageDotNet

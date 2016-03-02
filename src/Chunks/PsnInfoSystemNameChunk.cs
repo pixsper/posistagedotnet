@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using Imp.PosiStageDotNet.Serialization;
-using JetBrains.Annotations;
 
-namespace Imp.PosiStageDotNet
+namespace Imp.PosiStageDotNet.Chunks
 {
 	internal class PsnInfoSystemNameChunk : PsnChunk
 	{

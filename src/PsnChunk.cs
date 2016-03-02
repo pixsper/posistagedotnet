@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using Imp.PosiStageDotNet.Serialization;
-using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet
 {
