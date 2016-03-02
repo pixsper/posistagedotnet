@@ -31,7 +31,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 
-	internal class PsnDataTrackerChunk : PsnChunk
+	internal class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
 	{
 		public static PsnDataTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -92,11 +92,38 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId { get; }
 		public override int DataLength => 0;
+
+		public bool Equals([CanBeNull] PsnDataTrackerChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && ChunkId == other.ChunkId;
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (base.GetHashCode() * 397) ^ ChunkId.GetHashCode();
+			}
+		}
+
 	}
 
 
 
-	internal class PsnDataTrackerPosChunk : PsnChunk
+	internal class PsnDataTrackerPosChunk : PsnChunk, IEquatable<PsnDataTrackerPosChunk>
 	{
 		public static PsnDataTrackerPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -128,11 +155,41 @@ namespace Imp.PosiStageDotNet.Chunks
 			writer.Write(Y);
 			writer.Write(Z);
 		}
+
+		public bool Equals([CanBeNull] PsnDataTrackerPosChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerPosChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ X.GetHashCode();
+				hashCode = (hashCode * 397) ^ Y.GetHashCode();
+				hashCode = (hashCode * 397) ^ Z.GetHashCode();
+				return hashCode;
+			}
+		}
 	}
 
 
 
-	internal class PsnDataTrackerSpeedChunk : PsnChunk
+	internal class PsnDataTrackerSpeedChunk : PsnChunk, IEquatable<PsnDataTrackerSpeedChunk>
 	{
 		public static PsnDataTrackerSpeedChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -164,11 +221,41 @@ namespace Imp.PosiStageDotNet.Chunks
 			writer.Write(Y);
 			writer.Write(Z);
 		}
+
+		public bool Equals([CanBeNull] PsnDataTrackerSpeedChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerSpeedChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ X.GetHashCode();
+				hashCode = (hashCode * 397) ^ Y.GetHashCode();
+				hashCode = (hashCode * 397) ^ Z.GetHashCode();
+				return hashCode;
+			}
+		}
 	}
 
 
 
-	internal class PsnDataTrackerOriChunk : PsnChunk
+	internal class PsnDataTrackerOriChunk : PsnChunk, IEquatable<PsnDataTrackerOriChunk>
 	{
 		public static PsnDataTrackerOriChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -200,11 +287,41 @@ namespace Imp.PosiStageDotNet.Chunks
 			writer.Write(Y);
 			writer.Write(Z);
 		}
+
+		public bool Equals([CanBeNull] PsnDataTrackerOriChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerOriChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ X.GetHashCode();
+				hashCode = (hashCode * 397) ^ Y.GetHashCode();
+				hashCode = (hashCode * 397) ^ Z.GetHashCode();
+				return hashCode;
+			}
+		}
 	}
 
 
 
-	internal class PsnDataTrackerStatusChunk : PsnChunk
+	internal class PsnDataTrackerStatusChunk : PsnChunk, IEquatable<PsnDataTrackerStatusChunk>
 	{
 		public static PsnDataTrackerStatusChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -228,11 +345,37 @@ namespace Imp.PosiStageDotNet.Chunks
 		{
 			writer.Write(Validity);
 		}
+
+		public bool Equals([CanBeNull] PsnDataTrackerStatusChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && Validity.Equals(other.Validity);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerStatusChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (base.GetHashCode() * 397) ^ Validity.GetHashCode();
+			}
+		}
 	}
 
 
 
-	internal class PsnDataTrackerAccelChunk : PsnChunk
+	internal class PsnDataTrackerAccelChunk : PsnChunk, IEquatable<PsnDataTrackerAccelChunk>
 	{
 		public static PsnDataTrackerAccelChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -264,11 +407,41 @@ namespace Imp.PosiStageDotNet.Chunks
 			writer.Write(Y);
 			writer.Write(Z);
 		}
+
+		public bool Equals([CanBeNull] PsnDataTrackerAccelChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerAccelChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ X.GetHashCode();
+				hashCode = (hashCode * 397) ^ Y.GetHashCode();
+				hashCode = (hashCode * 397) ^ Z.GetHashCode();
+				return hashCode;
+			}
+		}
 	}
 
 
 
-	internal class PsnDataTrackerTrgtPosChunk : PsnChunk
+	internal class PsnDataTrackerTrgtPosChunk : PsnChunk, IEquatable<PsnDataTrackerTrgtPosChunk>
 	{
 		public static PsnDataTrackerTrgtPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -299,6 +472,36 @@ namespace Imp.PosiStageDotNet.Chunks
 			writer.Write(X);
 			writer.Write(Y);
 			writer.Write(Z);
+		}
+
+		public bool Equals([CanBeNull] PsnDataTrackerTrgtPosChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnDataTrackerTrgtPosChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ X.GetHashCode();
+				hashCode = (hashCode * 397) ^ Y.GetHashCode();
+				hashCode = (hashCode * 397) ^ Z.GetHashCode();
+				return hashCode;
+			}
 		}
 	}
 }

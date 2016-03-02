@@ -61,7 +61,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 
-	internal class PsnInfoPacketHeaderChunk : PsnChunk
+	internal class PsnInfoPacketHeaderChunk : PsnChunk, IEquatable<PsnInfoPacketHeaderChunk>
 	{
 		public static PsnInfoPacketHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -117,6 +117,38 @@ namespace Imp.PosiStageDotNet.Chunks
 			writer.Write((byte)VersionLow);
 			writer.Write((byte)FrameId);
 			writer.Write((byte)FramePacketCount);
+		}
+
+		public bool Equals([CanBeNull] PsnInfoPacketHeaderChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && TimeStamp == other.TimeStamp && VersionHigh == other.VersionHigh && VersionLow == other.VersionLow && FrameId == other.FrameId && FramePacketCount == other.FramePacketCount;
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnInfoPacketHeaderChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ TimeStamp.GetHashCode();
+				hashCode = (hashCode * 397) ^ VersionHigh;
+				hashCode = (hashCode * 397) ^ VersionLow;
+				hashCode = (hashCode * 397) ^ FrameId;
+				hashCode = (hashCode * 397) ^ FramePacketCount;
+				return hashCode;
+			}
 		}
 	}
 }

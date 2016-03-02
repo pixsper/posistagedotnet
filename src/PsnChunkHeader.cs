@@ -50,6 +50,11 @@ namespace Imp.PosiStageDotNet
 			}
 		}
 
+		public override string ToString()
+		{
+			return $"Chunk ID: {ChunkId}, Data length: {DataLength}, Has Sub-Chunks: {HasSubChunks}";
+		}
+
 		public static bool operator ==(PsnChunkHeader left, PsnChunkHeader right) => left.Equals(right);
 
 		public static bool operator !=(PsnChunkHeader left, PsnChunkHeader right) => !left.Equals(right);

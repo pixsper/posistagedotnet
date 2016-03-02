@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Imp.PosiStageDotNet.Chunks;
@@ -13,20 +14,28 @@ namespace Imp.PosiStageDotNet
 		[CanBeNull]
 		public static PsnChunk FromByteArray(byte[] data)
 		{
-			using (var ms = new MemoryStream(data))
-			using (var reader = new PsnBinaryReader(ms))
+			try
 			{
-				var chunkHeader = reader.ReadChunkHeader();
-
-				switch ((PsnPacketChunkId)chunkHeader.ChunkId)
+				using (var ms = new MemoryStream(data))
+				using (var reader = new PsnBinaryReader(ms))
 				{
-					case PsnPacketChunkId.PsnDataPacket:
-						return PsnDataPacketChunk.Deserialize(chunkHeader, reader);
-					case PsnPacketChunkId.PsnInfoPacket:
-						return PsnInfoPacketChunk.Deserialize(chunkHeader, reader);
-					default:
-						return PsnUnknownChunk.Deserialize(chunkHeader, reader);
+					var chunkHeader = reader.ReadChunkHeader();
+
+					switch ((PsnPacketChunkId)chunkHeader.ChunkId)
+					{
+						case PsnPacketChunkId.PsnDataPacket:
+							return PsnDataPacketChunk.Deserialize(chunkHeader, reader);
+						case PsnPacketChunkId.PsnInfoPacket:
+							return PsnInfoPacketChunk.Deserialize(chunkHeader, reader);
+						default:
+							return PsnUnknownChunk.Deserialize(chunkHeader, reader);
+					}
 				}
+			}
+			catch (EndOfStreamException)
+			{
+				// Received a bad packet
+				return null;
 			}
 		}
 
@@ -36,15 +45,13 @@ namespace Imp.PosiStageDotNet
 			var chunkHeaders = new List<Tuple<PsnChunkHeader, long>>();
 			long startPos = reader.BaseStream.Position;
 
-			while (true)
+			while (reader.BaseStream.Position - startPos < chunkDataLength)
 			{
 				var chunkHeader = reader.ReadChunkHeader();
 				chunkHeaders.Add(Tuple.Create(chunkHeader, reader.BaseStream.Position));
-
-				if (reader.BaseStream.Position - startPos >= chunkDataLength)
-					break;
-
 				reader.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+
+				Debug.Assert(reader.BaseStream.Position - startPos <= chunkDataLength);
 			}
 
 			reader.Seek(startPos, SeekOrigin.Begin);
@@ -112,11 +119,37 @@ namespace Imp.PosiStageDotNet
 		/// <param name="writer"></param>
 		protected virtual void SerializeData(PsnBinaryWriter writer) { }
 
+		protected bool Equals([CanBeNull] PsnChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return ChunkId == other.ChunkId && SubChunks.SequenceEqual(other.SubChunks);
+		}
+
+		public override bool Equals(object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (ChunkId.GetHashCode() * 397) ^ SubChunks.GetHashCode();
+			}
+		}
+
 		private void serializeChunks(PsnBinaryWriter writer, IEnumerable<PsnChunk> chunks)
 		{
 			foreach (var chunk in chunks)
 			{
-				writer.Write(ChunkHeader);
+				writer.Write(chunk.ChunkHeader);
 				chunk.SerializeData(writer);
 				serializeChunks(writer, chunk.SubChunks);
 			}
@@ -125,7 +158,7 @@ namespace Imp.PosiStageDotNet
 
 
 
-	internal class PsnUnknownChunk : PsnChunk
+	internal class PsnUnknownChunk : PsnChunk, IEquatable<PsnUnknownChunk>
 	{
 		public static PsnUnknownChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -144,5 +177,34 @@ namespace Imp.PosiStageDotNet
 
 		public override ushort ChunkId { get; }
 		public override int DataLength => 0;
+
+		public bool Equals([CanBeNull] PsnUnknownChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && Data.SequenceEqual(other.Data);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnUnknownChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ Data.GetHashCode();
+				hashCode = (hashCode * 397) ^ ChunkId.GetHashCode();
+				return hashCode;
+			}
+		}
 	}
 }

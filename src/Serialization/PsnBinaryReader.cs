@@ -13,6 +13,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
+using System;
 using System.IO;
 using System.Text;
 
@@ -29,23 +30,23 @@ namespace Imp.PosiStageDotNet.Serialization
 
 		public PsnChunkHeader ReadChunkHeader()
 		{
-			return PsnChunkHeader.FromUInt32(ReadUInt16());
+			return PsnChunkHeader.FromUInt32(ReadUInt32());
 		}
 
 		public override string ReadString()
 		{
 			var result = new StringBuilder(32);
 
-			for (int i = 0; i < BaseStream.Length; ++i)
+			while (true)
 			{
-				char c = (char)ReadByte();
+				char c = Convert.ToChar(ReadByte());
 
-				if (c == '\0')
+				if (c == 0)
 					break;
 
 				result.Append(c);
 			}
-
+			
 			return result.ToString();
 		}
 	}

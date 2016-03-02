@@ -81,7 +81,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 
-	internal class PsnInfoTrackerName : PsnChunk
+	internal class PsnInfoTrackerName : PsnChunk, IEquatable<PsnInfoTrackerName>
 	{
 		public static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -101,11 +101,37 @@ namespace Imp.PosiStageDotNet.Chunks
 		public string TrackerName { get; }
 
 		public override ushort ChunkId => (ushort)PsnInfoTrackerChunkId.PsnInfoTrackerName;
-		public override int DataLength => TrackerName.Length;
+		public override int DataLength => TrackerName.Length + 1;
 
 		protected override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(TrackerName);
+		}
+
+		public bool Equals([CanBeNull] PsnInfoTrackerName other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && string.Equals(TrackerName, other.TrackerName);
+		}
+
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == this.GetType() && Equals((PsnInfoTrackerName)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (base.GetHashCode() * 397) ^ TrackerName.GetHashCode();
+			}
 		}
 	}
 }
