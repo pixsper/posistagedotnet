@@ -4,9 +4,10 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
-	internal class PsnInfoSystemNameChunk : PsnChunk, IEquatable<PsnInfoSystemNameChunk>
+	[PublicAPI]
+	public class PsnInfoSystemNameChunk : PsnChunk, IEquatable<PsnInfoSystemNameChunk>
 	{
-		public static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			string systemName = reader.ReadString();
 
@@ -27,7 +28,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnInfoChunkId.PsnInfoSystemName;
 		public override int DataLength => SystemName.Length + 1;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(SystemName);
 		}

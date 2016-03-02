@@ -6,9 +6,10 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
-	internal class PsnInfoTrackerListChunk : PsnChunk
+	[PublicAPI]
+	public class PsnInfoTrackerListChunk : PsnChunk
 	{
-		public static PsnInfoTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnInfoTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			var subChunks = new List<PsnChunk>();
 
@@ -30,10 +31,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnInfoTrackerChunk : PsnChunk
+	[PublicAPI]
+	public class PsnInfoTrackerChunk : PsnChunk
 	{
-		public static PsnInfoTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnInfoTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			var subChunks = new List<PsnChunk>();
 
@@ -80,10 +81,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnInfoTrackerName : PsnChunk, IEquatable<PsnInfoTrackerName>
+	[PublicAPI]
+	public class PsnInfoTrackerName : PsnChunk, IEquatable<PsnInfoTrackerName>
 	{
-		public static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			string trackerName = reader.ReadString();
 			return new PsnInfoTrackerName(trackerName);
@@ -103,7 +104,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnInfoTrackerChunkId.PsnInfoTrackerName;
 		public override int DataLength => TrackerName.Length + 1;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(TrackerName);
 		}

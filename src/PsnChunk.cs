@@ -9,7 +9,8 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet
 {
-	internal abstract class PsnChunk
+	[PublicAPI]
+	public abstract class PsnChunk
 	{
 		[CanBeNull]
 		public static PsnChunk FromByteArray(byte[] data)
@@ -39,7 +40,7 @@ namespace Imp.PosiStageDotNet
 			}
 		}
 
-		protected static IEnumerable<Tuple<PsnChunkHeader, long>> FindSubChunkHeaders(PsnBinaryReader reader,
+		internal static IEnumerable<Tuple<PsnChunkHeader, long>> FindSubChunkHeaders(PsnBinaryReader reader,
 			int chunkDataLength)
 		{
 			var chunkHeaders = new List<Tuple<PsnChunkHeader, long>>();
@@ -117,7 +118,7 @@ namespace Imp.PosiStageDotNet
 		///     Serializes any data contained within this chunk, or nothing if the chunk contains no data
 		/// </summary>
 		/// <param name="writer"></param>
-		protected virtual void SerializeData(PsnBinaryWriter writer) { }
+		internal virtual void SerializeData(PsnBinaryWriter writer) { }
 
 		protected bool Equals([CanBeNull] PsnChunk other)
 		{

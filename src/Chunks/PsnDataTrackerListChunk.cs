@@ -6,9 +6,10 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
-	internal class PsnDataTrackerListChunk : PsnChunk
+	[PublicAPI]
+	public class PsnDataTrackerListChunk : PsnChunk
 	{
-		public static PsnDataTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			var subChunks = new List<PsnChunk>();
 
@@ -30,10 +31,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
+	[PublicAPI]
+	public class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
 	{
-		public static PsnDataTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			var subChunks = new List<PsnChunk>();
 
@@ -122,10 +123,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataTrackerPosChunk : PsnChunk, IEquatable<PsnDataTrackerPosChunk>
+	[PublicAPI]
+	public class PsnDataTrackerPosChunk : PsnChunk, IEquatable<PsnDataTrackerPosChunk>
 	{
-		public static PsnDataTrackerPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			float x = reader.ReadSingle();
 			float y = reader.ReadSingle();
@@ -149,7 +150,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerPos;
 		public override int DataLength => 12;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(X);
 			writer.Write(Y);
@@ -188,10 +189,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataTrackerSpeedChunk : PsnChunk, IEquatable<PsnDataTrackerSpeedChunk>
+	[PublicAPI]
+	public class PsnDataTrackerSpeedChunk : PsnChunk, IEquatable<PsnDataTrackerSpeedChunk>
 	{
-		public static PsnDataTrackerSpeedChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerSpeedChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			float x = reader.ReadSingle();
 			float y = reader.ReadSingle();
@@ -215,7 +216,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerSpeed;
 		public override int DataLength => 12;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(X);
 			writer.Write(Y);
@@ -254,10 +255,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataTrackerOriChunk : PsnChunk, IEquatable<PsnDataTrackerOriChunk>
+	[PublicAPI]
+	public class PsnDataTrackerOriChunk : PsnChunk, IEquatable<PsnDataTrackerOriChunk>
 	{
-		public static PsnDataTrackerOriChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerOriChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			float x = reader.ReadSingle();
 			float y = reader.ReadSingle();
@@ -281,7 +282,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerOri;
 		public override int DataLength => 12;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(X);
 			writer.Write(Y);
@@ -320,10 +321,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataTrackerStatusChunk : PsnChunk, IEquatable<PsnDataTrackerStatusChunk>
+	[PublicAPI]
+	public class PsnDataTrackerStatusChunk : PsnChunk, IEquatable<PsnDataTrackerStatusChunk>
 	{
-		public static PsnDataTrackerStatusChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerStatusChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			float validity = reader.ReadSingle();
 
@@ -341,7 +342,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerStatus;
 		public override int DataLength => 4;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(Validity);
 		}
@@ -374,10 +375,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataTrackerAccelChunk : PsnChunk, IEquatable<PsnDataTrackerAccelChunk>
+	[PublicAPI]
+	public class PsnDataTrackerAccelChunk : PsnChunk, IEquatable<PsnDataTrackerAccelChunk>
 	{
-		public static PsnDataTrackerAccelChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerAccelChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			float x = reader.ReadSingle();
 			float y = reader.ReadSingle();
@@ -401,7 +402,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerAccel;
 		public override int DataLength => 12;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(X);
 			writer.Write(Y);
@@ -440,10 +441,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataTrackerTrgtPosChunk : PsnChunk, IEquatable<PsnDataTrackerTrgtPosChunk>
+	[PublicAPI]
+	public class PsnDataTrackerTrgtPosChunk : PsnChunk, IEquatable<PsnDataTrackerTrgtPosChunk>
 	{
-		public static PsnDataTrackerTrgtPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataTrackerTrgtPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			float x = reader.ReadSingle();
 			float y = reader.ReadSingle();
@@ -467,7 +468,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerTrgtPos;
 		public override int DataLength => 12;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(X);
 			writer.Write(Y);

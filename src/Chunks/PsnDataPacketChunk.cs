@@ -21,9 +21,10 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
-	internal class PsnDataPacketChunk : PsnChunk
+	[PublicAPI]
+	public class PsnDataPacketChunk : PsnChunk
 	{
-		public static PsnDataPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			var subChunks = new List<PsnChunk>();
 
@@ -57,10 +58,10 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
-	internal class PsnDataPacketHeaderChunk : PsnChunk, IEquatable<PsnDataPacketHeaderChunk>
+	[PublicAPI]
+	public class PsnDataPacketHeaderChunk : PsnChunk, IEquatable<PsnDataPacketHeaderChunk>
 	{
-		public static PsnDataPacketHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataPacketHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			ulong timeStamp = reader.ReadUInt64();
 			int versionHigh = reader.ReadByte();
@@ -107,7 +108,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataPacketHeader;
 		public override int DataLength => 12;
 
-		protected override void SerializeData(PsnBinaryWriter writer)
+		internal override void SerializeData(PsnBinaryWriter writer)
 		{
 			writer.Write(TimeStamp);
 			writer.Write((byte)VersionHigh);
