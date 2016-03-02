@@ -16,6 +16,7 @@
 using System;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Serialization
 {
@@ -38,6 +39,11 @@ namespace Imp.PosiStageDotNet.Serialization
 
 			Write(id);
 			Write((ushort)(dataLength + (hasSubChunks ? 1 << 15 : 0)));
+		}
+
+		public override void Write([CanBeNull] string value)
+		{
+			base.Write(value ?? string.Empty + "\0");
 		}
 	}
 }

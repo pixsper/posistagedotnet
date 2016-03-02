@@ -22,7 +22,7 @@ namespace Imp.PosiStageDotNet.Serialization
 	// Note: Based on code from MiscUtil r285 February 26th 2009 - http://www.yoda.arachsys.com/csharp/miscutil/
 
 	/// <summary>
-	///     Equivalent of <see cref="BitConverter"/>, but with either endianness.
+	///     Equivalent of <see cref="BitConverter" />, but with either endianness.
 	/// </summary>
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	internal abstract class EndianBitConverter
