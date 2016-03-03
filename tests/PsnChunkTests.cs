@@ -12,7 +12,7 @@ namespace Imp.PosiStageDotNet.Tests
 		{
 			var infoPacket1 = 
 				new PsnInfoPacketChunk(
-					new PsnInfoPacketHeaderChunk(1500, 2, 1, 34, 1),
+					new PsnInfoHeaderChunk(1500, 2, 1, 34, 1),
 					new PsnInfoSystemNameChunk("Test System"),
 					new PsnInfoTrackerListChunk(
 						new PsnInfoTrackerChunk(0,
@@ -28,7 +28,7 @@ namespace Imp.PosiStageDotNet.Tests
 
 			var dataPacket1 =
 				new PsnDataPacketChunk(
-					new PsnDataPacketHeaderChunk(1500, 2, 1, 34, 1),
+					new PsnDataHeaderChunk(1500, 2, 1, 34, 1),
 					new PsnDataTrackerListChunk(
 						new PsnDataTrackerChunk(0,
 							new PsnDataTrackerPosChunk(0.45f, 7.56f, 2343.43f),

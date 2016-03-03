@@ -20,7 +20,7 @@ using JetBrains.Annotations;
 namespace Imp.PosiStageDotNet.Chunks
 {
 	[PublicAPI]
-	public class PsnInfoSystemNameChunk : PsnChunk, IEquatable<PsnInfoSystemNameChunk>
+	public sealed class PsnInfoSystemNameChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoSystemNameChunk>
 	{
 		internal static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{

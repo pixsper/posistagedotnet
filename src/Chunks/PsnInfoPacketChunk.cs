@@ -22,7 +22,7 @@ using JetBrains.Annotations;
 namespace Imp.PosiStageDotNet.Chunks
 {
 	[PublicAPI]
-	public class PsnInfoPacketChunk : PsnChunk
+	public sealed class PsnInfoPacketChunk : PsnChunk
 	{
 		internal static PsnInfoPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -52,18 +52,27 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnInfoPacketChunk(subChunks);
 		}
 
-		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnInfoPacketSubChunk> subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
-		public PsnInfoPacketChunk(params PsnChunk[] subChunks) : base(subChunks) { }
+		public PsnInfoPacketChunk(params PsnInfoPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+
+		private PsnInfoPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
 		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnInfoPacket;
 		public override int DataLength => 0;
 	}
 
 
+	[PublicAPI]
+	public abstract class PsnInfoPacketSubChunk : PsnChunk
+	{
+		protected PsnInfoPacketSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+	}
+
+
 
 	[PublicAPI]
-	public class PsnInfoPacketHeaderChunk : PsnChunk, IEquatable<PsnInfoPacketHeaderChunk>
+	public sealed class PsnInfoPacketHeaderChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoPacketHeaderChunk>
 	{
 		internal static PsnInfoPacketHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{

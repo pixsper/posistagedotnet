@@ -22,11 +22,11 @@ using JetBrains.Annotations;
 namespace Imp.PosiStageDotNet.Chunks
 {
 	[PublicAPI]
-	public class PsnDataTrackerListChunk : PsnChunk
+	public sealed class PsnDataTrackerListChunk : PsnDataPacketSubChunk
 	{
 		internal static PsnDataTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
-			var subChunks = new List<PsnChunk>();
+			var subChunks = new List<PsnDataTrackerChunk>();
 
 			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
 			{
@@ -37,9 +37,11 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnDataTrackerListChunk(subChunks);
 		}
 
-		public PsnDataTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+		public PsnDataTrackerListChunk([NotNull] IEnumerable<PsnDataTrackerChunk> subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
-		public PsnDataTrackerListChunk(params PsnChunk[] subChunks) : base(subChunks) { }
+		public PsnDataTrackerListChunk(params PsnDataTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+
+		private PsnDataTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
 		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataTrackerList;
 		public override int DataLength => 0;
@@ -47,8 +49,12 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 
+	
+
+
+
 	[PublicAPI]
-	public class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
+	public sealed class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
 	{
 		internal static PsnDataTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -87,17 +93,19 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnDataTrackerChunk(chunkHeader.ChunkId, subChunks);
 		}
 
-		public PsnDataTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
-			: base(subChunks)
+		public PsnDataTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnDataTrackerSubChunk> subChunks)
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
 		{
-			if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
-				throw new ArgumentOutOfRangeException(nameof(trackerId), trackerId,
-					$"trackerId must be in the range {ushort.MinValue}-{ushort.MaxValue}");
-
-			ChunkId = (ushort)trackerId;
+			
 		}
 
-		public PsnDataTrackerChunk(int trackerId, params PsnChunk[] subChunks)
+		public PsnDataTrackerChunk(int trackerId, params PsnDataTrackerSubChunk[] subChunks)
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
+		{
+			
+		}
+
+		private PsnDataTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
 			: base(subChunks)
 		{
 			if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
@@ -138,9 +146,16 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
+	[PublicAPI]
+	public abstract class PsnDataTrackerSubChunk : PsnChunk
+	{
+		protected PsnDataTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+	}
+
+
 
 	[PublicAPI]
-	public class PsnDataTrackerPosChunk : PsnChunk, IEquatable<PsnDataTrackerPosChunk>
+	public sealed class PsnDataTrackerPosChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerPosChunk>
 	{
 		internal static PsnDataTrackerPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -207,7 +222,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 	[PublicAPI]
-	public class PsnDataTrackerSpeedChunk : PsnChunk, IEquatable<PsnDataTrackerSpeedChunk>
+	public sealed class PsnDataTrackerSpeedChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerSpeedChunk>
 	{
 		internal static PsnDataTrackerSpeedChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -274,7 +289,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 	[PublicAPI]
-	public class PsnDataTrackerOriChunk : PsnChunk, IEquatable<PsnDataTrackerOriChunk>
+	public sealed class PsnDataTrackerOriChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerOriChunk>
 	{
 		internal static PsnDataTrackerOriChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -341,7 +356,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 	[PublicAPI]
-	public class PsnDataTrackerStatusChunk : PsnChunk, IEquatable<PsnDataTrackerStatusChunk>
+	public sealed class PsnDataTrackerStatusChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerStatusChunk>
 	{
 		internal static PsnDataTrackerStatusChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -396,7 +411,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 	[PublicAPI]
-	public class PsnDataTrackerAccelChunk : PsnChunk, IEquatable<PsnDataTrackerAccelChunk>
+	public sealed class PsnDataTrackerAccelChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerAccelChunk>
 	{
 		internal static PsnDataTrackerAccelChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -463,7 +478,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 	[PublicAPI]
-	public class PsnDataTrackerTrgtPosChunk : PsnChunk, IEquatable<PsnDataTrackerTrgtPosChunk>
+	public sealed class PsnDataTrackerTrgtPosChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerTrgtPosChunk>
 	{
 		internal static PsnDataTrackerTrgtPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{

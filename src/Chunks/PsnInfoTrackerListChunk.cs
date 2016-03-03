@@ -22,7 +22,7 @@ using JetBrains.Annotations;
 namespace Imp.PosiStageDotNet.Chunks
 {
 	[PublicAPI]
-	public class PsnInfoTrackerListChunk : PsnChunk
+	public sealed class PsnInfoTrackerListChunk : PsnInfoPacketSubChunk
 	{
 		internal static PsnInfoTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
@@ -37,9 +37,11 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnInfoTrackerListChunk(subChunks);
 		}
 
-		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnInfoTrackerChunk> subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
-		public PsnInfoTrackerListChunk(params PsnChunk[] subChunks) : base(subChunks) { }
+		public PsnInfoTrackerListChunk(params PsnInfoTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+
+		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
 		public override ushort ChunkId => (ushort)PsnInfoChunkId.PsnInfoTrackerList;
 		public override int DataLength => 0;
@@ -72,17 +74,19 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnInfoTrackerChunk(chunkHeader.ChunkId, subChunks);
 		}
 
-		public PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
-			: base(subChunks)
+		public PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnInfoTrackerSubChunk> subChunks)
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
 		{
-			if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
-				throw new ArgumentOutOfRangeException(nameof(trackerId), trackerId,
-					$"trackerId must be in the range {ushort.MinValue}-{ushort.MaxValue}");
-
-			ChunkId = (ushort)trackerId;
+			
 		}
 
-		public PsnInfoTrackerChunk(int trackerId, params PsnChunk[] subChunks)
+		public PsnInfoTrackerChunk(int trackerId, params PsnInfoTrackerSubChunk[] subChunks)
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
+		{
+			
+		}
+
+		private PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
 			: base(subChunks)
 		{
 			if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
@@ -97,9 +101,16 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
+	[PublicAPI]
+	public abstract class PsnInfoTrackerSubChunk : PsnChunk
+	{
+		protected PsnInfoTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+	}
+
+
 
 	[PublicAPI]
-	public class PsnInfoTrackerName : PsnChunk, IEquatable<PsnInfoTrackerName>
+	public class PsnInfoTrackerName : PsnInfoTrackerSubChunk, IEquatable<PsnInfoTrackerName>
 	{
 		internal static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
