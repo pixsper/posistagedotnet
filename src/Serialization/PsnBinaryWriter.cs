@@ -21,8 +21,6 @@ namespace Imp.PosiStageDotNet.Serialization
 {
 	internal class PsnBinaryWriter : EndianBinaryWriter
 	{
-		public const int ChunkHeaderByteLength = 4;
-
 		private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
 
 		public PsnBinaryWriter(Stream stream)

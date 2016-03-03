@@ -37,13 +37,14 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnInfoTrackerListChunk(subChunks);
 		}
 
-		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnInfoTrackerChunk> subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnInfoTrackerChunk> subChunks)
+			: this((IEnumerable<PsnChunk>)subChunks) { }
 
 		public PsnInfoTrackerListChunk(params PsnInfoTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
 		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-		public override ushort ChunkId => (ushort)PsnInfoChunkId.PsnInfoTrackerList;
+		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoTrackerList;
 		public override int DataLength => 0;
 	}
 
@@ -75,16 +76,10 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		public PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnInfoTrackerSubChunk> subChunks)
-			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
-		{
-			
-		}
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
 
 		public PsnInfoTrackerChunk(int trackerId, params PsnInfoTrackerSubChunk[] subChunks)
-			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
-		{
-			
-		}
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
 
 		private PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
 			: base(subChunks)
@@ -99,6 +94,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId { get; }
 		public override int DataLength => 0;
 	}
+
 
 
 	[PublicAPI]

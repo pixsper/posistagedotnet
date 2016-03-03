@@ -35,7 +35,8 @@ namespace Imp.PosiStageDotNet
 		public PsnServer(int port = DefaultPort, string multicastIp = DefaultMulticastIp)
 		{
 			if (port < ushort.MinValue || port > ushort.MaxValue)
-				throw new ArgumentOutOfRangeException(nameof(port), port, $"port must be in range {ushort.MinValue}-{ushort.MaxValue}");
+				throw new ArgumentOutOfRangeException(nameof(port), port,
+					$"port must be in range {ushort.MinValue}-{ushort.MaxValue}");
 
 			Port = port;
 

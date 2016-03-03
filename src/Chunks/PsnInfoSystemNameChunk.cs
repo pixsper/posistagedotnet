@@ -38,7 +38,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public string SystemName { get; }
 
-		public override ushort ChunkId => (ushort)PsnInfoChunkId.PsnInfoSystemName;
+		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoSystemName;
 		public override int DataLength => SystemName.Length;
 
 		internal override void SerializeData(PsnBinaryWriter writer)

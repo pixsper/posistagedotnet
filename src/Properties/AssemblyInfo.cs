@@ -23,7 +23,8 @@ using System.Runtime.CompilerServices;
 
 [assembly: AssemblyConfiguration("Debug")]
 #else
-	[assembly: AssemblyConfiguration("Release")]
+
+[assembly: AssemblyConfiguration("Release")]
 #endif
 
 [assembly: AssemblyCompany("The Impersonal Stereo")]

@@ -16,12 +16,16 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Imp.PosiStageDotNet.Chunks;
 using JetBrains.Annotations;
 using Sockets.Plugin;
 using Sockets.Plugin.Abstractions;
 
 namespace Imp.PosiStageDotNet
 {
+	/// <summary>
+	/// Client for receiving PosiStageNet UDP packets
+	/// </summary>
 	[PublicAPI]
 	public class PsnClient : IDisposable
 	{
@@ -30,6 +34,20 @@ namespace Imp.PosiStageDotNet
 
 		private readonly UdpSocketMulticastClient _udpClient = new UdpSocketMulticastClient();
 
+		/// <summary>
+		/// Constructs with the PosiStageNet default multicast IP and port number
+		/// </summary>
+		public PsnClient()
+		{
+			ListenMulticastIp = DefaultMulticastIp;
+			ListenPort = DefaultPort;
+		}
+
+		/// <summary>
+		/// Constructs with a custom multicast IP and port number
+		/// </summary>
+		/// <param name="customMulticastIp"></param>
+		/// <param name="customPort"></param>
 		public PsnClient(string customMulticastIp, int customPort)
 		{
 			if (string.IsNullOrWhiteSpace(customMulticastIp))
@@ -44,20 +62,42 @@ namespace Imp.PosiStageDotNet
 			ListenPort = customPort;
 		}
 
-		public PsnClient()
-		{
-			ListenMulticastIp = DefaultMulticastIp;
-			ListenPort = DefaultPort;
-		}
+		
+		/// <summary>
+		/// Called when a PosiStageNet info packet is received
+		/// </summary>
+		public event EventHandler<PsnInfoPacketReceived> InfoPacketReceived;
 
-		public event EventHandler<PsnChunk> PacketReceived;
+		/// <summary>
+		/// called when a PosiStageNet data packet is received
+		/// </summary>
+		public event EventHandler<PsnDataPacketReceived> DataPacketReceived;
 
+		/// <summary>
+		/// The multicast IP address the client is listening for packets on
+		/// </summary>
 		public string ListenMulticastIp { get; }
+
+		/// <summary>
+		/// The UDP port the client is listening for packets on
+		/// </summary>
 		public int ListenPort { get; }
 
+		/// <summary>
+		/// The IP address of the network adapter in use by the client, or null if no adapter is set
+		/// </summary>
+		[CanBeNull]
 		public string AdapterIp { get; private set; }
+
+		/// <summary>
+		/// The current state of the client
+		/// </summary>
 		public bool IsListening { get; private set; }
 
+		/// <summary>
+		/// Joins the client to the multicast IP and starts listening for PosiStageNet packets
+		/// </summary>
+		/// <param name="adapterIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
 		public async Task StartListeningAsync(string adapterIp = null)
 		{
 			if (adapterIp != null)
@@ -82,6 +122,18 @@ namespace Imp.PosiStageDotNet
 			_udpClient.MessageReceived += messageReceived;
 		}
 
+		public async Task StopListeningAsync()
+		{
+			if (!IsListening)
+				throw new InvalidOperationException("Cannot stop listening, client is not currently listening");
+
+			_udpClient.MessageReceived -= messageReceived;
+			await _udpClient.DisconnectAsync().ConfigureAwait(false);
+
+			IsListening = false;
+			AdapterIp = null;
+		}
+
 		public void Dispose()
 		{
 			_udpClient.Dispose();
@@ -89,7 +141,53 @@ namespace Imp.PosiStageDotNet
 
 		private void messageReceived(object sender, UdpSocketMessageReceivedEventArgs args)
 		{
-			PacketReceived?.Invoke(this, PsnChunk.FromByteArray(args.ByteData));
+			var chunk = PsnChunk.FromByteArray(args.ByteData);
+
+			if (chunk == null)
+				return;
+
+			switch ((PsnPacketChunkId)chunk.ChunkId)
+			{
+				case PsnPacketChunkId.PsnInfoPacket:
+					InfoPacketReceived?.Invoke(this, new PsnInfoPacketReceived((PsnInfoPacketChunk)chunk, args.RemoteAddress, args.RemotePort));
+					break;
+				case PsnPacketChunkId.PsnDataPacket:
+					DataPacketReceived?.Invoke(this, new PsnDataPacketReceived((PsnDataPacketChunk)chunk, args.RemoteAddress, args.RemotePort));
+					break;
+			}
+		}
+
+
+		public class PsnInfoPacketReceived : EventArgs
+		{
+			internal PsnInfoPacketReceived(PsnInfoPacketChunk packet, string remoteAddress, string remotePort)
+			{
+				Packet = packet;
+				RemoteAddress = remoteAddress;
+				RemotePort = remotePort;
+			}
+
+			public PsnInfoPacketChunk Packet { get; }
+			public string RemoteAddress { get; }
+			public string RemotePort { get; }
+
+			public override string ToString() => $"PsnInfoPacketReceived: RemoteAddress {RemoteAddress}, RemotePort {RemotePort}";
+		}
+
+		public class PsnDataPacketReceived : EventArgs
+		{
+			internal PsnDataPacketReceived(PsnDataPacketChunk packet, string remoteAddress, string remotePort)
+			{
+				Packet = packet;
+				RemoteAddress = remoteAddress;
+				RemotePort = remotePort;
+			}
+
+			public PsnDataPacketChunk Packet { get; }
+			public string RemoteAddress { get; }
+			public string RemotePort { get; }
+
+			public override string ToString() => $"PsnDataPacketReceived: RemoteAddress {RemoteAddress}, RemotePort {RemotePort}";
 		}
 	}
 }

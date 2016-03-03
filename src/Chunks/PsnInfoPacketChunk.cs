@@ -32,15 +32,15 @@ namespace Imp.PosiStageDotNet.Chunks
 			{
 				reader.Seek(pair.Item2, SeekOrigin.Begin);
 
-				switch ((PsnInfoChunkId)pair.Item1.ChunkId)
+				switch ((PsnInfoPacketChunkId)pair.Item1.ChunkId)
 				{
-					case PsnInfoChunkId.PsnInfoPacketHeader:
+					case PsnInfoPacketChunkId.PsnInfoHeader:
 						subChunks.Add(PsnInfoHeaderChunk.Deserialize(pair.Item1, reader));
 						break;
-					case PsnInfoChunkId.PsnInfoSystemName:
+					case PsnInfoPacketChunkId.PsnInfoSystemName:
 						subChunks.Add(PsnInfoSystemNameChunk.Deserialize(pair.Item1, reader));
 						break;
-					case PsnInfoChunkId.PsnInfoTrackerList:
+					case PsnInfoPacketChunkId.PsnInfoTrackerList:
 						subChunks.Add(PsnInfoTrackerListChunk.Deserialize(pair.Item1, reader));
 						break;
 					default:
@@ -52,7 +52,8 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnInfoPacketChunk(subChunks);
 		}
 
-		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnInfoPacketSubChunk> subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnInfoPacketSubChunk> subChunks)
+			: this((IEnumerable<PsnChunk>)subChunks) { }
 
 		public PsnInfoPacketChunk(params PsnInfoPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
@@ -61,6 +62,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnInfoPacket;
 		public override int DataLength => 0;
 	}
+
 
 
 	[PublicAPI]
@@ -118,7 +120,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public int FrameId { get; }
 		public int FramePacketCount { get; }
 
-		public override ushort ChunkId => (ushort)PsnInfoChunkId.PsnInfoPacketHeader;
+		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoHeader;
 		public override int DataLength => 12;
 
 		internal override void SerializeData(PsnBinaryWriter writer)

@@ -34,7 +34,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 				switch ((PsnDataChunkId)pair.Item1.ChunkId)
 				{
-					case PsnDataChunkId.PsnDataPacketHeader:
+					case PsnDataChunkId.PsnDataHeader:
 						subChunks.Add(PsnDataHeaderChunk.Deserialize(pair.Item1, reader));
 						break;
 					case PsnDataChunkId.PsnDataTrackerList:
@@ -49,7 +49,8 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new PsnDataPacketChunk(subChunks);
 		}
 
-		public PsnDataPacketChunk([NotNull] IEnumerable<PsnDataPacketSubChunk> subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+		public PsnDataPacketChunk([NotNull] IEnumerable<PsnDataPacketSubChunk> subChunks)
+			: this((IEnumerable<PsnChunk>)subChunks) { }
 
 		public PsnDataPacketChunk(params PsnDataPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
@@ -116,7 +117,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public int FrameId { get; }
 		public int FramePacketCount { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataPacketHeader;
+		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataHeader;
 		public override int DataLength => 12;
 
 		internal override void SerializeData(PsnBinaryWriter writer)
