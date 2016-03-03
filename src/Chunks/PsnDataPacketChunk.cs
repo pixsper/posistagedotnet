@@ -35,7 +35,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				switch ((PsnDataChunkId)pair.Item1.ChunkId)
 				{
 					case PsnDataChunkId.PsnDataPacketHeader:
-						subChunks.Add(PsnDataPacketHeaderChunk.Deserialize(pair.Item1, reader));
+						subChunks.Add(PsnDataHeaderChunk.Deserialize(pair.Item1, reader));
 						break;
 					case PsnDataChunkId.PsnDataTrackerList:
 						subChunks.Add(PsnDataTrackerListChunk.Deserialize(pair.Item1, reader));
@@ -70,9 +70,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 	[PublicAPI]
-	public sealed class PsnDataPacketHeaderChunk : PsnDataPacketSubChunk, IEquatable<PsnDataPacketHeaderChunk>
+	public sealed class PsnDataHeaderChunk : PsnDataPacketSubChunk, IEquatable<PsnDataHeaderChunk>
 	{
-		internal static PsnDataPacketHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnDataHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			ulong timeStamp = reader.ReadUInt64();
 			int versionHigh = reader.ReadByte();
@@ -80,10 +80,10 @@ namespace Imp.PosiStageDotNet.Chunks
 			int frameId = reader.ReadByte();
 			int framePacketCount = reader.ReadByte();
 
-			return new PsnDataPacketHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
+			return new PsnDataHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
 		}
 
-		public PsnDataPacketHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
+		public PsnDataHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
 			: base(null)
 		{
 			TimeStamp = timestamp;
@@ -128,7 +128,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			writer.Write((byte)FramePacketCount);
 		}
 
-		public bool Equals([CanBeNull] PsnDataPacketHeaderChunk other)
+		public bool Equals([CanBeNull] PsnDataHeaderChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -144,7 +144,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == GetType() && Equals((PsnDataPacketHeaderChunk)obj);
+			return obj.GetType() == GetType() && Equals((PsnDataHeaderChunk)obj);
 		}
 
 		public override int GetHashCode()
