@@ -26,19 +26,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerListChunk : PsnDataPacketSubChunk
 	{
-		internal static PsnDataTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			var subChunks = new List<PsnDataTrackerChunk>();
-
-			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
-			{
-				reader.Seek(pair.Item2, SeekOrigin.Begin);
-				subChunks.Add(PsnDataTrackerChunk.Deserialize(pair.Item1, reader));
-			}
-
-			return new PsnDataTrackerListChunk(subChunks);
-		}
-
 		public PsnDataTrackerListChunk([NotNull] IEnumerable<PsnDataTrackerChunk> subChunks)
 			: this((IEnumerable<PsnChunk>)subChunks) { }
 
@@ -54,6 +41,19 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new XElement(nameof(PsnDataTrackerListChunk),
 				SubChunks.Select(c => c.ToXml()));
 		}
+
+		internal static PsnDataTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			var subChunks = new List<PsnDataTrackerChunk>();
+
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+				subChunks.Add(PsnDataTrackerChunk.Deserialize(pair.Item1, reader));
+			}
+
+			return new PsnDataTrackerListChunk(subChunks);
+		}
 	}
 
 
@@ -61,43 +61,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
 	{
-		internal static PsnDataTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			var subChunks = new List<PsnChunk>();
-
-			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
-			{
-				reader.Seek(pair.Item2, SeekOrigin.Begin);
-
-				switch ((PsnDataTrackerChunkId)pair.Item1.ChunkId)
-				{
-					case PsnDataTrackerChunkId.PsnDataTrackerPos:
-						subChunks.Add(PsnDataTrackerPosChunk.Deserialize(chunkHeader, reader));
-						break;
-					case PsnDataTrackerChunkId.PsnDataTrackerSpeed:
-						subChunks.Add(PsnDataTrackerSpeedChunk.Deserialize(chunkHeader, reader));
-						break;
-					case PsnDataTrackerChunkId.PsnDataTrackerOri:
-						subChunks.Add(PsnDataTrackerOriChunk.Deserialize(chunkHeader, reader));
-						break;
-					case PsnDataTrackerChunkId.PsnDataTrackerStatus:
-						subChunks.Add(PsnDataTrackerStatusChunk.Deserialize(chunkHeader, reader));
-						break;
-					case PsnDataTrackerChunkId.PsnDataTrackerAccel:
-						subChunks.Add(PsnDataTrackerAccelChunk.Deserialize(chunkHeader, reader));
-						break;
-					case PsnDataTrackerChunkId.PsnDataTrackerTrgtPos:
-						subChunks.Add(PsnDataTrackerTrgtPosChunk.Deserialize(chunkHeader, reader));
-						break;
-					default:
-						subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
-						break;
-				}
-			}
-
-			return new PsnDataTrackerChunk(chunkHeader.ChunkId, subChunks);
-		}
-
 		public PsnDataTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnDataTrackerSubChunk> subChunks)
 			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
 
@@ -149,6 +112,43 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute("TrackerId", ChunkId),
 				SubChunks.Select(c => c.ToXml()));
 		}
+
+		internal static PsnDataTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			var subChunks = new List<PsnChunk>();
+
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+
+				switch ((PsnDataTrackerChunkId)pair.Item1.ChunkId)
+				{
+					case PsnDataTrackerChunkId.PsnDataTrackerPos:
+						subChunks.Add(PsnDataTrackerPosChunk.Deserialize(chunkHeader, reader));
+						break;
+					case PsnDataTrackerChunkId.PsnDataTrackerSpeed:
+						subChunks.Add(PsnDataTrackerSpeedChunk.Deserialize(chunkHeader, reader));
+						break;
+					case PsnDataTrackerChunkId.PsnDataTrackerOri:
+						subChunks.Add(PsnDataTrackerOriChunk.Deserialize(chunkHeader, reader));
+						break;
+					case PsnDataTrackerChunkId.PsnDataTrackerStatus:
+						subChunks.Add(PsnDataTrackerStatusChunk.Deserialize(chunkHeader, reader));
+						break;
+					case PsnDataTrackerChunkId.PsnDataTrackerAccel:
+						subChunks.Add(PsnDataTrackerAccelChunk.Deserialize(chunkHeader, reader));
+						break;
+					case PsnDataTrackerChunkId.PsnDataTrackerTrgtPos:
+						subChunks.Add(PsnDataTrackerTrgtPosChunk.Deserialize(chunkHeader, reader));
+						break;
+					default:
+						subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
+						break;
+				}
+			}
+
+			return new PsnDataTrackerChunk(chunkHeader.ChunkId, subChunks);
+		}
 	}
 
 
@@ -164,15 +164,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerPosChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerPosChunk>
 	{
-		internal static PsnDataTrackerPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			float x = reader.ReadSingle();
-			float y = reader.ReadSingle();
-			float z = reader.ReadSingle();
-
-			return new PsnDataTrackerPosChunk(x, y, z);
-		}
-
 		public PsnDataTrackerPosChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -187,13 +178,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerPos;
 		public override int DataLength => 12;
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(X);
-			writer.Write(Y);
-			writer.Write(Z);
-		}
 
 		public bool Equals([CanBeNull] PsnDataTrackerPosChunk other)
 		{
@@ -232,6 +216,22 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute(nameof(Y), Y),
 				new XAttribute(nameof(Z), Z));
 		}
+
+		internal static PsnDataTrackerPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			float x = reader.ReadSingle();
+			float y = reader.ReadSingle();
+			float z = reader.ReadSingle();
+
+			return new PsnDataTrackerPosChunk(x, y, z);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
+		}
 	}
 
 
@@ -239,15 +239,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerSpeedChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerSpeedChunk>
 	{
-		internal static PsnDataTrackerSpeedChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			float x = reader.ReadSingle();
-			float y = reader.ReadSingle();
-			float z = reader.ReadSingle();
-
-			return new PsnDataTrackerSpeedChunk(x, y, z);
-		}
-
 		public PsnDataTrackerSpeedChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -262,13 +253,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerSpeed;
 		public override int DataLength => 12;
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(X);
-			writer.Write(Y);
-			writer.Write(Z);
-		}
 
 		public bool Equals([CanBeNull] PsnDataTrackerSpeedChunk other)
 		{
@@ -307,6 +291,22 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute(nameof(Y), Y),
 				new XAttribute(nameof(Z), Z));
 		}
+
+		internal static PsnDataTrackerSpeedChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			float x = reader.ReadSingle();
+			float y = reader.ReadSingle();
+			float z = reader.ReadSingle();
+
+			return new PsnDataTrackerSpeedChunk(x, y, z);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
+		}
 	}
 
 
@@ -314,15 +314,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerOriChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerOriChunk>
 	{
-		internal static PsnDataTrackerOriChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			float x = reader.ReadSingle();
-			float y = reader.ReadSingle();
-			float z = reader.ReadSingle();
-
-			return new PsnDataTrackerOriChunk(x, y, z);
-		}
-
 		public PsnDataTrackerOriChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -337,13 +328,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerOri;
 		public override int DataLength => 12;
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(X);
-			writer.Write(Y);
-			writer.Write(Z);
-		}
 
 		public bool Equals([CanBeNull] PsnDataTrackerOriChunk other)
 		{
@@ -382,6 +366,22 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute(nameof(Y), Y),
 				new XAttribute(nameof(Z), Z));
 		}
+
+		internal static PsnDataTrackerOriChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			float x = reader.ReadSingle();
+			float y = reader.ReadSingle();
+			float z = reader.ReadSingle();
+
+			return new PsnDataTrackerOriChunk(x, y, z);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
+		}
 	}
 
 
@@ -389,13 +389,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerStatusChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerStatusChunk>
 	{
-		internal static PsnDataTrackerStatusChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			float validity = reader.ReadSingle();
-
-			return new PsnDataTrackerStatusChunk(validity);
-		}
-
 		public PsnDataTrackerStatusChunk(float validity)
 			: base(null)
 		{
@@ -406,11 +399,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerStatus;
 		public override int DataLength => 4;
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(Validity);
-		}
 
 		public bool Equals([CanBeNull] PsnDataTrackerStatusChunk other)
 		{
@@ -443,6 +431,18 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new XElement(nameof(PsnDataTrackerStatusChunk),
 				new XAttribute(nameof(Validity), Validity));
 		}
+
+		internal static PsnDataTrackerStatusChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			float validity = reader.ReadSingle();
+
+			return new PsnDataTrackerStatusChunk(validity);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(Validity);
+		}
 	}
 
 
@@ -450,15 +450,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerAccelChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerAccelChunk>
 	{
-		internal static PsnDataTrackerAccelChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			float x = reader.ReadSingle();
-			float y = reader.ReadSingle();
-			float z = reader.ReadSingle();
-
-			return new PsnDataTrackerAccelChunk(x, y, z);
-		}
-
 		public PsnDataTrackerAccelChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -473,13 +464,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerAccel;
 		public override int DataLength => 12;
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(X);
-			writer.Write(Y);
-			writer.Write(Z);
-		}
 
 		public bool Equals([CanBeNull] PsnDataTrackerAccelChunk other)
 		{
@@ -518,6 +502,22 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute(nameof(Y), Y),
 				new XAttribute(nameof(Z), Z));
 		}
+
+		internal static PsnDataTrackerAccelChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			float x = reader.ReadSingle();
+			float y = reader.ReadSingle();
+			float z = reader.ReadSingle();
+
+			return new PsnDataTrackerAccelChunk(x, y, z);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
+		}
 	}
 
 
@@ -525,15 +525,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerTrgtPosChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerTrgtPosChunk>
 	{
-		internal static PsnDataTrackerTrgtPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			float x = reader.ReadSingle();
-			float y = reader.ReadSingle();
-			float z = reader.ReadSingle();
-
-			return new PsnDataTrackerTrgtPosChunk(x, y, z);
-		}
-
 		public PsnDataTrackerTrgtPosChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -548,13 +539,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerTrgtPos;
 		public override int DataLength => 12;
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(X);
-			writer.Write(Y);
-			writer.Write(Z);
-		}
 
 		public bool Equals([CanBeNull] PsnDataTrackerTrgtPosChunk other)
 		{
@@ -592,6 +576,22 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute(nameof(X), X),
 				new XAttribute(nameof(Y), Y),
 				new XAttribute(nameof(Z), Z));
+		}
+
+		internal static PsnDataTrackerTrgtPosChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			float x = reader.ReadSingle();
+			float y = reader.ReadSingle();
+			float z = reader.ReadSingle();
+
+			return new PsnDataTrackerTrgtPosChunk(x, y, z);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(X);
+			writer.Write(Y);
+			writer.Write(Z);
 		}
 	}
 }

@@ -26,19 +26,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnInfoTrackerListChunk : PsnInfoPacketSubChunk
 	{
-		internal static PsnInfoTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			var subChunks = new List<PsnChunk>();
-
-			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
-			{
-				reader.Seek(pair.Item2, SeekOrigin.Begin);
-				subChunks.Add(PsnInfoTrackerChunk.Deserialize(pair.Item1, reader));
-			}
-
-			return new PsnInfoTrackerListChunk(subChunks);
-		}
-
 		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnInfoTrackerChunk> subChunks)
 			: this((IEnumerable<PsnChunk>)subChunks) { }
 
@@ -54,6 +41,19 @@ namespace Imp.PosiStageDotNet.Chunks
 			return new XElement(nameof(PsnInfoTrackerListChunk),
 				SubChunks.Select(c => c.ToXml()));
 		}
+
+		internal static PsnInfoTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			var subChunks = new List<PsnChunk>();
+
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+				subChunks.Add(PsnInfoTrackerChunk.Deserialize(pair.Item1, reader));
+			}
+
+			return new PsnInfoTrackerListChunk(subChunks);
+		}
 	}
 
 
@@ -61,28 +61,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public class PsnInfoTrackerChunk : PsnChunk
 	{
-		internal static PsnInfoTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			var subChunks = new List<PsnChunk>();
-
-			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
-			{
-				reader.Seek(pair.Item2, SeekOrigin.Begin);
-
-				switch ((PsnInfoTrackerChunkId)pair.Item1.ChunkId)
-				{
-					case PsnInfoTrackerChunkId.PsnInfoTrackerName:
-						subChunks.Add(PsnInfoTrackerName.Deserialize(pair.Item1, reader));
-						break;
-					default:
-						subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
-						break;
-				}
-			}
-
-			return new PsnInfoTrackerChunk(chunkHeader.ChunkId, subChunks);
-		}
-
 		public PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnInfoTrackerSubChunk> subChunks)
 			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
 
@@ -108,6 +86,28 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute("TrackerId", ChunkId),
 				SubChunks.Select(c => c.ToXml()));
 		}
+
+		internal static PsnInfoTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			var subChunks = new List<PsnChunk>();
+
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+
+				switch ((PsnInfoTrackerChunkId)pair.Item1.ChunkId)
+				{
+					case PsnInfoTrackerChunkId.PsnInfoTrackerName:
+						subChunks.Add(PsnInfoTrackerName.Deserialize(pair.Item1, reader));
+						break;
+					default:
+						subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
+						break;
+				}
+			}
+
+			return new PsnInfoTrackerChunk(chunkHeader.ChunkId, subChunks);
+		}
 	}
 
 
@@ -123,11 +123,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public class PsnInfoTrackerName : PsnInfoTrackerSubChunk, IEquatable<PsnInfoTrackerName>
 	{
-		internal static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			return new PsnInfoTrackerName(reader.ReadString(chunkHeader.DataLength));
-		}
-
 		public PsnInfoTrackerName([NotNull] string trackerName)
 			: base(null)
 		{
@@ -141,11 +136,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnInfoTrackerChunkId.PsnInfoTrackerName;
 		public override int DataLength => TrackerName.Length;
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(TrackerName);
-		}
 
 		public bool Equals([CanBeNull] PsnInfoTrackerName other)
 		{
@@ -177,6 +167,16 @@ namespace Imp.PosiStageDotNet.Chunks
 		{
 			return new XElement(nameof(PsnInfoTrackerName),
 				new XAttribute(nameof(TrackerName), TrackerName));
+		}
+
+		internal static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			return new PsnInfoTrackerName(reader.ReadString(chunkHeader.DataLength));
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(TrackerName);
 		}
 	}
 }

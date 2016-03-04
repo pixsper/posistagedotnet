@@ -24,10 +24,10 @@ using Sockets.Plugin.Abstractions;
 namespace Imp.PosiStageDotNet
 {
 	/// <summary>
-	/// Client for receiving PosiStageNet UDP packets
+	///     Client for receiving PosiStageNet UDP packets
 	/// </summary>
 	[PublicAPI]
-	public class PsnClient : IDisposable
+	public sealed class PsnClient : IDisposable
 	{
 		public const string DefaultMulticastIp = "236.10.10.10";
 		public const int DefaultPort = 56565;
@@ -35,93 +35,105 @@ namespace Imp.PosiStageDotNet
 		private readonly UdpSocketMulticastClient _udpClient = new UdpSocketMulticastClient();
 
 		/// <summary>
-		/// Constructs with the PosiStageNet default multicast IP and port number
+		///     Constructs with the PosiStageNet default multicast IP and port number
 		/// </summary>
-		public PsnClient()
+		/// <param name="adapterIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
+		public PsnClient(string adapterIp = null)
 		{
-			ListenMulticastIp = DefaultMulticastIp;
-			ListenPort = DefaultPort;
+			AdapterIp = adapterIp;
+			MulticastIp = DefaultMulticastIp;
+			Port = DefaultPort;
 		}
 
 		/// <summary>
-		/// Constructs with a custom multicast IP and port number
+		///     Constructs with a custom multicast IP and port number
 		/// </summary>
 		/// <param name="customMulticastIp"></param>
 		/// <param name="customPort"></param>
-		public PsnClient(string customMulticastIp, int customPort)
+		/// <param name="adapterIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
+		public PsnClient(string customMulticastIp, int customPort, string adapterIp = null)
 		{
 			if (string.IsNullOrWhiteSpace(customMulticastIp))
 				throw new ArgumentException("customMulticastIp cannot be null or empty");
 
-			ListenMulticastIp = customMulticastIp;
+			MulticastIp = customMulticastIp;
 
-			if (customPort < ushort.MinValue || customPort > ushort.MaxValue)
+			if (customPort < ushort.MinValue + 1 || customPort > ushort.MaxValue)
 				throw new ArgumentOutOfRangeException(nameof(customPort), customPort,
-					$"customPort must be in range {ushort.MinValue}-{ushort.MaxValue}");
+					$"customPort must be in range {ushort.MinValue + 1}-{ushort.MaxValue}");
 
-			ListenPort = customPort;
+			Port = customPort;
+
+			AdapterIp = adapterIp;
 		}
 
-		
 		/// <summary>
-		/// Called when a PosiStageNet info packet is received
+		///     The multicast IP address the client is listening for packets on
+		/// </summary>
+		public string MulticastIp { get; }
+
+		/// <summary>
+		///     The UDP port the client is listening for packets on
+		/// </summary>
+		public int Port { get; }
+
+		/// <summary>
+		///     The IP address of the network adapter in use by the client, or null if no adapter is set
+		/// </summary>
+		[CanBeNull]
+		public string AdapterIp { get; }
+
+		/// <summary>
+		///     The current state of the client
+		/// </summary>
+		public bool IsListening { get; private set; }
+
+		public void Dispose()
+		{
+			if (IsListening)
+				StopListeningAsync().Wait();
+
+			_udpClient.Dispose();
+		}
+
+
+		/// <summary>
+		///     Called when a PosiStageNet info packet is received
 		/// </summary>
 		public event EventHandler<PsnInfoPacketReceived> InfoPacketReceived;
 
 		/// <summary>
-		/// called when a PosiStageNet data packet is received
+		///     called when a PosiStageNet data packet is received
 		/// </summary>
 		public event EventHandler<PsnDataPacketReceived> DataPacketReceived;
 
 		/// <summary>
-		/// The multicast IP address the client is listening for packets on
+		///     Joins the client to the multicast IP and starts listening for PosiStageNet packets
 		/// </summary>
-		public string ListenMulticastIp { get; }
-
-		/// <summary>
-		/// The UDP port the client is listening for packets on
-		/// </summary>
-		public int ListenPort { get; }
-
-		/// <summary>
-		/// The IP address of the network adapter in use by the client, or null if no adapter is set
-		/// </summary>
-		[CanBeNull]
-		public string AdapterIp { get; private set; }
-
-		/// <summary>
-		/// The current state of the client
-		/// </summary>
-		public bool IsListening { get; private set; }
-
-		/// <summary>
-		/// Joins the client to the multicast IP and starts listening for PosiStageNet packets
-		/// </summary>
-		/// <param name="adapterIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
-		public async Task StartListeningAsync(string adapterIp = null)
+		public async Task StartListeningAsync()
 		{
-			if (adapterIp != null)
+			ICommsInterface adapter = null;
+
+			if (AdapterIp != null)
 			{
 				var interfaces = await CommsInterface.GetAllInterfacesAsync().ConfigureAwait(false);
 
-				var adapter = interfaces.FirstOrDefault(i => i.IpAddress == adapterIp);
+				adapter = interfaces.FirstOrDefault(i => i.IpAddress == AdapterIp);
 
 				if (adapter == null)
-					throw new ArgumentException($"Adapter with IP of '{adapterIp}' cannot be found");
-
-				await _udpClient.JoinMulticastGroupAsync(ListenMulticastIp, ListenPort, adapter).ConfigureAwait(false);
-
-				AdapterIp = adapterIp;
+					throw new ArgumentException($"Adapter with IP of '{AdapterIp}' cannot be found");
 			}
-			else
-			{
-				await _udpClient.JoinMulticastGroupAsync(ListenMulticastIp, ListenPort).ConfigureAwait(false);
-			}
+
+			await _udpClient.JoinMulticastGroupAsync(MulticastIp, Port, adapter).ConfigureAwait(false);
 
 			IsListening = true;
 			_udpClient.MessageReceived += messageReceived;
 		}
 
+		/// <summary>
+		///     Remove the client from the multicast group and stops listening for PosiStageNet packets
+		/// </summary>
+		/// <returns></returns>
 		public async Task StopListeningAsync()
 		{
 			if (!IsListening)
@@ -131,13 +143,9 @@ namespace Imp.PosiStageDotNet
 			await _udpClient.DisconnectAsync().ConfigureAwait(false);
 
 			IsListening = false;
-			AdapterIp = null;
 		}
 
-		public void Dispose()
-		{
-			_udpClient.Dispose();
-		}
+
 
 		private void messageReceived(object sender, UdpSocketMessageReceivedEventArgs args)
 		{
@@ -149,13 +157,16 @@ namespace Imp.PosiStageDotNet
 			switch ((PsnPacketChunkId)chunk.ChunkId)
 			{
 				case PsnPacketChunkId.PsnInfoPacket:
-					InfoPacketReceived?.Invoke(this, new PsnInfoPacketReceived((PsnInfoPacketChunk)chunk, args.RemoteAddress, args.RemotePort));
+					InfoPacketReceived?.Invoke(this,
+						new PsnInfoPacketReceived((PsnInfoPacketChunk)chunk, args.RemoteAddress, args.RemotePort));
 					break;
 				case PsnPacketChunkId.PsnDataPacket:
-					DataPacketReceived?.Invoke(this, new PsnDataPacketReceived((PsnDataPacketChunk)chunk, args.RemoteAddress, args.RemotePort));
+					DataPacketReceived?.Invoke(this,
+						new PsnDataPacketReceived((PsnDataPacketChunk)chunk, args.RemoteAddress, args.RemotePort));
 					break;
 			}
 		}
+
 
 
 		public class PsnInfoPacketReceived : EventArgs
@@ -173,6 +184,8 @@ namespace Imp.PosiStageDotNet
 
 			public override string ToString() => $"PsnInfoPacketReceived: RemoteAddress {RemoteAddress}, RemotePort {RemotePort}";
 		}
+
+
 
 		public class PsnDataPacketReceived : EventArgs
 		{

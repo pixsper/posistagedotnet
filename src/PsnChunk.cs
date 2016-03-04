@@ -28,54 +28,6 @@ namespace Imp.PosiStageDotNet
 	[PublicAPI]
 	public abstract class PsnChunk
 	{
-		[CanBeNull]
-		public static PsnChunk FromByteArray(byte[] data)
-		{
-			try
-			{
-				using (var ms = new MemoryStream(data))
-				using (var reader = new PsnBinaryReader(ms))
-				{
-					var chunkHeader = reader.ReadChunkHeader();
-
-					switch ((PsnPacketChunkId)chunkHeader.ChunkId)
-					{
-						case PsnPacketChunkId.PsnDataPacket:
-							return PsnDataPacketChunk.Deserialize(chunkHeader, reader);
-						case PsnPacketChunkId.PsnInfoPacket:
-							return PsnInfoPacketChunk.Deserialize(chunkHeader, reader);
-						default:
-							return PsnUnknownChunk.Deserialize(chunkHeader, reader);
-					}
-				}
-			}
-			catch (EndOfStreamException)
-			{
-				// Received a bad packet
-				return null;
-			}
-		}
-
-		internal static IEnumerable<Tuple<PsnChunkHeader, long>> FindSubChunkHeaders(PsnBinaryReader reader,
-			int chunkDataLength)
-		{
-			var chunkHeaders = new List<Tuple<PsnChunkHeader, long>>();
-			long startPos = reader.BaseStream.Position;
-
-			while (reader.BaseStream.Position - startPos < chunkDataLength)
-			{
-				var chunkHeader = reader.ReadChunkHeader();
-				chunkHeaders.Add(Tuple.Create(chunkHeader, reader.BaseStream.Position));
-				reader.Seek(chunkHeader.DataLength, SeekOrigin.Current);
-
-				Debug.Assert(reader.BaseStream.Position - startPos <= chunkDataLength);
-			}
-
-			reader.Seek(startPos, SeekOrigin.Begin);
-
-			return chunkHeaders;
-		}
-
 		public const int ChunkHeaderLength = 4;
 
 		protected PsnChunk([CanBeNull] IEnumerable<PsnChunk> subChunks)
@@ -114,8 +66,36 @@ namespace Imp.PosiStageDotNet
 		/// </summary>
 		public PsnChunkHeader ChunkHeader => new PsnChunkHeader(ChunkId, ChunkLength, HasSubChunks);
 
+		[CanBeNull]
+		public static PsnChunk FromByteArray(byte[] data)
+		{
+			try
+			{
+				using (var ms = new MemoryStream(data))
+				using (var reader = new PsnBinaryReader(ms))
+				{
+					var chunkHeader = reader.ReadChunkHeader();
+
+					switch ((PsnPacketChunkId)chunkHeader.ChunkId)
+					{
+						case PsnPacketChunkId.PsnDataPacket:
+							return PsnDataPacketChunk.Deserialize(chunkHeader, reader);
+						case PsnPacketChunkId.PsnInfoPacket:
+							return PsnInfoPacketChunk.Deserialize(chunkHeader, reader);
+						default:
+							return PsnUnknownChunk.Deserialize(chunkHeader, reader);
+					}
+				}
+			}
+			catch (EndOfStreamException)
+			{
+				// Received a bad packet
+				return null;
+			}
+		}
+
 		/// <summary>
-		///		Converts the chunk and sub-chunks to an XML representation
+		///     Converts the chunk and sub-chunks to an XML representation
 		/// </summary>
 		public abstract XElement ToXml();
 
@@ -135,21 +115,6 @@ namespace Imp.PosiStageDotNet
 			}
 		}
 
-		/// <summary>
-		///     Serializes any data contained within this chunk, or nothing if the chunk contains no data
-		/// </summary>
-		/// <param name="writer"></param>
-		internal virtual void SerializeData(PsnBinaryWriter writer) { }
-
-		protected bool Equals([CanBeNull] PsnChunk other)
-		{
-			if (ReferenceEquals(null, other))
-				return false;
-			if (ReferenceEquals(this, other))
-				return true;
-			return ChunkId == other.ChunkId && SubChunks.SequenceEqual(other.SubChunks);
-		}
-
 		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -167,6 +132,41 @@ namespace Imp.PosiStageDotNet
 			}
 		}
 
+		protected bool Equals([CanBeNull] PsnChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return ChunkId == other.ChunkId && SubChunks.SequenceEqual(other.SubChunks);
+		}
+
+		internal static IEnumerable<Tuple<PsnChunkHeader, long>> FindSubChunkHeaders(PsnBinaryReader reader,
+			int chunkDataLength)
+		{
+			var chunkHeaders = new List<Tuple<PsnChunkHeader, long>>();
+			long startPos = reader.BaseStream.Position;
+
+			while (reader.BaseStream.Position - startPos < chunkDataLength)
+			{
+				var chunkHeader = reader.ReadChunkHeader();
+				chunkHeaders.Add(Tuple.Create(chunkHeader, reader.BaseStream.Position));
+				reader.Seek(chunkHeader.DataLength, SeekOrigin.Current);
+
+				Debug.Assert(reader.BaseStream.Position - startPos <= chunkDataLength);
+			}
+
+			reader.Seek(startPos, SeekOrigin.Begin);
+
+			return chunkHeaders;
+		}
+
+		/// <summary>
+		///     Serializes any data contained within this chunk, or nothing if the chunk contains no data
+		/// </summary>
+		/// <param name="writer"></param>
+		internal virtual void SerializeData(PsnBinaryWriter writer) { }
+
 		private void serializeChunks(PsnBinaryWriter writer, IEnumerable<PsnChunk> chunks)
 		{
 			foreach (var chunk in chunks)
@@ -182,12 +182,6 @@ namespace Imp.PosiStageDotNet
 
 	internal class PsnUnknownChunk : PsnChunk, IEquatable<PsnUnknownChunk>
 	{
-		public static PsnUnknownChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			// We can't proceed to deserialize any chunks from this point so store the raw data including sub-chunks
-			return new PsnUnknownChunk(chunkHeader.ChunkId, reader.ReadBytes(chunkHeader.DataLength));
-		}
-
 		public PsnUnknownChunk(ushort chunkId, [CanBeNull] byte[] data)
 			: base(null)
 		{
@@ -207,6 +201,12 @@ namespace Imp.PosiStageDotNet
 			if (ReferenceEquals(this, other))
 				return true;
 			return base.Equals(other) && Data.SequenceEqual(other.Data);
+		}
+
+		public static PsnUnknownChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			// We can't proceed to deserialize any chunks from this point so store the raw data including sub-chunks
+			return new PsnUnknownChunk(chunkHeader.ChunkId, reader.ReadBytes(chunkHeader.DataLength));
 		}
 
 		public override XElement ToXml()

@@ -14,7 +14,6 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Linq;
 using System.Xml.Linq;
 using Imp.PosiStageDotNet.Serialization;
 using JetBrains.Annotations;
@@ -24,11 +23,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnInfoSystemNameChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoSystemNameChunk>
 	{
-		internal static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			return new PsnInfoSystemNameChunk(reader.ReadString(chunkHeader.DataLength));
-		}
-
 		public PsnInfoSystemNameChunk([NotNull] string systemName)
 			: base(null)
 		{
@@ -43,17 +37,6 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoSystemName;
 		public override int DataLength => SystemName.Length;
 
-		public override XElement ToXml()
-		{
-			return new XElement(nameof(PsnInfoSystemNameChunk),
-				new XAttribute(nameof(SystemName), SystemName));
-		}
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(SystemName);
-		}
-
 		public bool Equals([CanBeNull] PsnInfoSystemNameChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -61,6 +44,12 @@ namespace Imp.PosiStageDotNet.Chunks
 			if (ReferenceEquals(this, other))
 				return true;
 			return base.Equals(other) && string.Equals(SystemName, other.SystemName);
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoSystemNameChunk),
+				new XAttribute(nameof(SystemName), SystemName));
 		}
 
 		public override bool Equals([CanBeNull] object obj)
@@ -78,6 +67,16 @@ namespace Imp.PosiStageDotNet.Chunks
 			{
 				return (base.GetHashCode() * 397) ^ SystemName.GetHashCode();
 			}
+		}
+
+		internal static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			return new PsnInfoSystemNameChunk(reader.ReadString(chunkHeader.DataLength));
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(SystemName);
 		}
 	}
 }

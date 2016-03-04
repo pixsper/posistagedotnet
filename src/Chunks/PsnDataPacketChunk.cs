@@ -26,6 +26,22 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataPacketChunk : PsnChunk
 	{
+		public PsnDataPacketChunk([NotNull] IEnumerable<PsnDataPacketSubChunk> subChunks)
+			: this((IEnumerable<PsnChunk>)subChunks) { }
+
+		public PsnDataPacketChunk(params PsnDataPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+
+		private PsnDataPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnDataPacket;
+		public override int DataLength => 0;
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataPacketChunk),
+				SubChunks.Select(c => c.ToXml()));
+		}
+
 		internal static PsnDataPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
 			var subChunks = new List<PsnChunk>();
@@ -50,22 +66,6 @@ namespace Imp.PosiStageDotNet.Chunks
 
 			return new PsnDataPacketChunk(subChunks);
 		}
-
-		public PsnDataPacketChunk([NotNull] IEnumerable<PsnDataPacketSubChunk> subChunks)
-			: this((IEnumerable<PsnChunk>)subChunks) { }
-
-		public PsnDataPacketChunk(params PsnDataPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
-
-		private PsnDataPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
-
-		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnDataPacket;
-		public override int DataLength => 0;
-
-		public override XElement ToXml()
-		{
-			return new XElement(nameof(PsnDataPacketChunk),
-				SubChunks.Select(c => c.ToXml()));
-		}
 	}
 
 
@@ -81,17 +81,6 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataHeaderChunk : PsnDataPacketSubChunk, IEquatable<PsnDataHeaderChunk>
 	{
-		internal static PsnDataHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-		{
-			ulong timeStamp = reader.ReadUInt64();
-			int versionHigh = reader.ReadByte();
-			int versionLow = reader.ReadByte();
-			int frameId = reader.ReadByte();
-			int framePacketCount = reader.ReadByte();
-
-			return new PsnDataHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
-		}
-
 		public PsnDataHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
 			: base(null)
 		{
@@ -128,24 +117,6 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataHeader;
 		public override int DataLength => 12;
 
-		public override XElement ToXml()
-		{
-			return new XElement(nameof(PsnDataHeaderChunk),
-				new XAttribute(nameof(TimeStamp), TimeStamp),
-				new XAttribute(nameof(VersionHigh), VersionHigh),
-				new XAttribute(nameof(FrameId), FrameId),
-				new XAttribute(nameof(FramePacketCount), FramePacketCount));
-		}
-
-		internal override void SerializeData(PsnBinaryWriter writer)
-		{
-			writer.Write(TimeStamp);
-			writer.Write((byte)VersionHigh);
-			writer.Write((byte)VersionLow);
-			writer.Write((byte)FrameId);
-			writer.Write((byte)FramePacketCount);
-		}
-
 		public bool Equals([CanBeNull] PsnDataHeaderChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -154,6 +125,15 @@ namespace Imp.PosiStageDotNet.Chunks
 				return true;
 			return base.Equals(other) && TimeStamp == other.TimeStamp && VersionHigh == other.VersionHigh
 			       && VersionLow == other.VersionLow && FrameId == other.FrameId && FramePacketCount == other.FramePacketCount;
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataHeaderChunk),
+				new XAttribute(nameof(TimeStamp), TimeStamp),
+				new XAttribute(nameof(VersionHigh), VersionHigh),
+				new XAttribute(nameof(FrameId), FrameId),
+				new XAttribute(nameof(FramePacketCount), FramePacketCount));
 		}
 
 		public override bool Equals([CanBeNull] object obj)
@@ -177,6 +157,26 @@ namespace Imp.PosiStageDotNet.Chunks
 				hashCode = (hashCode * 397) ^ FramePacketCount;
 				return hashCode;
 			}
+		}
+
+		internal static PsnDataHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			ulong timeStamp = reader.ReadUInt64();
+			int versionHigh = reader.ReadByte();
+			int versionLow = reader.ReadByte();
+			int frameId = reader.ReadByte();
+			int framePacketCount = reader.ReadByte();
+
+			return new PsnDataHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(TimeStamp);
+			writer.Write((byte)VersionHigh);
+			writer.Write((byte)VersionLow);
+			writer.Write((byte)FrameId);
+			writer.Write((byte)FramePacketCount);
 		}
 	}
 }

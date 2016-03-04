@@ -29,6 +29,7 @@ namespace Imp.PosiStageDotNet.Serialization
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	[SuppressMessage("ReSharper", "MemberCanBeProtected.Global")]
 	[SuppressMessage("ReSharper", "VirtualMemberNeverOverriden.Global")]
+	[SuppressMessage("ReSharper", "UnusedMemberInSuper.Global")]
 	internal class EndianBinaryWriter : IDisposable
 	{
 		/// <summary>

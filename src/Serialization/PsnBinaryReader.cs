@@ -20,8 +20,6 @@ namespace Imp.PosiStageDotNet.Serialization
 {
 	internal class PsnBinaryReader : EndianBinaryReader
 	{
-		public const int ChunkHeaderByteLength = 4;
-
 		private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
 
 		public PsnBinaryReader(Stream stream)

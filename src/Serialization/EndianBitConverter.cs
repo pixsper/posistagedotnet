@@ -26,6 +26,7 @@ namespace Imp.PosiStageDotNet.Serialization
 	/// </summary>
 	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	[SuppressMessage("ReSharper", "UnusedParameter.Local")]
+	[SuppressMessage("ReSharper", "UnusedParameter.Global")]
 	internal abstract class EndianBitConverter
 	{
 		/// <summary>
