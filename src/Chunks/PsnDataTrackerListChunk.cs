@@ -37,10 +37,12 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override PsnDataPacketChunkId ChunkId => PsnDataPacketChunkId.PsnDataTrackerList;
 
+		public IEnumerable<PsnDataTrackerChunk> SubChunks => RawSubChunks.OfType<PsnDataTrackerChunk>();
+
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerListChunk),
-				SubChunks.Select(c => c.ToXml()));
+				RawSubChunks.Select(c => c.ToXml()));
 		}
 
 		internal static PsnDataTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
@@ -83,6 +85,8 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public int TrackerId => RawChunkId;
 
+		public IEnumerable<PsnDataTrackerSubChunk> SubChunks => RawSubChunks.OfType<PsnDataTrackerSubChunk>();
+
 		public bool Equals([CanBeNull] PsnDataTrackerChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -113,7 +117,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		{
 			return new XElement(nameof(PsnDataTrackerChunk),
 				new XAttribute("TrackerId", RawChunkId),
-				SubChunks.Select(c => c.ToXml()));
+				RawSubChunks.Select(c => c.ToXml()));
 		}
 
 		internal static PsnDataTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)

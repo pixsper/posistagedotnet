@@ -43,7 +43,7 @@
     <Compile Include="Annotations.cs" />
     <Compile Include="Chunks\PsnPacketChunk.cs" />
     <Compile Include="PsnChunkHeader.cs" />
-    <Compile Include="PsnChunk.cs" />
+    <Compile Include="Chunks\PsnChunk.cs" />
     <Compile Include="PsnChunkIdEnums.cs" />
     <Compile Include="Chunks\PsnInfoSystemNameChunk.cs" />
     <Compile Include="Chunks\PsnDataTrackerListChunk.cs" />

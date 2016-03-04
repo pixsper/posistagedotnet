@@ -23,6 +23,9 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
+	/// <summary>
+	///     Root chunk of a PosiStageNet info packet
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnInfoPacketChunk : PsnPacketChunk
 	{
@@ -37,10 +40,12 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override PsnPacketChunkId ChunkId => PsnPacketChunkId.PsnInfoPacket;
 
+		public IEnumerable<PsnInfoPacketSubChunk> SubChunks => RawSubChunks.OfType<PsnInfoPacketSubChunk>();
+
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoPacketChunk),
-				SubChunks.Select(c => c.ToXml()));
+				RawSubChunks.Select(c => c.ToXml()));
 		}
 
 		internal static PsnInfoPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)

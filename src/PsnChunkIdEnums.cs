@@ -20,6 +20,7 @@ namespace Imp.PosiStageDotNet
 	[PublicAPI]
 	public enum PsnPacketChunkId : ushort
 	{
+		UnknownPacket = 0x0000,
 		PsnDataPacket = 0x6755,
 		PsnInfoPacket = 0x6756
 	}

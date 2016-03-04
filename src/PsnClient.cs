@@ -149,7 +149,7 @@ namespace Imp.PosiStageDotNet
 
 		private void messageReceived(object sender, UdpSocketMessageReceivedEventArgs args)
 		{
-			var chunk = PsnChunk.FromByteArray(args.ByteData);
+			var chunk = PsnPacketChunk.FromByteArray(args.ByteData);
 
 			if (chunk == null)
 				return;

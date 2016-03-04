@@ -20,7 +20,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 namespace Imp.PosiStageDotNet.Tests
 {
 	[TestClass]
-	public class PsnChunkTests
+	public class PsnPacketChunkTests
 	{
 		[TestMethod]
 		public void CanSerializeAndDeserialize()
@@ -37,7 +37,7 @@ namespace Imp.PosiStageDotNet.Tests
 
 			var infoData = infoPacket1.ToByteArray();
 
-			var infoPacket2 = PsnChunk.FromByteArray(infoData);
+			var infoPacket2 = PsnPacketChunk.FromByteArray(infoData);
 
 			infoPacket1.Should().Be(infoPacket2, "because the deserializing the serialized data should produce the same values");
 
@@ -66,7 +66,7 @@ namespace Imp.PosiStageDotNet.Tests
 
 			var dataData = dataPacket1.ToByteArray();
 
-			var dataPacket2 = PsnChunk.FromByteArray(dataData);
+			var dataPacket2 = PsnPacketChunk.FromByteArray(dataData);
 
 			dataPacket1.Should().Be(dataPacket2, "because the deserializing the serialized data should produce the same values");
 		}
