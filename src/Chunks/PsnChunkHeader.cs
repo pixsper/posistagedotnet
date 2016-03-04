@@ -15,7 +15,7 @@
 
 using System;
 
-namespace Imp.PosiStageDotNet
+namespace Imp.PosiStageDotNet.Chunks
 {
 	internal struct PsnChunkHeader : IEquatable<PsnChunkHeader>
 	{

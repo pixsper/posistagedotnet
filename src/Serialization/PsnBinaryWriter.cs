@@ -15,6 +15,7 @@
 
 using System.IO;
 using System.Text;
+using Imp.PosiStageDotNet.Chunks;
 using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Serialization

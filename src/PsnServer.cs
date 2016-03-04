@@ -14,6 +14,8 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,66 +32,105 @@ namespace Imp.PosiStageDotNet
 	[PublicAPI]
 	public sealed class PsnServer : IDisposable
 	{
+		public const int VersionHigh = 2;
+		public const int VersionLow = 1;
+
+		public const int MaxPacketLength = 1500;
+
 		public const string DefaultMulticastIp = "236.10.10.10";
 		public const int DefaultPort = 56565;
 
-		public const int DefaultDataSendRateHz = 60;
-		public const int DefaultInfoSendRateHz = 1;
+		public const double DefaultDataSendFrequency = 60d;
+		public const double DefaultInfoSendFrequency = 1d;
 
-		private readonly UdpSocketMulticastClient _udpClient = new UdpSocketMulticastClient();
+		private readonly UdpSocketClient _udpClient = new UdpSocketClient();
 
-		private PsnDataPacketChunk _dataPacket;
-		private byte[] _dataPacketCachedBytes;
 		private Timer _dataTimer;
-
-		private PsnInfoPacketChunk _infoPacket;
-		private byte[] _infoPacketCachedBytes;
 		private Timer _infoTimer;
+		private Stopwatch _timeStampReference = new Stopwatch();
+
+		private byte _frameId;
 
 		private bool _isDisposed;
 
 		/// <summary>
-		///     Constructs with the PosiStageNet default multicast IP and port number
+		///     Constructs with default multicast IP, port number and data/info packet send frequencies
 		/// </summary>
-		/// <param name="adapterIp">IP address of local network adapter to use, or null to use all network adapters</param>
-		/// <param name="dataSendRateHz">Rate in Hz at which to send data packets</param>
-		/// <param name="infoSendRateHz">rate in Hz at which to send info packets</param>
-		public PsnServer(string adapterIp = null, int dataSendRateHz = DefaultDataSendRateHz,
-			int infoSendRateHz = DefaultInfoSendRateHz)
-		{
-			AdapterIp = adapterIp;
-			DataSendRateHz = dataSendRateHz;
-			InfoSendRateHz = infoSendRateHz;
-			MulticastIp = DefaultMulticastIp;
-			Port = DefaultPort;
-		}
+		/// <param name="systemName">Name used to identify this server</param>
+		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
+		public PsnServer([NotNull] string systemName)
+			: this(systemName, DefaultMulticastIp, DefaultPort, DefaultDataSendFrequency, DefaultInfoSendFrequency) { }
 
 		/// <summary>
-		///     Constructs with a custom multicast IP and port number
+		///     Constructs with default multicast IP and port number
 		/// </summary>
-		/// <param name="customMulticastIp"></param>
-		/// <param name="customPort"></param>
-		/// <param name="adapterIp">IP address of local network adapter to use, or null to use all network adapters</param>
-		/// <param name="dataSendRateHz">Rate in Hz at which to send data packets</param>
-		/// <param name="infoSendRateHz">rate in Hz at which to send info packets</param>
-		public PsnServer(string customMulticastIp, int customPort, string adapterIp = null,
-			int dataSendRateHz = DefaultDataSendRateHz, int infoSendRateHz = DefaultInfoSendRateHz)
+		/// <param name="systemName">Name used to identify this server</param>
+		/// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
+		/// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
+		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
+		public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency)
+			: this(systemName, DefaultMulticastIp, DefaultPort, dataSendFrequency, infoSendFrequency) { }
+
+		/// <summary>
+		///     Constructs with default data/info packet send frequencies
+		/// </summary>
+		/// <param name="systemName">Name used to identify this server</param>
+		/// <param name="customMulticastIp">Custom multicast IP to send data to</param>
+		/// <param name="customPort">Custom UDP port number to send data to</param>
+		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
+		public PsnServer([NotNull] string systemName, [NotNull] string customMulticastIp, int customPort)
+			: this(systemName, customMulticastIp, customPort, DefaultDataSendFrequency, DefaultInfoSendFrequency) { }
+
+		/// <summary>
+		///     Constructs with custom values for all parameters
+		/// </summary>
+		/// <param name="systemName">Name used to identify this server</param>
+		/// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
+		/// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
+		/// <param name="customMulticastIp">Custom multicast IP to send data to</param>
+		/// <param name="customPort">Custom UDP port number to send data to</param>
+		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
+		public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency,
+			[NotNull] string customMulticastIp, int customPort)
+			: this(systemName, customMulticastIp, customPort, dataSendFrequency, infoSendFrequency) { }
+
+
+		private PsnServer([NotNull] string systemName, [NotNull] string multicastIp, int port, double dataSendFrequency, double infoSendFrequency)
 		{
-			if (string.IsNullOrWhiteSpace(customMulticastIp))
+			if (systemName == null)
+				throw new ArgumentNullException(nameof(systemName));
+
+			SystemName = systemName;
+
+			if (string.IsNullOrWhiteSpace(multicastIp))
 				throw new ArgumentException("customMulticastIp cannot be null or empty");
 
-			MulticastIp = customMulticastIp;
+			MulticastIp = multicastIp;
 
-			if (customPort < ushort.MinValue + 1 || customPort > ushort.MaxValue)
-				throw new ArgumentOutOfRangeException(nameof(customPort), customPort,
+			if (port < ushort.MinValue + 1 || port > ushort.MaxValue)
+				throw new ArgumentOutOfRangeException(nameof(port), port,
 					$"customPort must be in range {ushort.MinValue + 1}-{ushort.MaxValue}");
 
-			Port = customPort;
+			Port = port;
 
-			AdapterIp = adapterIp;
-			DataSendRateHz = dataSendRateHz;
-			InfoSendRateHz = infoSendRateHz;
+			if (dataSendFrequency <= 0)
+				throw new ArgumentOutOfRangeException(nameof(dataSendFrequency), dataSendFrequency,
+					"dataSendFrequency must be greater than 0");
+
+			DataSendFrequency = dataSendFrequency;
+
+			if (infoSendFrequency <= 0)
+				throw new ArgumentOutOfRangeException(nameof(infoSendFrequency), infoSendFrequency,
+					"infoSendFrequency must be greater than 0");
+
+			InfoSendFrequency = infoSendFrequency;
 		}
+
+
+		/// <summary>
+		///		System name used to identify this PosiStageNet server
+		/// </summary>
+		public string SystemName { get; }
 
 		/// <summary>
 		///     The multicast IP address the server is sending packets to
@@ -112,47 +153,23 @@ namespace Imp.PosiStageDotNet
 		/// </summary>
 		public bool IsSending { get; private set; }
 
-		/// <summary>
-		///     Refresh rate at which data packets are sent
-		/// </summary>
-		public int DataSendRateHz { get; }
+		public TimeSpan CurrentTimeStamp => TimeSpan.FromMilliseconds(_timeStampReference.ElapsedMilliseconds);
 
 		/// <summary>
-		///     Refresh rate at which info packets are sent
+		///     Rate in Hz at which data packets are sent
 		/// </summary>
-		public int InfoSendRateHz { get; }
+		public double DataSendFrequency { get; }
 
 		/// <summary>
-		///     The data packet to send at the data refresh rate
+		///     Rate in Hz at which info packets are sent
 		/// </summary>
-		public PsnDataPacketChunk DataPacket
-		{
-			get { return _dataPacket; }
-			set
-			{
-				if (!ReferenceEquals(value, _dataPacket))
-				{
-					_dataPacket = value;
-					_dataPacketCachedBytes = _dataPacket?.ToByteArray();
-				}
-			}
-		}
+		public double InfoSendFrequency { get; }
 
 		/// <summary>
-		///     The info packet to send at the info refresh rate
+		///		Trackers to send data for
 		/// </summary>
-		public PsnInfoPacketChunk InfoPacket
-		{
-			get { return _infoPacket; }
-			set
-			{
-				if (!ReferenceEquals(value, _infoPacket))
-				{
-					_infoPacket = value;
-					_infoPacketCachedBytes = _infoPacket?.ToByteArray();
-				}
-			}
-		}
+		[CanBeNull]
+		public IEnumerable<PsnTracker> Trackers { get; set; }
 
 		public void Dispose()
 		{
@@ -172,23 +189,12 @@ namespace Imp.PosiStageDotNet
 		/// <returns></returns>
 		public async Task StartSendingAsync()
 		{
-			ICommsInterface adapter = null;
-
-			if (AdapterIp != null)
-			{
-				var interfaces = await CommsInterface.GetAllInterfacesAsync().ConfigureAwait(false);
-
-				adapter = interfaces.FirstOrDefault(i => i.IpAddress == AdapterIp);
-
-				if (adapter == null)
-					throw new ArgumentException($"Adapter with IP of '{AdapterIp}' cannot be found");
-			}
-
-			await _udpClient.JoinMulticastGroupAsync(MulticastIp, Port, adapter).ConfigureAwait(false);
+			await _udpClient.ConnectAsync(MulticastIp, Port).ConfigureAwait(false);
 
 			IsSending = true;
-			_dataTimer = new Timer(sendData, 0, 1000 / DefaultDataSendRateHz);
-			_infoTimer = new Timer(sendInfo, 0, 1000 / DefaultInfoSendRateHz);
+			_timeStampReference.Restart();
+			_dataTimer = new Timer(sendData, 0, (int)(1000d / DataSendFrequency));
+			_infoTimer = new Timer(sendInfo, 0, (int)(1000d / InfoSendFrequency));
 		}
 
 		/// <summary>
@@ -203,29 +209,119 @@ namespace Imp.PosiStageDotNet
 			_dataTimer = null;
 			_infoTimer.Dispose();
 			_infoTimer = null;
+			_timeStampReference.Reset();
 
 			await _udpClient.DisconnectAsync().ConfigureAwait(false);
 
 			IsSending = false;
 		}
 
-		private void sendData()
-		{
-			// Copy local reference for threading reasons
-			var dataBytes = _dataPacketCachedBytes;
-
-			if (dataBytes != null)
-				_udpClient.SendMulticastAsync(dataBytes);
-		}
-
 		private void sendInfo()
 		{
 			// Copy local reference for threading reasons
-			var infoBytes = _infoPacketCachedBytes;
+			var trackers = Trackers;
 
-			if (infoBytes != null)
-				_udpClient.SendMulticastAsync(infoBytes);
+			if (trackers == null)
+				return;
+
+			var systemNameChunk = new PsnInfoSystemNameChunk(SystemName);
+			var trackerChunks = trackers.Select(t => new PsnInfoTrackerChunk(t.TrackerId, new PsnInfoTrackerName(t.TrackerName)));
+
+			var trackerListChunks = new List<PsnInfoTrackerListChunk>();
+			var currentTrackerList = new List<PsnInfoTrackerChunk>();
+
+			int trackerListLength = 0;
+			int maxTrackerListLength = MaxPacketLength -
+			                      (PsnChunk.ChunkHeaderLength						// Root Chunk-Header
+								   + PsnInfoHeaderChunk.StaticChunkAndHeaderLength	// Packet Header Chunk
+			                       + systemNameChunk.ChunkAndHeaderLength			// System Name Chunk
+								   + PsnChunk.ChunkHeaderLength);					// Tracker List Chunk-Header
+
+			foreach (var chunk in trackerChunks)
+			{
+				if (trackerListLength <= maxTrackerListLength)
+				{
+					currentTrackerList.Add(chunk);
+					trackerListLength += chunk.ChunkAndHeaderLength;
+				}
+				else
+				{
+					trackerListChunks.Add(new PsnInfoTrackerListChunk(currentTrackerList));
+					currentTrackerList = new List<PsnInfoTrackerChunk>();
+					trackerListLength = 0;
+				}
+			}
+
+			trackerListChunks.Add(new PsnInfoTrackerListChunk(currentTrackerList));
+
+			ulong timestamp = (ulong)_timeStampReference.ElapsedMilliseconds;
+
+			foreach (var trackerListChunk in trackerListChunks)
+			{
+				var packet = new PsnInfoPacketChunk(
+					new PsnInfoHeaderChunk(timestamp, VersionHigh, VersionLow, _frameId, trackerListChunks.Count),
+					systemNameChunk, trackerListChunk);
+
+				var data = packet.ToByteArray();
+				Debug.Assert(data.Length <= MaxPacketLength);
+
+				_udpClient.SendAsync(data);
+			}
 		}
+
+		private void sendData()
+		{
+			// Copy local reference for threading reasons
+			var trackers = Trackers;
+
+			if (trackers == null)
+				return;
+			var trackerChunks = trackers.Select(t => new PsnDataTrackerChunk(t.TrackerId, t.ToChunks()));
+
+			var trackerListChunks = new List<PsnDataTrackerListChunk>();
+			var currentTrackerList = new List<PsnDataTrackerChunk>();
+
+			int trackerListLength = 0;
+			int maxTrackerListLength = MaxPacketLength -
+								  (PsnChunk.ChunkHeaderLength                       // Root Chunk-Header
+								   + PsnDataHeaderChunk.StaticChunkAndHeaderLength  // Packet Header Chunk
+								   + PsnChunk.ChunkHeaderLength);                   // Tracker List Chunk-Header
+
+			foreach (var chunk in trackerChunks)
+			{
+				if (trackerListLength <= maxTrackerListLength)
+				{
+					currentTrackerList.Add(chunk);
+					trackerListLength += chunk.ChunkAndHeaderLength;
+				}
+				else
+				{
+					trackerListChunks.Add(new PsnDataTrackerListChunk(currentTrackerList));
+					currentTrackerList = new List<PsnDataTrackerChunk>();
+					trackerListLength = 0;
+				}
+			}
+
+			trackerListChunks.Add(new PsnDataTrackerListChunk(currentTrackerList));
+
+			ulong timestamp = (ulong)_timeStampReference.ElapsedMilliseconds;
+
+			foreach (var trackerListChunk in trackerListChunks)
+			{
+				var packet = new PsnDataPacketChunk(
+					new PsnDataHeaderChunk(timestamp, VersionHigh, VersionLow, _frameId, trackerListChunks.Count),
+					trackerListChunk);
+
+				var data = packet.ToByteArray();
+				Debug.Assert(data.Length <= MaxPacketLength);
+
+				_udpClient.SendAsync(data);
+			}
+
+			++_frameId;
+		}
+
+
 
 
 

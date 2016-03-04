@@ -15,7 +15,7 @@
 
 using JetBrains.Annotations;
 
-namespace Imp.PosiStageDotNet
+namespace Imp.PosiStageDotNet.Chunks
 {
 	[PublicAPI]
 	public enum PsnPacketChunkId : ushort

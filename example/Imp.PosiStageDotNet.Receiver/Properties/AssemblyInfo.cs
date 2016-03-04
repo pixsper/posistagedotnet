@@ -15,7 +15,7 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
-[assembly: AssemblyTitle("Imp.PosiStageDotNet.Receiver")]
+[assembly: AssemblyTitle("Imp.PosiStageDotNet.Client")]
 [assembly: AssemblyDescription("Example to show receiving data using Imp.PosiStageDotNet")]
 
 #if DEBUG

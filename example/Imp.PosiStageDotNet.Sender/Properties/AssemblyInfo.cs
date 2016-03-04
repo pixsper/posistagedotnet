@@ -13,27 +13,20 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.IO;
-using System.Text;
-using Imp.PosiStageDotNet.Chunks;
+using System.Reflection;
+using System.Runtime.InteropServices;
+[assembly: AssemblyTitle("Imp.PosiStageDotNet.Server")]
+[assembly: AssemblyDescription("Example to show sending data using Imp.PosiStageDotNet")]
 
-namespace Imp.PosiStageDotNet.Serialization
-{
-	internal class PsnBinaryReader : EndianBinaryReader
-	{
-		private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
+#if DEBUG
 
-		public PsnBinaryReader(Stream stream)
-			: base(BitConverterInstance, stream, Encoding.UTF8) { }
+[assembly: AssemblyConfiguration("Debug")]
+#else
+	[assembly: AssemblyConfiguration("Release")]
+#endif
 
-		public PsnChunkHeader ReadChunkHeader()
-		{
-			return PsnChunkHeader.FromUInt32(ReadUInt32());
-		}
-
-		public string ReadString(int length)
-		{
-			return Encoding.GetString(ReadBytes(length), 0, length);
-		}
-	}
-}
+[assembly: AssemblyCompany("The Impersonal Stereo")]
+[assembly: AssemblyProduct("Imp.PosiStageDotNet")]
+[assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2016")]
+[assembly: ComVisible(false)]
+[assembly: Guid("2794a196-a859-44e3-9a44-725e3c94fe63")]

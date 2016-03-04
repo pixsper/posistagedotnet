@@ -42,13 +42,14 @@
   <ItemGroup>
     <Compile Include="Annotations.cs" />
     <Compile Include="Chunks\PsnPacketChunk.cs" />
-    <Compile Include="PsnChunkHeader.cs" />
+    <Compile Include="Chunks\PsnChunkHeader.cs" />
     <Compile Include="Chunks\PsnChunk.cs" />
-    <Compile Include="PsnChunkIdEnums.cs" />
+    <Compile Include="Chunks\PsnChunkIdEnums.cs" />
     <Compile Include="Chunks\PsnInfoSystemNameChunk.cs" />
     <Compile Include="Chunks\PsnDataTrackerListChunk.cs" />
     <Compile Include="Chunks\PsnInfoTrackerListChunk.cs" />
     <Compile Include="PsnClient.cs" />
+    <Compile Include="PsnTracker.cs" />
     <Compile Include="PsnServer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Chunks\PsnDataPacketChunk.cs" />

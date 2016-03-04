@@ -54,6 +54,11 @@ namespace Imp.PosiStageDotNet.Chunks
 		/// </summary>
 		public int ChunkLength => DataLength + RawSubChunks.Sum(c => ChunkHeaderLength + c.ChunkLength);
 
+		/// <summary>
+		///		The length of the entire chunk and local chunk header, including sub-chunks
+		/// </summary>
+		public int ChunkAndHeaderLength => ChunkLength + ChunkHeaderLength;
+
 
 		/// <summary>
 		///     Enumerable of sub-chunks

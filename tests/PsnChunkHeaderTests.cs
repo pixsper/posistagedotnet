@@ -14,6 +14,7 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using FluentAssertions;
+using Imp.PosiStageDotNet.Chunks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Imp.PosiStageDotNet.Tests

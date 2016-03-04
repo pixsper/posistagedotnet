@@ -16,14 +16,14 @@
 using System;
 using System.Net;
 
-namespace Imp.PosiStageDotNet.Receiver
+namespace Imp.PosiStageDotNet.Client
 {
 	public class Program
 	{
 		public static void Main(string[] args)
 		{
 			Console.WriteLine(new string('*', Console.WindowWidth - 1));
-			Console.WriteLine("Imp.PosiStageDotNet.Receiver Example");
+			Console.WriteLine("Imp.PosiStageDotNet.Client Example");
 			Console.WriteLine(new string('*', Console.WindowWidth - 1));
 			Console.WriteLine();
 
@@ -76,8 +76,8 @@ namespace Imp.PosiStageDotNet.Receiver
 					break;
 
 				default:
-					Console.WriteLine("Invalid args. Format is 'Imp.PosiStageDotNet.Receiver [CustomMulticastIP] [CustomPort]");
-					Console.WriteLine("E.g. 'Imp.PosiStageDotNet.Receiver 236.10.10.10 56565");
+					Console.WriteLine("Invalid args. Format is 'Imp.PosiStageDotNet.Client [CustomMulticastIP] [CustomPort]");
+					Console.WriteLine("E.g. 'Imp.PosiStageDotNet.Client 236.10.10.10 56565");
 					return;
 			}
 

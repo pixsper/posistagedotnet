@@ -7,8 +7,8 @@
     <ProjectGuid>{E08F8047-21BF-43C6-B474-F3F6285EFAA7}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Imp.PosiStageDotNet.Receiver</RootNamespace>
-    <AssemblyName>Imp.PosiStageDotNet.Receiver</AssemblyName>
+    <RootNamespace>Imp.PosiStageDotNet.Client</RootNamespace>
+    <AssemblyName>Imp.PosiStageDotNet.Client</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>

@@ -93,6 +93,9 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnInfoHeaderChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoHeaderChunk>
 	{
+		public const int StaticChunkAndHeaderLength = PsnChunk.ChunkHeaderLength + StaticDataLength;
+		public const int StaticDataLength = 12;
+
 		public PsnInfoHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
 			: base(null)
 		{
@@ -126,7 +129,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public int FrameId { get; }
 		public int FramePacketCount { get; }
 
-		public override int DataLength => 12;
+		public override int DataLength => StaticDataLength;
 
 		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoHeader;
 
