@@ -154,7 +154,7 @@ namespace Imp.PosiStageDotNet
 			if (chunk == null)
 				return;
 
-			switch ((PsnPacketChunkId)chunk.ChunkId)
+			switch ((PsnPacketChunkId)chunk.RawChunkId)
 			{
 				case PsnPacketChunkId.PsnInfoPacket:
 					InfoPacketReceived?.Invoke(this,

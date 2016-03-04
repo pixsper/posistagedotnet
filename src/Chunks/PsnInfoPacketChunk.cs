@@ -24,7 +24,7 @@ using JetBrains.Annotations;
 namespace Imp.PosiStageDotNet.Chunks
 {
 	[PublicAPI]
-	public sealed class PsnInfoPacketChunk : PsnChunk
+	public sealed class PsnInfoPacketChunk : PsnPacketChunk
 	{
 		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnInfoPacketSubChunk> subChunks)
 			: this((IEnumerable<PsnChunk>)subChunks) { }
@@ -33,8 +33,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		private PsnInfoPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnInfoPacket;
 		public override int DataLength => 0;
+
+		public override PsnPacketChunkId ChunkId => PsnPacketChunkId.PsnInfoPacket;
 
 		public override XElement ToXml()
 		{
@@ -77,6 +78,9 @@ namespace Imp.PosiStageDotNet.Chunks
 	public abstract class PsnInfoPacketSubChunk : PsnChunk
 	{
 		protected PsnInfoPacketSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		public abstract PsnInfoPacketChunkId ChunkId { get; }
+		public override ushort RawChunkId => (ushort)ChunkId;
 	}
 
 
@@ -117,8 +121,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		public int FrameId { get; }
 		public int FramePacketCount { get; }
 
-		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoHeader;
 		public override int DataLength => 12;
+
+		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoHeader;
 
 		public bool Equals([CanBeNull] PsnInfoHeaderChunk other)
 		{

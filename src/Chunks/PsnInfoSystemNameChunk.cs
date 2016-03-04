@@ -34,8 +34,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public string SystemName { get; }
 
-		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoSystemName;
 		public override int DataLength => SystemName.Length;
+
+		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoSystemName;
 
 		public bool Equals([CanBeNull] PsnInfoSystemNameChunk other)
 		{

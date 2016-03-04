@@ -17,7 +17,7 @@ using System;
 
 namespace Imp.PosiStageDotNet
 {
-	public struct PsnChunkHeader : IEquatable<PsnChunkHeader>
+	internal struct PsnChunkHeader : IEquatable<PsnChunkHeader>
 	{
 		public static PsnChunkHeader FromUInt32(uint value)
 		{

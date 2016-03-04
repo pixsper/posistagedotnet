@@ -33,8 +33,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		private PsnDataTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataTrackerList;
 		public override int DataLength => 0;
+
+		public override PsnDataPacketChunkId ChunkId => PsnDataPacketChunkId.PsnDataTrackerList;
 
 		public override XElement ToXml()
 		{
@@ -74,11 +75,13 @@ namespace Imp.PosiStageDotNet.Chunks
 				throw new ArgumentOutOfRangeException(nameof(trackerId), trackerId,
 					$"trackerId must be in the range {ushort.MinValue}-{ushort.MaxValue}");
 
-			ChunkId = (ushort)trackerId;
+			RawChunkId = (ushort)trackerId;
 		}
 
-		public override ushort ChunkId { get; }
+		public override ushort RawChunkId { get; }
 		public override int DataLength => 0;
+
+		public int TrackerId => RawChunkId;
 
 		public bool Equals([CanBeNull] PsnDataTrackerChunk other)
 		{
@@ -86,7 +89,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, other))
 				return true;
-			return base.Equals(other) && ChunkId == other.ChunkId;
+			return base.Equals(other) && RawChunkId == other.RawChunkId;
 		}
 
 		public override bool Equals([CanBeNull] object obj)
@@ -102,14 +105,14 @@ namespace Imp.PosiStageDotNet.Chunks
 		{
 			unchecked
 			{
-				return (base.GetHashCode() * 397) ^ ChunkId.GetHashCode();
+				return (base.GetHashCode() * 397) ^ RawChunkId.GetHashCode();
 			}
 		}
 
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerChunk),
-				new XAttribute("TrackerId", ChunkId),
+				new XAttribute("TrackerId", RawChunkId),
 				SubChunks.Select(c => c.ToXml()));
 		}
 
@@ -157,6 +160,9 @@ namespace Imp.PosiStageDotNet.Chunks
 	public abstract class PsnDataTrackerSubChunk : PsnChunk
 	{
 		protected PsnDataTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		public abstract PsnDataTrackerChunkId ChunkId { get; }
+		public override ushort RawChunkId => (ushort)ChunkId;
 	}
 
 
@@ -176,8 +182,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerPos;
 		public override int DataLength => 12;
+
+		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerPos;
 
 		public bool Equals([CanBeNull] PsnDataTrackerPosChunk other)
 		{
@@ -251,8 +258,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerSpeed;
 		public override int DataLength => 12;
+
+		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerSpeed;
 
 		public bool Equals([CanBeNull] PsnDataTrackerSpeedChunk other)
 		{
@@ -326,8 +334,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerOri;
 		public override int DataLength => 12;
+
+		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerOri;
 
 		public bool Equals([CanBeNull] PsnDataTrackerOriChunk other)
 		{
@@ -397,8 +406,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public float Validity { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerStatus;
 		public override int DataLength => 4;
+
+		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerStatus;
 
 		public bool Equals([CanBeNull] PsnDataTrackerStatusChunk other)
 		{
@@ -462,8 +472,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerAccel;
 		public override int DataLength => 12;
+
+		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerAccel;
 
 		public bool Equals([CanBeNull] PsnDataTrackerAccelChunk other)
 		{
@@ -537,8 +548,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataTrackerChunkId.PsnDataTrackerTrgtPos;
 		public override int DataLength => 12;
+
+		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerTrgtPos;
 
 		public bool Equals([CanBeNull] PsnDataTrackerTrgtPosChunk other)
 		{

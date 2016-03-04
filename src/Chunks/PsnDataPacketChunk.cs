@@ -24,7 +24,7 @@ using JetBrains.Annotations;
 namespace Imp.PosiStageDotNet.Chunks
 {
 	[PublicAPI]
-	public sealed class PsnDataPacketChunk : PsnChunk
+	public sealed class PsnDataPacketChunk : PsnPacketChunk
 	{
 		public PsnDataPacketChunk([NotNull] IEnumerable<PsnDataPacketSubChunk> subChunks)
 			: this((IEnumerable<PsnChunk>)subChunks) { }
@@ -33,8 +33,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		private PsnDataPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnDataPacket;
 		public override int DataLength => 0;
+
+		public override PsnPacketChunkId ChunkId => PsnPacketChunkId.PsnDataPacket;
 
 		public override XElement ToXml()
 		{
@@ -50,12 +51,12 @@ namespace Imp.PosiStageDotNet.Chunks
 			{
 				reader.Seek(pair.Item2, SeekOrigin.Begin);
 
-				switch ((PsnDataChunkId)pair.Item1.ChunkId)
+				switch ((PsnDataPacketChunkId)pair.Item1.ChunkId)
 				{
-					case PsnDataChunkId.PsnDataHeader:
+					case PsnDataPacketChunkId.PsnDataHeader:
 						subChunks.Add(PsnDataHeaderChunk.Deserialize(pair.Item1, reader));
 						break;
-					case PsnDataChunkId.PsnDataTrackerList:
+					case PsnDataPacketChunkId.PsnDataTrackerList:
 						subChunks.Add(PsnDataTrackerListChunk.Deserialize(pair.Item1, reader));
 						break;
 					default:
@@ -74,6 +75,9 @@ namespace Imp.PosiStageDotNet.Chunks
 	public abstract class PsnDataPacketSubChunk : PsnChunk
 	{
 		protected PsnDataPacketSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		public abstract PsnDataPacketChunkId ChunkId { get; }
+		public override ushort RawChunkId => (ushort)ChunkId;
 	}
 
 
@@ -114,8 +118,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		public int FrameId { get; }
 		public int FramePacketCount { get; }
 
-		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataHeader;
 		public override int DataLength => 12;
+
+		public override PsnDataPacketChunkId ChunkId => PsnDataPacketChunkId.PsnDataHeader;
 
 		public bool Equals([CanBeNull] PsnDataHeaderChunk other)
 		{

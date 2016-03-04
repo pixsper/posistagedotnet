@@ -33,7 +33,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoTrackerList;
+		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoTrackerList;
 		public override int DataLength => 0;
 
 		public override XElement ToXml()
@@ -74,16 +74,18 @@ namespace Imp.PosiStageDotNet.Chunks
 				throw new ArgumentOutOfRangeException(nameof(trackerId), trackerId,
 					$"trackerId must be in the range {ushort.MinValue}-{ushort.MaxValue}");
 
-			ChunkId = (ushort)trackerId;
+			RawChunkId = (ushort)trackerId;
 		}
 
-		public override ushort ChunkId { get; }
+		public override ushort RawChunkId { get; }
 		public override int DataLength => 0;
+
+		public int TrackerId => RawChunkId;
 
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoTrackerChunk),
-				new XAttribute("TrackerId", ChunkId),
+				new XAttribute("TrackerId", RawChunkId),
 				SubChunks.Select(c => c.ToXml()));
 		}
 
@@ -116,6 +118,9 @@ namespace Imp.PosiStageDotNet.Chunks
 	public abstract class PsnInfoTrackerSubChunk : PsnChunk
 	{
 		protected PsnInfoTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		public abstract PsnInfoTrackerChunkId ChunkId { get; }
+		public override ushort RawChunkId => (ushort)ChunkId;
 	}
 
 
@@ -134,8 +139,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public string TrackerName { get; }
 
-		public override ushort ChunkId => (ushort)PsnInfoTrackerChunkId.PsnInfoTrackerName;
 		public override int DataLength => TrackerName.Length;
+
+		public override PsnInfoTrackerChunkId ChunkId => PsnInfoTrackerChunkId.PsnInfoTrackerName;
 
 		public bool Equals([CanBeNull] PsnInfoTrackerName other)
 		{

@@ -38,7 +38,7 @@ namespace Imp.PosiStageDotNet
 		/// <summary>
 		///     The 16-bit identifier for this chunk
 		/// </summary>
-		public abstract ushort ChunkId { get; }
+		public abstract ushort RawChunkId { get; }
 
 		/// <summary>
 		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
@@ -64,7 +64,7 @@ namespace Imp.PosiStageDotNet
 		/// <summary>
 		///     Chunk header value for this chunk
 		/// </summary>
-		public PsnChunkHeader ChunkHeader => new PsnChunkHeader(ChunkId, ChunkLength, HasSubChunks);
+		internal PsnChunkHeader ChunkHeader => new PsnChunkHeader(RawChunkId, ChunkLength, HasSubChunks);
 
 		[CanBeNull]
 		public static PsnChunk FromByteArray(byte[] data)
@@ -128,7 +128,7 @@ namespace Imp.PosiStageDotNet
 		{
 			unchecked
 			{
-				return (ChunkId.GetHashCode() * 397) ^ SubChunks.GetHashCode();
+				return (RawChunkId.GetHashCode() * 397) ^ SubChunks.GetHashCode();
 			}
 		}
 
@@ -138,7 +138,7 @@ namespace Imp.PosiStageDotNet
 				return false;
 			if (ReferenceEquals(this, other))
 				return true;
-			return ChunkId == other.ChunkId && SubChunks.SequenceEqual(other.SubChunks);
+			return RawChunkId == other.RawChunkId && SubChunks.SequenceEqual(other.SubChunks);
 		}
 
 		internal static IEnumerable<Tuple<PsnChunkHeader, long>> FindSubChunkHeaders(PsnBinaryReader reader,
@@ -182,16 +182,16 @@ namespace Imp.PosiStageDotNet
 
 	internal class PsnUnknownChunk : PsnChunk, IEquatable<PsnUnknownChunk>
 	{
-		public PsnUnknownChunk(ushort chunkId, [CanBeNull] byte[] data)
+		public PsnUnknownChunk(ushort rawChunkId, [CanBeNull] byte[] data)
 			: base(null)
 		{
-			ChunkId = chunkId;
+			RawChunkId = rawChunkId;
 			Data = data ?? new byte[0];
 		}
 
 		public byte[] Data { get; }
 
-		public override ushort ChunkId { get; }
+		public override ushort RawChunkId { get; }
 		public override int DataLength => 0;
 
 		public bool Equals([CanBeNull] PsnUnknownChunk other)
@@ -230,7 +230,7 @@ namespace Imp.PosiStageDotNet
 			{
 				int hashCode = base.GetHashCode();
 				hashCode = (hashCode * 397) ^ Data.GetHashCode();
-				hashCode = (hashCode * 397) ^ ChunkId.GetHashCode();
+				hashCode = (hashCode * 397) ^ RawChunkId.GetHashCode();
 				return hashCode;
 			}
 		}
