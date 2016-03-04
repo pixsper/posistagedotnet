@@ -1,4 +1,19 @@
-﻿using FluentAssertions;
+﻿// This file is part of PosiStageDotNet.
+// 
+// PosiStageDotNet is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// PosiStageDotNet is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
+
+using FluentAssertions;
 using Imp.PosiStageDotNet.Chunks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -10,7 +25,7 @@ namespace Imp.PosiStageDotNet.Tests
 		[TestMethod]
 		public void CanSerializeAndDeserialize()
 		{
-			var infoPacket1 = 
+			var infoPacket1 =
 				new PsnInfoPacketChunk(
 					new PsnInfoHeaderChunk(1500, 2, 1, 34, 1),
 					new PsnInfoSystemNameChunk("Test System"),
@@ -18,7 +33,7 @@ namespace Imp.PosiStageDotNet.Tests
 						new PsnInfoTrackerChunk(0,
 							new PsnInfoTrackerName("Test Tracker"))
 						)
-				);
+					);
 
 			var infoData = infoPacket1.ToByteArray();
 
@@ -37,7 +52,7 @@ namespace Imp.PosiStageDotNet.Tests
 							new PsnDataTrackerStatusChunk(54f),
 							new PsnDataTrackerAccelChunk(4.34f, 23423.5f, 234.4f),
 							new PsnDataTrackerTrgtPosChunk(23.3f, 4325f, 4234f)
-						),
+							),
 						new PsnDataTrackerChunk(1,
 							new PsnDataTrackerPosChunk(-343.44f, 4.76f, 2.45f),
 							new PsnDataTrackerSpeedChunk(34f, -23f, 5676.4f),
@@ -45,9 +60,9 @@ namespace Imp.PosiStageDotNet.Tests
 							new PsnDataTrackerStatusChunk(0.1f),
 							new PsnDataTrackerAccelChunk(4234.34f, 543543.4f, 23.43f),
 							new PsnDataTrackerTrgtPosChunk(2342.6f, 35.5f, -14545.4f)
+							)
 						)
-					)
-				);
+					);
 
 			var dataData = dataPacket1.ToByteArray();
 

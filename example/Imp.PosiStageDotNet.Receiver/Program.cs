@@ -1,4 +1,19 @@
-﻿using System;
+﻿// This file is part of PosiStageDotNet.
+// 
+// PosiStageDotNet is free software: you can redistribute it and/or modify
+// it under the terms of the GNU Lesser General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+// 
+// PosiStageDotNet is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU Lesser General Public License for more details.
+// 
+// You should have received a copy of the GNU Lesser General Public License
+// along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
+
+using System;
 using System.Net;
 
 namespace Imp.PosiStageDotNet.Receiver
@@ -18,7 +33,8 @@ namespace Imp.PosiStageDotNet.Receiver
 			{
 				case 0:
 					client = new PsnClient();
-					Console.WriteLine($"Listening on default multicast IP '{PsnClient.DefaultMulticastIp}', default port {PsnClient.DefaultPort}");
+					Console.WriteLine(
+						$"Listening on default multicast IP '{PsnClient.DefaultMulticastIp}', default port {PsnClient.DefaultPort}");
 					break;
 
 				case 1:
@@ -47,7 +63,6 @@ namespace Imp.PosiStageDotNet.Receiver
 							Console.WriteLine($"UDP port value out of valid range '{args[1]}'");
 							return;
 						}
-
 					}
 					else
 					{
@@ -55,7 +70,8 @@ namespace Imp.PosiStageDotNet.Receiver
 					}
 
 					client = new PsnClient(ip.ToString(), port);
-					Console.WriteLine($"Listening on custom multicast IP '{PsnClient.DefaultMulticastIp}', custom port {PsnClient.DefaultPort}");
+					Console.WriteLine(
+						$"Listening on custom multicast IP '{PsnClient.DefaultMulticastIp}', custom port {PsnClient.DefaultPort}");
 				}
 					break;
 
@@ -92,13 +108,12 @@ namespace Imp.PosiStageDotNet.Receiver
 
 		private static void infoPacketReceived(object sender, PsnClient.PsnInfoPacketReceived e)
 		{
-			Console.WriteLine(e.Packet);
+			Console.WriteLine(e.Packet.ToXml());
 		}
 
 		private static void dataPacketReceived(object sender, PsnClient.PsnDataPacketReceived e)
 		{
-			Console.WriteLine(e.Packet);
+			Console.WriteLine(e.Packet.ToXml());
 		}
-
 	}
 }

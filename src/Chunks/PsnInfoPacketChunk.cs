@@ -16,6 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using Imp.PosiStageDotNet.Serialization;
 using JetBrains.Annotations;
 
@@ -61,6 +63,12 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnPacketChunkId.PsnInfoPacket;
 		public override int DataLength => 0;
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoPacketChunk),
+				SubChunks.Select(c => c.ToXml()));
+		}
 	}
 
 
@@ -122,6 +130,15 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoHeader;
 		public override int DataLength => 12;
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoHeaderChunk),
+				new XAttribute(nameof(TimeStamp), TimeStamp),
+				new XAttribute(nameof(VersionHigh), VersionHigh),
+				new XAttribute(nameof(FrameId), FrameId),
+				new XAttribute(nameof(FramePacketCount), FramePacketCount));
+		}
 
 		internal override void SerializeData(PsnBinaryWriter writer)
 		{

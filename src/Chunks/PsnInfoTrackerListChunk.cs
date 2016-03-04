@@ -16,6 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using Imp.PosiStageDotNet.Serialization;
 using JetBrains.Annotations;
 
@@ -46,6 +48,12 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoTrackerList;
 		public override int DataLength => 0;
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoTrackerListChunk),
+				SubChunks.Select(c => c.ToXml()));
+		}
 	}
 
 
@@ -93,6 +101,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId { get; }
 		public override int DataLength => 0;
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoTrackerChunk),
+				new XAttribute("TrackerId", ChunkId),
+				SubChunks.Select(c => c.ToXml()));
+		}
 	}
 
 
@@ -156,6 +171,12 @@ namespace Imp.PosiStageDotNet.Chunks
 			{
 				return (base.GetHashCode() * 397) ^ TrackerName.GetHashCode();
 			}
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoTrackerName),
+				new XAttribute(nameof(TrackerName), TrackerName));
 		}
 	}
 }

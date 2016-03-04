@@ -14,6 +14,8 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
+using System.Xml.Linq;
 using Imp.PosiStageDotNet.Serialization;
 using JetBrains.Annotations;
 
@@ -40,6 +42,12 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnInfoPacketChunkId.PsnInfoSystemName;
 		public override int DataLength => SystemName.Length;
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoSystemNameChunk),
+				new XAttribute(nameof(SystemName), SystemName));
+		}
 
 		internal override void SerializeData(PsnBinaryWriter writer)
 		{

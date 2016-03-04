@@ -18,6 +18,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using Imp.PosiStageDotNet.Chunks;
 using Imp.PosiStageDotNet.Serialization;
 using JetBrains.Annotations;
@@ -114,6 +115,11 @@ namespace Imp.PosiStageDotNet
 		public PsnChunkHeader ChunkHeader => new PsnChunkHeader(ChunkId, ChunkLength, HasSubChunks);
 
 		/// <summary>
+		///		Converts the chunk and sub-chunks to an XML representation
+		/// </summary>
+		public abstract XElement ToXml();
+
+		/// <summary>
 		///     Serializes the chunk to a byte array
 		/// </summary>
 		public byte[] ToByteArray()
@@ -201,6 +207,12 @@ namespace Imp.PosiStageDotNet
 			if (ReferenceEquals(this, other))
 				return true;
 			return base.Equals(other) && Data.SequenceEqual(other.Data);
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnUnknownChunk),
+				new XAttribute("DataLength", Data.Length));
 		}
 
 		public override bool Equals([CanBeNull] object obj)

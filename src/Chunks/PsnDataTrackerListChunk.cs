@@ -16,6 +16,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Xml.Linq;
 using Imp.PosiStageDotNet.Serialization;
 using JetBrains.Annotations;
 
@@ -46,6 +48,12 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override ushort ChunkId => (ushort)PsnDataChunkId.PsnDataTrackerList;
 		public override int DataLength => 0;
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerListChunk),
+				SubChunks.Select(c => c.ToXml()));
+		}
 	}
 
 
@@ -134,6 +142,13 @@ namespace Imp.PosiStageDotNet.Chunks
 				return (base.GetHashCode() * 397) ^ ChunkId.GetHashCode();
 			}
 		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerChunk),
+				new XAttribute("TrackerId", ChunkId),
+				SubChunks.Select(c => c.ToXml()));
+		}
 	}
 
 
@@ -209,6 +224,14 @@ namespace Imp.PosiStageDotNet.Chunks
 				return hashCode;
 			}
 		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerPosChunk),
+				new XAttribute(nameof(X), X),
+				new XAttribute(nameof(Y), Y),
+				new XAttribute(nameof(Z), Z));
+		}
 	}
 
 
@@ -275,6 +298,14 @@ namespace Imp.PosiStageDotNet.Chunks
 				hashCode = (hashCode * 397) ^ Z.GetHashCode();
 				return hashCode;
 			}
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerSpeedChunk),
+				new XAttribute(nameof(X), X),
+				new XAttribute(nameof(Y), Y),
+				new XAttribute(nameof(Z), Z));
 		}
 	}
 
@@ -343,6 +374,14 @@ namespace Imp.PosiStageDotNet.Chunks
 				return hashCode;
 			}
 		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerOriChunk),
+				new XAttribute(nameof(X), X),
+				new XAttribute(nameof(Y), Y),
+				new XAttribute(nameof(Z), Z));
+		}
 	}
 
 
@@ -397,6 +436,12 @@ namespace Imp.PosiStageDotNet.Chunks
 			{
 				return (base.GetHashCode() * 397) ^ Validity.GetHashCode();
 			}
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerStatusChunk),
+				new XAttribute(nameof(Validity), Validity));
 		}
 	}
 
@@ -465,6 +510,14 @@ namespace Imp.PosiStageDotNet.Chunks
 				return hashCode;
 			}
 		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerAccelChunk),
+				new XAttribute(nameof(X), X),
+				new XAttribute(nameof(Y), Y),
+				new XAttribute(nameof(Z), Z));
+		}
 	}
 
 
@@ -531,6 +584,14 @@ namespace Imp.PosiStageDotNet.Chunks
 				hashCode = (hashCode * 397) ^ Z.GetHashCode();
 				return hashCode;
 			}
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnDataTrackerTrgtPosChunk),
+				new XAttribute(nameof(X), X),
+				new XAttribute(nameof(Y), Y),
+				new XAttribute(nameof(Z), Z));
 		}
 	}
 }
