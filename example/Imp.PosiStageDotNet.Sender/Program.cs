@@ -75,12 +75,12 @@ namespace Imp.PosiStageDotNet.Server
 			Console.WriteLine(new string('*', Console.WindowWidth - 1));
 			Console.WriteLine("");
 
-			server.Trackers = createTrackers();
+			server.SetTrackers(createTrackers());
 			server.StartSendingAsync().Wait();
 	
 			while (!Console.KeyAvailable)
 			{
-				server.Trackers = createTrackers();
+				server.SetTrackers(createTrackers());
 				Thread.Sleep(1000 / 60);
 			}
 

@@ -30,7 +30,8 @@ namespace Imp.PosiStageDotNet
 	///     Class to serialize and repeatedly send PosiStageNet Data and Info packets at defined rates
 	/// </summary>
 	[PublicAPI]
-	public sealed class PsnServer : IDisposable
+	// ReSharper disable once ClassWithVirtualMembersNeverInherited.Global
+	public class PsnServer : IDisposable
 	{
 		public const int VersionHigh = 2;
 		public const int VersionLow = 1;
@@ -45,6 +46,8 @@ namespace Imp.PosiStageDotNet
 
 		private readonly UdpSocketClient _udpClient = new UdpSocketClient();
 
+		private IEnumerable<PsnTracker> _trackers; 
+
 		private Timer _dataTimer;
 		private Timer _infoTimer;
 		private Stopwatch _timeStampReference = new Stopwatch();
@@ -57,7 +60,6 @@ namespace Imp.PosiStageDotNet
 		///     Constructs with default multicast IP, port number and data/info packet send frequencies
 		/// </summary>
 		/// <param name="systemName">Name used to identify this server</param>
-		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
 		public PsnServer([NotNull] string systemName)
 			: this(systemName, DefaultMulticastIp, DefaultPort, DefaultDataSendFrequency, DefaultInfoSendFrequency) { }
 
@@ -67,7 +69,6 @@ namespace Imp.PosiStageDotNet
 		/// <param name="systemName">Name used to identify this server</param>
 		/// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
 		/// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
-		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
 		public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency)
 			: this(systemName, DefaultMulticastIp, DefaultPort, dataSendFrequency, infoSendFrequency) { }
 
@@ -77,7 +78,6 @@ namespace Imp.PosiStageDotNet
 		/// <param name="systemName">Name used to identify this server</param>
 		/// <param name="customMulticastIp">Custom multicast IP to send data to</param>
 		/// <param name="customPort">Custom UDP port number to send data to</param>
-		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
 		public PsnServer([NotNull] string systemName, [NotNull] string customMulticastIp, int customPort)
 			: this(systemName, customMulticastIp, customPort, DefaultDataSendFrequency, DefaultInfoSendFrequency) { }
 
@@ -89,7 +89,6 @@ namespace Imp.PosiStageDotNet
 		/// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
 		/// <param name="customMulticastIp">Custom multicast IP to send data to</param>
 		/// <param name="customPort">Custom UDP port number to send data to</param>
-		/// <param name="adapterIp">IP address of network adapter to send on, or null to use any network adapter</param>
 		public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency,
 			[NotNull] string customMulticastIp, int customPort)
 			: this(systemName, customMulticastIp, customPort, dataSendFrequency, infoSendFrequency) { }
@@ -166,20 +165,42 @@ namespace Imp.PosiStageDotNet
 		public double InfoSendFrequency { get; }
 
 		/// <summary>
-		///		Trackers to send data for
+		///		Set the collection of trackers to send data and info packets for
 		/// </summary>
-		[CanBeNull]
-		public IEnumerable<PsnTracker> Trackers { get; set; }
+		public void SetTrackers([CanBeNull] IEnumerable<PsnTracker> trackers) => _trackers = trackers;
+
+		/// <summary>
+		///		Send a custom PsnPacketChunk
+		/// </summary>
+		public void SendCustomPacket([NotNull] PsnPacketChunk chunk)
+		{
+			if (chunk == null)
+				throw new ArgumentNullException(nameof(chunk));
+
+			var bytes = chunk.ToByteArray();
+
+			if (bytes.Length > MaxPacketLength)
+				throw new ArgumentException($"Serialized chunk length ({bytes.Length}) is longer than maximum PosiStageNet packet length ({MaxPacketLength})");
+
+			_udpClient.SendAsync(bytes);
+		}
 
 		public void Dispose()
 		{
-			if (_isDisposed)
-				return;
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
 
-			if (IsSending)
-				StopSendingAsync().Wait();
+		protected virtual void Dispose(bool isDisposing)
+		{
+			if (isDisposing)
+			{
+				if (IsSending)
+					StopSendingAsync().Wait();
 
-			_udpClient.Dispose();
+				_udpClient.Dispose();
+			}
+
 			_isDisposed = true;
 		}
 
@@ -189,6 +210,9 @@ namespace Imp.PosiStageDotNet
 		/// <returns></returns>
 		public async Task StartSendingAsync()
 		{
+			if (_isDisposed)
+				throw new ObjectDisposedException(nameof(PsnServer));
+
 			await _udpClient.ConnectAsync(MulticastIp, Port).ConfigureAwait(false);
 
 			IsSending = true;
@@ -202,6 +226,9 @@ namespace Imp.PosiStageDotNet
 		/// </summary>
 		public async Task StopSendingAsync()
 		{
+			if (_isDisposed)
+				throw new ObjectDisposedException(nameof(PsnServer));
+
 			if (!IsSending)
 				throw new InvalidOperationException("Cannot stop sending, client is not currently sending");
 
@@ -216,26 +243,20 @@ namespace Imp.PosiStageDotNet
 			IsSending = false;
 		}
 
-		private void sendInfo()
+		protected virtual void OnSendInfo([NotNull] IEnumerable<PsnTracker> trackers)
 		{
-			// Copy local reference for threading reasons
-			var trackers = Trackers;
-
-			if (trackers == null)
-				return;
-
 			var systemNameChunk = new PsnInfoSystemNameChunk(SystemName);
-			var trackerChunks = trackers.Select(t => new PsnInfoTrackerChunk(t.TrackerId, new PsnInfoTrackerName(t.TrackerName)));
+			var trackerChunks = trackers.Select(t => new PsnInfoTrackerChunk(t.TrackerId, t.ToInfoTrackerChunks()));
 
 			var trackerListChunks = new List<PsnInfoTrackerListChunk>();
 			var currentTrackerList = new List<PsnInfoTrackerChunk>();
 
 			int trackerListLength = 0;
 			int maxTrackerListLength = MaxPacketLength -
-			                      (PsnChunk.ChunkHeaderLength						// Root Chunk-Header
-								   + PsnInfoHeaderChunk.StaticChunkAndHeaderLength	// Packet Header Chunk
-			                       + systemNameChunk.ChunkAndHeaderLength			// System Name Chunk
-								   + PsnChunk.ChunkHeaderLength);					// Tracker List Chunk-Header
+								  (PsnChunk.ChunkHeaderLength                       // Root Chunk-Header
+								   + PsnInfoHeaderChunk.StaticChunkAndHeaderLength  // Packet Header Chunk
+								   + systemNameChunk.ChunkAndHeaderLength           // System Name Chunk
+								   + PsnChunk.ChunkHeaderLength);                   // Tracker List Chunk-Header
 
 			foreach (var chunk in trackerChunks)
 			{
@@ -269,14 +290,9 @@ namespace Imp.PosiStageDotNet
 			}
 		}
 
-		private void sendData()
+		protected virtual void OnSendData([NotNull] IEnumerable<PsnTracker> trackers)
 		{
-			// Copy local reference for threading reasons
-			var trackers = Trackers;
-
-			if (trackers == null)
-				return;
-			var trackerChunks = trackers.Select(t => new PsnDataTrackerChunk(t.TrackerId, t.ToChunks()));
+			var trackerChunks = trackers.Select(t => new PsnDataTrackerChunk(t.TrackerId, t.ToDataTrackerChunks()));
 
 			var trackerListChunks = new List<PsnDataTrackerListChunk>();
 			var currentTrackerList = new List<PsnDataTrackerChunk>();
@@ -319,6 +335,28 @@ namespace Imp.PosiStageDotNet
 			}
 
 			++_frameId;
+		}
+
+		private void sendInfo()
+		{
+			// Copy local reference for threading reasons
+			var trackers = _trackers;
+
+			if (trackers == null)
+				return;
+
+			OnSendInfo(trackers);
+		}
+
+		private void sendData()
+		{
+			// Copy local reference for threading reasons
+			var trackers = _trackers;
+
+			if (trackers == null)
+				return;
+			
+			OnSendData(trackers);
 		}
 
 

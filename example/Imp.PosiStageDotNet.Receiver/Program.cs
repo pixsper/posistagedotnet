@@ -14,7 +14,9 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Net;
+using System.Threading;
 
 namespace Imp.PosiStageDotNet.Client
 {
@@ -86,9 +88,27 @@ namespace Imp.PosiStageDotNet.Client
 			Console.WriteLine(new string('*', Console.WindowWidth - 1));
 			Console.WriteLine("");
 
-			client.InfoPacketReceived += infoPacketReceived;
-			client.DataPacketReceived += dataPacketReceived;
 			client.StartListeningAsync().Wait();
+
+			while (!Console.KeyAvailable)
+			{
+				if (client.Trackers.Any())
+				{
+					Console.WriteLine(new string('*', Console.WindowWidth - 1));
+					Console.WriteLine("");
+
+					foreach (var pair in client.Trackers)
+					{
+						Console.WriteLine(pair.Value);
+						Console.WriteLine("");
+					}
+
+					Console.WriteLine(new string('*', Console.WindowWidth - 1));
+					Console.WriteLine("");
+				}
+				
+				Thread.Sleep(1000);
+			}
 
 			Console.ReadKey();
 
@@ -104,16 +124,6 @@ namespace Imp.PosiStageDotNet.Client
 			Console.WriteLine("");
 			Console.WriteLine(new string('*', Console.WindowWidth - 1));
 			Console.WriteLine("");
-		}
-
-		private static void infoPacketReceived(object sender, PsnClient.PsnInfoPacketReceived e)
-		{
-			Console.WriteLine(e.Packet.ToXml());
-		}
-
-		private static void dataPacketReceived(object sender, PsnClient.PsnDataPacketReceived e)
-		{
-			Console.WriteLine(e.Packet.ToXml());
 		}
 	}
 }

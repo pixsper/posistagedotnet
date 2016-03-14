@@ -31,7 +31,7 @@ namespace Imp.PosiStageDotNet.Tests
 					new PsnInfoSystemNameChunk("Test System"),
 					new PsnInfoTrackerListChunk(
 						new PsnInfoTrackerChunk(0,
-							new PsnInfoTrackerName("Test Tracker"))
+							new PsnInfoTrackerNameChunk("Test Tracker"))
 						)
 					);
 

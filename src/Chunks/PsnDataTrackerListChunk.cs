@@ -186,6 +186,8 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
+		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
+
 		public override int DataLength => 12;
 
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerPos;
@@ -262,6 +264,8 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
+		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
+
 		public override int DataLength => 12;
 
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerSpeed;
@@ -337,6 +341,8 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float X { get; }
 		public float Y { get; }
 		public float Z { get; }
+
+		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
 		public override int DataLength => 12;
 
@@ -476,6 +482,8 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float Y { get; }
 		public float Z { get; }
 
+		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
+
 		public override int DataLength => 12;
 
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerAccel;
@@ -551,6 +559,8 @@ namespace Imp.PosiStageDotNet.Chunks
 		public float X { get; }
 		public float Y { get; }
 		public float Z { get; }
+
+		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
 		public override int DataLength => 12;
 

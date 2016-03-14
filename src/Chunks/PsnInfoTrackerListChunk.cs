@@ -104,7 +104,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				switch ((PsnInfoTrackerChunkId)pair.Item1.ChunkId)
 				{
 					case PsnInfoTrackerChunkId.PsnInfoTrackerName:
-						subChunks.Add(PsnInfoTrackerName.Deserialize(pair.Item1, reader));
+						subChunks.Add(PsnInfoTrackerNameChunk.Deserialize(pair.Item1, reader));
 						break;
 					default:
 						subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
@@ -130,9 +130,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 	[PublicAPI]
-	public class PsnInfoTrackerName : PsnInfoTrackerSubChunk, IEquatable<PsnInfoTrackerName>
+	public class PsnInfoTrackerNameChunk : PsnInfoTrackerSubChunk, IEquatable<PsnInfoTrackerNameChunk>
 	{
-		public PsnInfoTrackerName([NotNull] string trackerName)
+		public PsnInfoTrackerNameChunk([NotNull] string trackerName)
 			: base(null)
 		{
 			if (trackerName == null)
@@ -147,7 +147,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override PsnInfoTrackerChunkId ChunkId => PsnInfoTrackerChunkId.PsnInfoTrackerName;
 
-		public bool Equals([CanBeNull] PsnInfoTrackerName other)
+		public bool Equals([CanBeNull] PsnInfoTrackerNameChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -162,7 +162,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				return false;
 			if (ReferenceEquals(this, obj))
 				return true;
-			return obj.GetType() == GetType() && Equals((PsnInfoTrackerName)obj);
+			return obj.GetType() == GetType() && Equals((PsnInfoTrackerNameChunk)obj);
 		}
 
 		public override int GetHashCode()
@@ -175,13 +175,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public override XElement ToXml()
 		{
-			return new XElement(nameof(PsnInfoTrackerName),
+			return new XElement(nameof(PsnInfoTrackerNameChunk),
 				new XAttribute(nameof(TrackerName), TrackerName));
 		}
 
-		internal static PsnInfoTrackerName Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		internal static PsnInfoTrackerNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
 		{
-			return new PsnInfoTrackerName(reader.ReadString(chunkHeader.DataLength));
+			return new PsnInfoTrackerNameChunk(reader.ReadString(chunkHeader.DataLength));
 		}
 
 		internal override void SerializeData(PsnBinaryWriter writer)

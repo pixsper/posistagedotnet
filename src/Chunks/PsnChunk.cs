@@ -71,6 +71,16 @@ namespace Imp.PosiStageDotNet.Chunks
 		public bool HasSubChunks => RawSubChunks.Any();
 
 		/// <summary>
+		///		Enumerable of sub-chunks which were unrecognized when deserializing
+		/// </summary>
+		public IEnumerable<PsnUnknownChunk> UnknownSubChunks => RawSubChunks.OfType<PsnUnknownChunk>();
+
+		/// <summary>
+		///		True if chunk contains any sub-chunks which were unrecognised when deserializing
+		/// </summary>
+		public bool HasUnknownSubChunks => UnknownSubChunks.Any();
+
+		/// <summary>
 		///     Chunk header value for this chunk
 		/// </summary>
 		internal PsnChunkHeader ChunkHeader => new PsnChunkHeader(RawChunkId, ChunkLength, HasSubChunks);
