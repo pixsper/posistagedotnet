@@ -17,7 +17,7 @@ using System.Reflection;
 using System.Resources;
 using System.Runtime.CompilerServices;
 [assembly: AssemblyTitle("Imp.PosiStageDotNet")]
-[assembly: AssemblyDescription("C# PCL for sending/receiving PosiStageNet data over Ethernet")]
+[assembly: AssemblyDescription("C# PCL for sending/receiving PosiStageNet positional data over Ethernet for entertainment control applications.")]
 
 #if DEBUG
 

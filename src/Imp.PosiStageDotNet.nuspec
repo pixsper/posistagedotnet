@@ -6,10 +6,11 @@
     <title>$title$</title>
     <authors>$author$</authors>
     <owners>$author$</owners>
-	<description>$description$</description>
+	<description>$description$ See http://www.posistage.net/ for more information on PosiStageNet.</description>
     <licenseUrl>http://www.gnu.org/licenses/lgpl-3.0-standalone.html</licenseUrl>
     <projectUrl>https://github.com/impsnldavid/posistagedotnet</projectUrl>
+	<iconUrl>https://raw.githubusercontent.com/impsnldavid/posistagedotnet/master/resources/logo.png</iconUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
-    <copyright>Copyright 2016</copyright>
+    <copyright>$copyright$</copyright>
   </metadata>
 </package>
