@@ -18,7 +18,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Imp.PosiStageDotNet.Chunks;
 using JetBrains.Annotations;
@@ -40,7 +39,6 @@ namespace Imp.PosiStageDotNet
 		private readonly List<PsnInfoPacketChunk> _currentInfoPacketChunks = new List<PsnInfoPacketChunk>();
 
 		private readonly ConcurrentDictionary<int, PsnTracker> _trackers = new ConcurrentDictionary<int, PsnTracker>();
-		private readonly ReadOnlyDictionary<int, PsnTracker> _readOnlyTrackers;
 
 		private readonly UdpSocketMulticastClient _udpClient = new UdpSocketMulticastClient();
 
@@ -58,7 +56,7 @@ namespace Imp.PosiStageDotNet
 		/// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
 		public PsnClient(string adapterIp = null, bool isStrict = true)
 		{
-			_readOnlyTrackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
+			Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
 
 			MulticastIp = DefaultMulticastIp;
 			Port = DefaultPort;
@@ -75,7 +73,7 @@ namespace Imp.PosiStageDotNet
 		/// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
 		public PsnClient(string customMulticastIp, int customPort, string adapterIp = null, bool isStrict = true)
 		{
-			_readOnlyTrackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
+			Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
 
 			if (string.IsNullOrWhiteSpace(customMulticastIp))
 				throw new ArgumentException("customMulticastIp cannot be null or empty");
@@ -127,7 +125,7 @@ namespace Imp.PosiStageDotNet
 		/// <summary>
 		///     Dictionary of trackers keyed by tracker index
 		/// </summary>
-		public ReadOnlyDictionary<int, PsnTracker> Trackers => _readOnlyTrackers;
+		public ReadOnlyDictionary<int, PsnTracker> Trackers { get; }
 
 		/// <summary>
 		///     System name of the remote PosiStageNet server, or null if no info packets have been received
@@ -135,6 +133,9 @@ namespace Imp.PosiStageDotNet
 		[CanBeNull]
 		public string RemoteSystemName { get; private set; }
 
+		/// <summary>
+		///     Stops listening for data and releases network resources
+		/// </summary>
 		public void Dispose()
 		{
 			Dispose(true);
@@ -215,7 +216,10 @@ namespace Imp.PosiStageDotNet
 			if (!IsListening)
 				throw new InvalidOperationException("Cannot stop listening, client is not currently listening");
 
+			// ReSharper disable once DelegateSubtraction
+			// TODO: This error should disappear when we eventually move to rda.Sockets 2.0
 			_udpClient.MessageReceived -= messageReceived;
+
 			await _udpClient.DisconnectAsync().ConfigureAwait(false);
 
 			IsListening = false;
@@ -311,7 +315,7 @@ namespace Imp.PosiStageDotNet
 		}
 
 		/// <summary>
-		/// Override to provide new behavior for receipt of a complete PosiStageNet info frame
+		///     Override to provide new behavior for receipt of a complete PosiStageNet info frame
 		/// </summary>
 		/// <param name="header"></param>
 		/// <param name="systemName"></param>
@@ -442,7 +446,7 @@ namespace Imp.PosiStageDotNet
 		}
 
 		/// <summary>
-		/// Override to provide new behavior for a receipt of a complete PosiStageNet data frame
+		///     Override to provide new behavior for a receipt of a complete PosiStageNet data frame
 		/// </summary>
 		/// <param name="header"></param>
 		/// <param name="dataPackets"></param>
@@ -503,7 +507,7 @@ namespace Imp.PosiStageDotNet
 
 				tracker = PsnTracker.CloneInternal(tracker, dataTimeStamp: header.TimeStamp,
 					position: position, clearPosition: position == null,
-					speed: speed, clearSpeed: speed == null, 
+					speed: speed, clearSpeed: speed == null,
 					orientation: orientation, clearOrientation: orientation == null,
 					acceleration: acceleration, clearAcceleration: acceleration == null,
 					targetposition: targetPosition, clearTargetPosition: targetPosition == null,
@@ -560,6 +564,9 @@ namespace Imp.PosiStageDotNet
 
 
 
+		/// <summary>
+		///     Contains information on one of more invalid packets received by <see cref="PsnClient" />
+		/// </summary>
 		public class InvalidPacketsReceivedEventArgs : EventArgs
 		{
 			internal InvalidPacketsReceivedEventArgs(PsnPacketChunk packet, bool wasProcessed, string message)

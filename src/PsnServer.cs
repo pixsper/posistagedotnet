@@ -22,7 +22,6 @@ using System.Threading.Tasks;
 using Imp.PosiStageDotNet.Chunks;
 using JetBrains.Annotations;
 using Sockets.Plugin;
-using Sockets.Plugin.Abstractions;
 
 namespace Imp.PosiStageDotNet
 {
@@ -46,15 +45,15 @@ namespace Imp.PosiStageDotNet
 
 		private readonly UdpSocketClient _udpClient = new UdpSocketClient();
 
-		private IEnumerable<PsnTracker> _trackers; 
-
 		private Timer _dataTimer;
-		private Timer _infoTimer;
-		private Stopwatch _timeStampReference = new Stopwatch();
 
 		private byte _frameId;
+		private Timer _infoTimer;
 
 		private bool _isDisposed;
+		private Stopwatch _timeStampReference = new Stopwatch();
+
+		private IEnumerable<PsnTracker> _trackers;
 
 		/// <summary>
 		///     Constructs with default multicast IP, port number and data/info packet send frequencies
@@ -94,7 +93,8 @@ namespace Imp.PosiStageDotNet
 			: this(systemName, customMulticastIp, customPort, dataSendFrequency, infoSendFrequency) { }
 
 
-		private PsnServer([NotNull] string systemName, [NotNull] string multicastIp, int port, double dataSendFrequency, double infoSendFrequency)
+		private PsnServer([NotNull] string systemName, [NotNull] string multicastIp, int port, double dataSendFrequency,
+			double infoSendFrequency)
 		{
 			if (systemName == null)
 				throw new ArgumentNullException(nameof(systemName));
@@ -127,7 +127,7 @@ namespace Imp.PosiStageDotNet
 
 
 		/// <summary>
-		///		System name used to identify this PosiStageNet server
+		///     System name used to identify this PosiStageNet server
 		/// </summary>
 		public string SystemName { get; }
 
@@ -152,6 +152,9 @@ namespace Imp.PosiStageDotNet
 		/// </summary>
 		public bool IsSending { get; private set; }
 
+		/// <summary>
+		///     The current time stamp referenced from the time the server started sending data
+		/// </summary>
 		public TimeSpan CurrentTimeStamp => TimeSpan.FromMilliseconds(_timeStampReference.ElapsedMilliseconds);
 
 		/// <summary>
@@ -165,12 +168,21 @@ namespace Imp.PosiStageDotNet
 		public double InfoSendFrequency { get; }
 
 		/// <summary>
-		///		Set the collection of trackers to send data and info packets for
+		///     Stops sending data and releases network resources
+		/// </summary>
+		public void Dispose()
+		{
+			Dispose(true);
+			GC.SuppressFinalize(this);
+		}
+
+		/// <summary>
+		///     Set the collection of trackers to send data and info packets for
 		/// </summary>
 		public void SetTrackers([CanBeNull] IEnumerable<PsnTracker> trackers) => _trackers = trackers;
 
 		/// <summary>
-		///		Send a custom PsnPacketChunk
+		///     Send a custom PsnPacketChunk
 		/// </summary>
 		public void SendCustomPacket([NotNull] PsnPacketChunk chunk)
 		{
@@ -180,28 +192,10 @@ namespace Imp.PosiStageDotNet
 			var bytes = chunk.ToByteArray();
 
 			if (bytes.Length > MaxPacketLength)
-				throw new ArgumentException($"Serialized chunk length ({bytes.Length}) is longer than maximum PosiStageNet packet length ({MaxPacketLength})");
+				throw new ArgumentException(
+					$"Serialized chunk length ({bytes.Length}) is longer than maximum PosiStageNet packet length ({MaxPacketLength})");
 
 			_udpClient.SendAsync(bytes);
-		}
-
-		public void Dispose()
-		{
-			Dispose(true);
-			GC.SuppressFinalize(this);
-		}
-
-		protected virtual void Dispose(bool isDisposing)
-		{
-			if (isDisposing)
-			{
-				if (IsSending)
-					StopSendingAsync().Wait();
-
-				_udpClient.Dispose();
-			}
-
-			_isDisposed = true;
 		}
 
 		/// <summary>
@@ -243,6 +237,23 @@ namespace Imp.PosiStageDotNet
 			IsSending = false;
 		}
 
+		protected virtual void Dispose(bool isDisposing)
+		{
+			if (isDisposing)
+			{
+				if (IsSending)
+					StopSendingAsync().Wait();
+
+				_udpClient.Dispose();
+			}
+
+			_isDisposed = true;
+		}
+
+		/// <summary>
+		///     Override to provide new behavior for transmission of PosiStageNet info packets
+		/// </summary>
+		/// <param name="trackers">Enumerable of trackers to send info packets for</param>
 		protected virtual void OnSendInfo([NotNull] IEnumerable<PsnTracker> trackers)
 		{
 			var systemNameChunk = new PsnInfoSystemNameChunk(SystemName);
@@ -253,10 +264,10 @@ namespace Imp.PosiStageDotNet
 
 			int trackerListLength = 0;
 			int maxTrackerListLength = MaxPacketLength -
-								  (PsnChunk.ChunkHeaderLength                       // Root Chunk-Header
-								   + PsnInfoHeaderChunk.StaticChunkAndHeaderLength  // Packet Header Chunk
-								   + systemNameChunk.ChunkAndHeaderLength           // System Name Chunk
-								   + PsnChunk.ChunkHeaderLength);                   // Tracker List Chunk-Header
+			                           (PsnChunk.ChunkHeaderLength // Root Chunk-Header
+			                            + PsnInfoHeaderChunk.StaticChunkAndHeaderLength // Packet Header Chunk
+			                            + systemNameChunk.ChunkAndHeaderLength // System Name Chunk
+			                            + PsnChunk.ChunkHeaderLength); // Tracker List Chunk-Header
 
 			foreach (var chunk in trackerChunks)
 			{
@@ -290,6 +301,10 @@ namespace Imp.PosiStageDotNet
 			}
 		}
 
+		/// <summary>
+		///     Override to provide new behavior for transmission of PosiStageNet data packets
+		/// </summary>
+		/// <param name="trackers">Enumerable of trackers to send data packets for</param>
 		protected virtual void OnSendData([NotNull] IEnumerable<PsnTracker> trackers)
 		{
 			var trackerChunks = trackers.Select(t => new PsnDataTrackerChunk(t.TrackerId, t.ToDataTrackerChunks()));
@@ -299,9 +314,9 @@ namespace Imp.PosiStageDotNet
 
 			int trackerListLength = 0;
 			int maxTrackerListLength = MaxPacketLength -
-								  (PsnChunk.ChunkHeaderLength                       // Root Chunk-Header
-								   + PsnDataHeaderChunk.StaticChunkAndHeaderLength  // Packet Header Chunk
-								   + PsnChunk.ChunkHeaderLength);                   // Tracker List Chunk-Header
+			                           (PsnChunk.ChunkHeaderLength // Root Chunk-Header
+			                            + PsnDataHeaderChunk.StaticChunkAndHeaderLength // Packet Header Chunk
+			                            + PsnChunk.ChunkHeaderLength); // Tracker List Chunk-Header
 
 			foreach (var chunk in trackerChunks)
 			{
@@ -355,11 +370,9 @@ namespace Imp.PosiStageDotNet
 
 			if (trackers == null)
 				return;
-			
+
 			OnSendData(trackers);
 		}
-
-
 
 
 

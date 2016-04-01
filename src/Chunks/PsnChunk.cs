@@ -55,7 +55,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public int ChunkLength => DataLength + RawSubChunks.Sum(c => ChunkHeaderLength + c.ChunkLength);
 
 		/// <summary>
-		///		The length of the entire chunk and local chunk header, including sub-chunks
+		///     The length of the entire chunk and local chunk header, including sub-chunks
 		/// </summary>
 		public int ChunkAndHeaderLength => ChunkLength + ChunkHeaderLength;
 
@@ -71,12 +71,12 @@ namespace Imp.PosiStageDotNet.Chunks
 		public bool HasSubChunks => RawSubChunks.Any();
 
 		/// <summary>
-		///		Enumerable of sub-chunks which were unrecognized when deserializing
+		///     Enumerable of sub-chunks which were unrecognized when deserializing
 		/// </summary>
 		public IEnumerable<PsnUnknownChunk> UnknownSubChunks => RawSubChunks.OfType<PsnUnknownChunk>();
 
 		/// <summary>
-		///		True if chunk contains any sub-chunks which were unrecognised when deserializing
+		///     True if chunk contains any sub-chunks which were unrecognized when deserializing
 		/// </summary>
 		public bool HasUnknownSubChunks => UnknownSubChunks.Any();
 

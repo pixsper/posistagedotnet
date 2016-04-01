@@ -90,7 +90,7 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataHeaderChunk : PsnDataPacketSubChunk, IEquatable<PsnDataHeaderChunk>
 	{
-		public const int StaticChunkAndHeaderLength = PsnChunk.ChunkHeaderLength + StaticDataLength;
+		public const int StaticChunkAndHeaderLength = ChunkHeaderLength + StaticDataLength;
 		public const int StaticDataLength = 12;
 
 

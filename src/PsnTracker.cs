@@ -63,7 +63,7 @@ namespace Imp.PosiStageDotNet
 		}
 
 		/// <summary>
-		///     Clone constructor provided to set properties which consumers of the library shouldn't be able to set (only relevent
+		///     Clone constructor provided to set properties which consumers of the library shouldn't be able to set (only relevant
 		///     for
 		///     packets received from a remote server)
 		/// </summary>
@@ -121,7 +121,7 @@ namespace Imp.PosiStageDotNet
 		}
 
 		/// <summary>
-		///     Constructor provided to set properties which consumers of the library shouldn't be able to set (only relevent for
+		///     Constructor provided to set properties which consumers of the library shouldn't be able to set (only relevant for
 		///     packets received from a remote server)
 		/// </summary>
 		internal PsnTracker(int trackerId, string trackerName = null, ulong? dataTimeStamp = null, ulong? infoTimeStamp = null,
@@ -161,13 +161,13 @@ namespace Imp.PosiStageDotNet
 		public string TrackerName { get; }
 
 		/// <summary>
-		///     Timestamp of last time data received from remote server, or null if tracker has not been recieved from remote
+		///     Time stamp of last time data received from remote server, or null if tracker has not been received from remote
 		///     server
 		/// </summary>
 		public ulong? DataTimeStamp { get; }
 
 		/// <summary>
-		///     Timestamp of last time info received from remote server, or null if tracker has not been received from remote
+		///     Time stamp of last time info received from remote server, or null if tracker has not been received from remote
 		///     server
 		/// </summary>
 		public ulong? InfoTimeStamp { get; }
@@ -191,14 +191,14 @@ namespace Imp.PosiStageDotNet
 			=> CloneInternal(this, clearTrackerName: trackerName == null, trackerName: trackerName);
 
 		/// <summary>
-		///     Creates a copy of this tracker with an updated data timestamp value
+		///     Creates a copy of this tracker with an updated data time stamp value
 		/// </summary>
 		[Pure]
 		internal PsnTracker SetDataTimeStamp([CanBeNull] ulong? dataTimeStamp)
 			=> CloneInternal(this, clearDataTimeStamp: dataTimeStamp == null, dataTimeStamp: dataTimeStamp);
 
 		/// <summary>
-		///     Creates a copy of this tracker with an updated info timestamp value, or clears value if null
+		///     Creates a copy of this tracker with an updated info time stamp value, or clears value if null
 		/// </summary>
 		[Pure]
 		internal PsnTracker SetInfoTimeStamp([CanBeNull] ulong? infoTimeStamp)
@@ -323,7 +323,7 @@ namespace Imp.PosiStageDotNet
 		{
 			return
 				$"PsnTracker: Id {TrackerId}" +
-				", Name " + (TrackerName ?? "(Unknown)") + 
+				", Name " + (TrackerName ?? "(Unknown)") +
 				", InfoTimeStamp " + (InfoTimeStamp.HasValue ? TimeSpan.FromMilliseconds(InfoTimeStamp.Value).ToString() : "None") +
 				", DataTimeStamp " + (DataTimeStamp.HasValue ? TimeSpan.FromMilliseconds(DataTimeStamp.Value).ToString() : "None") +
 				(Position != null ? $", Position {Position}" : string.Empty) +
