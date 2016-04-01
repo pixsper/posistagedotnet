@@ -1,6 +1,4 @@
 ![Alt text](/resources/header.png "PosiStageDotNet")
-PCL C# implementation of the PosiStageNet protocol for network transport of positional data
-
 [PosiStageDotNet](http://www.theimpersonalstereo.com/posistagedotnet/) is a C# PCL for implementing the PosiStageNet protocol in any .Net project targeting Windows Desktop, Windows Store, Xamarin iOS/Android/Forms, Xamarin.Mac/MonoMac or Windows Phone 8/8.1. The protocol is used to pass position, speed, orientation and other automation data between entertainment control systems, for example, between an automation controller and a lighting desk or media server.
 
 See <http://www.posistage.net/> for more information on PosiStageNet.
