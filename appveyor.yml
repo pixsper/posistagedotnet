@@ -35,3 +35,16 @@ build:
 
 before_build:
   - nuget restore
+  
+#---------------------------------#
+#              deploy             #
+#---------------------------------#
+ 
+deploy:
+  provider: NuGet
+  api_key:
+    secure: rWUYkrDdoedwz/r2XGss/gQ4j9+oRVw/4t5j48vDRFN9sM9Tyl0zlUAby5MMm3ME
+  skip_symbols: false
+  on:
+    branch: master
+    appveyor_repo_tag: true
