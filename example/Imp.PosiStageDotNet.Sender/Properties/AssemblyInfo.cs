@@ -22,7 +22,8 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyConfiguration("Debug")]
 #else
-	[assembly: AssemblyConfiguration("Release")]
+
+[assembly: AssemblyConfiguration("Release")]
 #endif
 
 [assembly: AssemblyCompany("The Impersonal Stereo")]

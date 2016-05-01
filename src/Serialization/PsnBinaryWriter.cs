@@ -20,21 +20,21 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Serialization
 {
-	internal class PsnBinaryWriter : EndianBinaryWriter
-	{
-		private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
+    internal class PsnBinaryWriter : EndianBinaryWriter
+    {
+        private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
 
-		public PsnBinaryWriter(Stream stream)
-			: base(BitConverterInstance, stream, Encoding.UTF8) { }
+        public PsnBinaryWriter(Stream stream)
+            : base(BitConverterInstance, stream, Encoding.UTF8) { }
 
-		public void Write(PsnChunkHeader chunkHeader)
-		{
-			Write(chunkHeader.ToUInt32());
-		}
+        public void Write(PsnChunkHeader chunkHeader)
+        {
+            Write(chunkHeader.ToUInt32());
+        }
 
-		public override void Write([CanBeNull] string value)
-		{
-			base.Write(Encoding.GetBytes(value ?? string.Empty));
-		}
-	}
+        public override void Write([CanBeNull] string value)
+        {
+            base.Write(Encoding.GetBytes(value ?? string.Empty));
+        }
+    }
 }

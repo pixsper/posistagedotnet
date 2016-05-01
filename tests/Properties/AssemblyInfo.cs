@@ -15,7 +15,6 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
-
 [assembly: AssemblyTitle("Imp.PosiStageDotNet.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
@@ -24,6 +23,5 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
-
 [assembly: ComVisible(false)]
 [assembly: Guid("fff71d90-5fe7-4e06-a0ca-223348927c90")]

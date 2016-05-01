@@ -19,21 +19,21 @@ using Imp.PosiStageDotNet.Chunks;
 
 namespace Imp.PosiStageDotNet.Serialization
 {
-	internal class PsnBinaryReader : EndianBinaryReader
-	{
-		private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
+    internal class PsnBinaryReader : EndianBinaryReader
+    {
+        private static readonly EndianBitConverter BitConverterInstance = new LittleEndianBitConverter();
 
-		public PsnBinaryReader(Stream stream)
-			: base(BitConverterInstance, stream, Encoding.UTF8) { }
+        public PsnBinaryReader(Stream stream)
+            : base(BitConverterInstance, stream, Encoding.UTF8) { }
 
-		public PsnChunkHeader ReadChunkHeader()
-		{
-			return PsnChunkHeader.FromUInt32(ReadUInt32());
-		}
+        public PsnChunkHeader ReadChunkHeader()
+        {
+            return PsnChunkHeader.FromUInt32(ReadUInt32());
+        }
 
-		public string ReadString(int length)
-		{
-			return Encoding.GetString(ReadBytes(length), 0, length);
-		}
-	}
+        public string ReadString(int length)
+        {
+            return Encoding.GetString(ReadBytes(length), 0, length);
+        }
+    }
 }
