@@ -18,11 +18,12 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Net;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Imp.PosiStageDotNet.Chunks;
+using Imp.PosiStageDotNet.Networking;
 using JetBrains.Annotations;
-using Sockets.Plugin;
-using Sockets.Plugin.Abstractions;
 
 namespace Imp.PosiStageDotNet
 {
@@ -51,7 +52,7 @@ namespace Imp.PosiStageDotNet
         /// <summary>
         ///     Standard IP address used by PosiStageNet
         /// </summary>
-        public const string DefaultMulticastIp = "236.10.10.10";
+        public static readonly IPAddress DefaultMulticastIp = IPAddress.Parse("236.10.10.10");
 
         /// <summary>
         ///     Standard port used by PosiStageNet
@@ -63,7 +64,7 @@ namespace Imp.PosiStageDotNet
 
         private readonly ConcurrentDictionary<int, PsnTracker> _trackers = new ConcurrentDictionary<int, PsnTracker>();
 
-        private readonly UdpSocketMulticastClient _udpClient = new UdpSocketMulticastClient();
+	    private readonly UdpService _udpService;
 
         private bool _isDisposed;
 
@@ -75,35 +76,38 @@ namespace Imp.PosiStageDotNet
         /// <summary>
         ///     Constructs with the PosiStageNet default multicast IP and port number
         /// </summary>
-        /// <param name="adapterIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
+        /// <param name="localIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
         /// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
-        public PsnClient(string adapterIp = null, bool isStrict = true)
+        public PsnClient(IPAddress localIp = null, bool isStrict = true)
         {
             Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
 
             MulticastIp = DefaultMulticastIp;
             Port = DefaultPort;
-            AdapterIp = adapterIp;
+            LocalIp = localIp ?? IPAddress.Any;
             IsStrict = isStrict;
+
+			_udpService = new UdpService(new IPEndPoint(LocalIp, 0));
         }
 
-        /// <summary>
-        ///     Constructs with a custom multicast IP and port number
-        /// </summary>
-        /// <param name="customMulticastIp"></param>
-        /// <param name="customPort"></param>
-        /// <param name="adapterIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
-        /// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public PsnClient(string customMulticastIp, int customPort, string adapterIp = null, bool isStrict = true)
-        {
-            Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
+	    /// <summary>
+	    ///     Constructs with a custom multicast IP and port number
+	    /// </summary>
+	    /// <param name="customMulticastIp"></param>
+	    /// <param name="customPort"></param>
+	    /// <param name="localIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
+	    /// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
+	    /// <exception cref="ArgumentException"></exception>
+	    /// <exception cref="ArgumentOutOfRangeException"></exception>
+	    public PsnClient([NotNull] IPAddress customMulticastIp, int customPort, IPAddress localIp = null, bool isStrict = true)
+		{
+	        Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
 
-            if (string.IsNullOrWhiteSpace(customMulticastIp))
-                throw new ArgumentException("customMulticastIp cannot be null or empty");
-
-            MulticastIp = customMulticastIp;
+			if (customMulticastIp == null)
+				throw new ArgumentNullException(nameof(customMulticastIp));
+			if (!customMulticastIp.IsIPv4Multicast())
+				throw new ArgumentException("Not a valid IPv4 multicast address", nameof(customMulticastIp));
+			MulticastIp = customMulticastIp;
 
             if (customPort < ushort.MinValue + 1 || customPort > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(customPort), customPort,
@@ -111,14 +115,16 @@ namespace Imp.PosiStageDotNet
 
             Port = customPort;
 
-            AdapterIp = adapterIp;
+            LocalIp = localIp ?? IPAddress.Any;
             IsStrict = isStrict;
+
+			_udpService = new UdpService(new IPEndPoint(LocalIp, 0));
         }
 
         /// <summary>
         ///     The multicast IP address the client is listening for packets on
         /// </summary>
-        public string MulticastIp { get; }
+        public IPAddress MulticastIp { get; }
 
         /// <summary>
         ///     The UDP port the client is listening for packets on
@@ -129,7 +135,7 @@ namespace Imp.PosiStageDotNet
         ///     The IP address of the network adapter in use by the client, or null if no adapter is set
         /// </summary>
         [CanBeNull]
-        public string AdapterIp { get; }
+        public IPAddress LocalIp { get; }
 
         /// <summary>
         ///     When true, packets which are missing any expected chunks or duplicate indexes will not be processed at all.
@@ -208,27 +214,18 @@ namespace Imp.PosiStageDotNet
         /// </summary>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="ArgumentException"></exception>
-        public async Task StartListeningAsync()
+        public void StartListening()
         {
             if (_isDisposed)
                 throw new ObjectDisposedException(nameof(PsnClient));
 
-            ICommsInterface adapter = null;
+            _udpService.JoinMulticastGroup(MulticastIp);
+			_udpService.StartListening();
+	        _udpService.MessageReceived += messageReceived;
 
-            if (AdapterIp != null && AdapterIp != "0.0.0.0")
-            {
-                var interfaces = await CommsInterface.GetAllInterfacesAsync().ConfigureAwait(false);
 
-                adapter = interfaces.FirstOrDefault(i => i.IpAddress == AdapterIp);
-
-                if (adapter == null)
-                    throw new ArgumentException($"Adapter with IP of '{AdapterIp}' cannot be found");
-            }
-
-            await _udpClient.JoinMulticastGroupAsync(MulticastIp, Port, adapter).ConfigureAwait(false);
-
-            IsListening = true;
-            _udpClient.MessageReceived += messageReceived;
+			IsListening = true;
+           
         }
 
         /// <summary>
@@ -236,7 +233,7 @@ namespace Imp.PosiStageDotNet
         /// </summary>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="InvalidOperationException">Cannot stop listening, client is not currently listening</exception>
-        public async Task StopListeningAsync()
+        public void StopListening()
         {
             if (_isDisposed)
                 throw new ObjectDisposedException(nameof(PsnClient));
@@ -244,11 +241,9 @@ namespace Imp.PosiStageDotNet
             if (!IsListening)
                 throw new InvalidOperationException("Cannot stop listening, client is not currently listening");
 
-            // ReSharper disable once DelegateSubtraction
-            // TODO: This error should disappear when we eventually move to rda.Sockets 2.0
-            _udpClient.MessageReceived -= messageReceived;
-
-            await _udpClient.DisconnectAsync().ConfigureAwait(false);
+            _udpService.MessageReceived -= messageReceived;
+			_udpService.StopListening();
+			_udpService.DropMulticastGroup(MulticastIp);
 
             IsListening = false;
         }
@@ -261,10 +256,10 @@ namespace Imp.PosiStageDotNet
         {
             if (isDisposing)
             {
-                if (IsListening)
-                    StopListeningAsync().Wait();
+	            if (IsListening)
+		            StopListening();
 
-                _udpClient.Dispose();
+                _udpService.Dispose();
             }
 
             _isDisposed = true;
@@ -563,9 +558,9 @@ namespace Imp.PosiStageDotNet
 
 
 
-        private void messageReceived(object sender, UdpSocketMessageReceivedEventArgs args)
+        private void messageReceived(object sender, UdpReceiveResult receiveResult)
         {
-            var chunk = PsnPacketChunk.FromByteArray(args.ByteData);
+            var chunk = PsnPacketChunk.FromByteArray(receiveResult.Buffer);
 
             if (chunk == null)
                 return;

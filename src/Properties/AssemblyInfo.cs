@@ -35,3 +35,4 @@ using System.Runtime.CompilerServices;
 [assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2016")]
 [assembly: NeutralResourcesLanguage("en")]
 [assembly: InternalsVisibleTo("Imp.PosiStageDotNet.Tests")]
+[assembly: AssemblyMetadataAttribute("ImplicitNullability.AppliesTo", "InputParameters, RefParameters, OutParametersAndResult")]

@@ -73,7 +73,7 @@ namespace Imp.PosiStageDotNet.Server
                         port = PsnServer.DefaultPort;
                     }
 
-                    server = new PsnServer(Environment.MachineName, ip.ToString(), port);
+                    server = new PsnServer(Environment.MachineName, ip, port);
                     Console.WriteLine(
                         $"Sending on custom multicast IP '{PsnServer.DefaultMulticastIp}', custom port {PsnServer.DefaultPort}");
                 }
@@ -92,7 +92,7 @@ namespace Imp.PosiStageDotNet.Server
             Console.WriteLine("");
 
             server.SetTrackers(createTrackers());
-            server.StartSendingAsync().Wait();
+	        server.StartSending();
 
             while (!Console.KeyAvailable)
             {
