@@ -19,10 +19,6 @@ nuget:
 #       build configuration       #
 #---------------------------------#
 
-platform: Any CPU
-
-configuration: Release
-
 build:
   project: Imp.PosiStageDotNet.sln
   publish_nuget: true
