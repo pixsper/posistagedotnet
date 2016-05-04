@@ -71,7 +71,7 @@ namespace Imp.PosiStageDotNet.Client
                         port = PsnClient.DefaultPort;
                     }
 
-                    client = new PsnClient(ip.ToString(), port);
+                    client = new PsnClient(ip, port);
                     Console.WriteLine(
                         $"Listening on custom multicast IP '{PsnClient.DefaultMulticastIp}', custom port {PsnClient.DefaultPort}");
                 }
@@ -89,7 +89,7 @@ namespace Imp.PosiStageDotNet.Client
             Console.WriteLine(new string('*', Console.WindowWidth - 1));
             Console.WriteLine("");
 
-            client.StartListeningAsync().Wait();
+	        client.StartListening();
 
             while (!Console.KeyAvailable)
             {

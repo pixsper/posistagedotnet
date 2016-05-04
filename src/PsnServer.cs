@@ -17,11 +17,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Imp.PosiStageDotNet.Chunks;
+using Imp.PosiStageDotNet.Networking;
 using JetBrains.Annotations;
-using Sockets.Plugin;
 
 namespace Imp.PosiStageDotNet
 {
@@ -59,7 +60,7 @@ namespace Imp.PosiStageDotNet
         /// <summary>
         ///     Standard IP address used by PosiStageNet
         /// </summary>
-        public const string DefaultMulticastIp = "236.10.10.10";
+        public static readonly IPAddress DefaultMulticastIp = IPAddress.Parse("236.10.10.10");
 
         /// <summary>
         ///     Standard port used by PosiStageNet
@@ -76,7 +77,8 @@ namespace Imp.PosiStageDotNet
         /// </summary>
         public const double DefaultInfoSendFrequency = 1d;
 
-        private readonly UdpSocketClient _udpClient = new UdpSocketClient();
+	    private readonly UdpService _udpService;
+	    private readonly IPEndPoint _targetEndPoint;
 
         private Timer _dataTimer;
 
@@ -88,39 +90,42 @@ namespace Imp.PosiStageDotNet
 
         private IEnumerable<PsnTracker> _trackers;
 
-        /// <summary>
-        ///     Constructs with default multicast IP, port number and data/info packet send frequencies
-        /// </summary>
-        /// <param name="systemName">Name used to identify this server</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public PsnServer([NotNull] string systemName)
-            : this(systemName, DefaultMulticastIp, DefaultPort, DefaultDataSendFrequency, DefaultInfoSendFrequency) { }
+	    /// <summary>
+	    ///     Constructs with default multicast IP, port number and data/info packet send frequencies
+	    /// </summary>
+	    /// <param name="systemName">Name used to identify this server</param>
+	    /// <param name="localIp"></param>
+	    /// <exception cref="ArgumentNullException"></exception>
+	    /// <exception cref="ArgumentException"></exception>
+	    /// <exception cref="ArgumentOutOfRangeException"></exception>
+	    public PsnServer([NotNull] string systemName, IPAddress localIp = null)
+            : this(systemName, DefaultMulticastIp, DefaultPort, DefaultDataSendFrequency, DefaultInfoSendFrequency, localIp) { }
 
-        /// <summary>
-        ///     Constructs with default multicast IP and port number
-        /// </summary>
-        /// <param name="systemName">Name used to identify this server</param>
-        /// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
-        /// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency)
-            : this(systemName, DefaultMulticastIp, DefaultPort, dataSendFrequency, infoSendFrequency) { }
+	    /// <summary>
+	    ///     Constructs with default multicast IP and port number
+	    /// </summary>
+	    /// <param name="systemName">Name used to identify this server</param>
+	    /// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
+	    /// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
+	    /// <param name="localIp"></param>
+	    /// <exception cref="ArgumentNullException"></exception>
+	    /// <exception cref="ArgumentException"></exception>
+	    /// <exception cref="ArgumentOutOfRangeException"></exception>
+	    public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency, IPAddress localIp = null)
+            : this(systemName, DefaultMulticastIp, DefaultPort, dataSendFrequency, infoSendFrequency, localIp) { }
 
-        /// <summary>
-        ///     Constructs with default data/info packet send frequencies
-        /// </summary>
-        /// <param name="systemName">Name used to identify this server</param>
-        /// <param name="customMulticastIp">Custom multicast IP to send data to</param>
-        /// <param name="customPort">Custom UDP port number to send data to</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public PsnServer([NotNull] string systemName, [NotNull] string customMulticastIp, int customPort)
-            : this(systemName, customMulticastIp, customPort, DefaultDataSendFrequency, DefaultInfoSendFrequency) { }
+	    /// <summary>
+	    ///     Constructs with default data/info packet send frequencies
+	    /// </summary>
+	    /// <param name="systemName">Name used to identify this server</param>
+	    /// <param name="customMulticastIp">Custom multicast IP to send data to</param>
+	    /// <param name="customPort">Custom UDP port number to send data to</param>
+	    /// <param name="localIp"></param>
+	    /// <exception cref="ArgumentNullException"></exception>
+	    /// <exception cref="ArgumentException"></exception>
+	    /// <exception cref="ArgumentOutOfRangeException"></exception>
+	    public PsnServer([NotNull] string systemName, [NotNull] IPAddress customMulticastIp, int customPort, IPAddress localIp = null)
+            : this(systemName, customMulticastIp, customPort, DefaultDataSendFrequency, DefaultInfoSendFrequency, localIp) { }
 
         /// <summary>
         ///     Constructs with custom values for all parameters
@@ -134,33 +139,31 @@ namespace Imp.PosiStageDotNet
         /// <exception cref="ArgumentException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
         public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency,
-            [NotNull] string customMulticastIp, int customPort)
-            : this(systemName, customMulticastIp, customPort, dataSendFrequency, infoSendFrequency) { }
+            [NotNull] IPAddress customMulticastIp, int customPort, IPAddress localIp = null)
+            : this(systemName, customMulticastIp, customPort, dataSendFrequency, infoSendFrequency, localIp) { }
 
 
-        private PsnServer([NotNull] string systemName, [NotNull] string multicastIp, int port, double dataSendFrequency,
-            double infoSendFrequency)
+        private PsnServer([NotNull] string systemName, [NotNull] IPAddress multicastIp, int port, double dataSendFrequency,
+            double infoSendFrequency, [CanBeNull] IPAddress localIp)
         {
             if (systemName == null)
                 throw new ArgumentNullException(nameof(systemName));
+	        SystemName = systemName;
 
-            SystemName = systemName;
-
-            if (string.IsNullOrWhiteSpace(multicastIp))
-                throw new ArgumentException("customMulticastIp cannot be null or empty");
-
-            MulticastIp = multicastIp;
+			if (multicastIp == null)
+				throw new ArgumentNullException(nameof(multicastIp));
+			if (!multicastIp.IsIPv4Multicast())
+				throw new ArgumentException("Not a valid IPv4 multicast address", nameof(multicastIp));
 
             if (port < ushort.MinValue + 1 || port > ushort.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(port), port,
                     $"customPort must be in range {ushort.MinValue + 1}-{ushort.MaxValue}");
 
-            Port = port;
+			_targetEndPoint = new IPEndPoint(multicastIp, port);
 
             if (dataSendFrequency <= 0)
                 throw new ArgumentOutOfRangeException(nameof(dataSendFrequency), dataSendFrequency,
                     "dataSendFrequency must be greater than 0");
-
             DataSendFrequency = dataSendFrequency;
 
             if (infoSendFrequency <= 0)
@@ -168,29 +171,33 @@ namespace Imp.PosiStageDotNet
                     "infoSendFrequency must be greater than 0");
 
             InfoSendFrequency = infoSendFrequency;
+
+	        LocalIp = localIp ?? IPAddress.Any;
+
+			_udpService = new UdpService(new IPEndPoint(LocalIp, 0));
         }
 
-
-        /// <summary>
+	    /// <summary>
         ///     System name used to identify this PosiStageNet server
         /// </summary>
         public string SystemName { get; }
 
-        /// <summary>
-        ///     The multicast IP address the server is sending packets to
-        /// </summary>
-        public string MulticastIp { get; }
+	    /// <summary>
+	    ///     The multicast IP address the server is sending packets to
+	    /// </summary>
+	    public IPAddress MulticastIp => _targetEndPoint.Address;
+
+	    /// <summary>
+	    ///     The UDP port the server is sending packets to
+	    /// </summary>
+	    public int Port => _targetEndPoint.Port;
+
 
         /// <summary>
-        ///     The UDP port the server is sending packets to
-        /// </summary>
-        public int Port { get; }
-
-        /// <summary>
-        ///     The IP address of the network adapter in use by the server, or null if no adapter is set
+        ///     The IP address of the network adapter in use by the server, or <see cref="IPAddress.Any"/> if no adapter is set
         /// </summary>
         [CanBeNull]
-        public string AdapterIp { get; }
+        public IPAddress LocalIp { get; }
 
         /// <summary>
         ///     The current state of the server
@@ -247,19 +254,17 @@ namespace Imp.PosiStageDotNet
                 throw new ArgumentException(
                     $"Serialized chunk length ({bytes.Length}) is longer than maximum PosiStageNet packet length ({MaxPacketLength})");
 
-            _udpClient.SendAsync(bytes);
+            _udpService.SendAsync(bytes, _targetEndPoint).Wait();
         }
 
         /// <summary>
         ///     Joins the server to the multicast IP and starts sending PosiStageNet packets
         /// </summary>
         /// <exception cref="ObjectDisposedException"></exception>
-        public async Task StartSendingAsync()
+        public void StartSending()
         {
             if (_isDisposed)
                 throw new ObjectDisposedException(nameof(PsnServer));
-
-            await _udpClient.ConnectAsync(MulticastIp, Port).ConfigureAwait(false);
 
             IsSending = true;
             _timeStampReference.Restart();
@@ -272,7 +277,7 @@ namespace Imp.PosiStageDotNet
         /// </summary>
         /// <exception cref="ObjectDisposedException"></exception>
         /// <exception cref="InvalidOperationException"></exception>
-        public async Task StopSendingAsync()
+        public void StopSending()
         {
             if (_isDisposed)
                 throw new ObjectDisposedException(nameof(PsnServer));
@@ -286,8 +291,6 @@ namespace Imp.PosiStageDotNet
             _infoTimer = null;
             _timeStampReference.Reset();
 
-            await _udpClient.DisconnectAsync().ConfigureAwait(false);
-
             IsSending = false;
         }
 
@@ -299,10 +302,10 @@ namespace Imp.PosiStageDotNet
         {
             if (isDisposing)
             {
-                if (IsSending)
-                    StopSendingAsync().Wait();
+	            if (IsSending)
+		            StopSending();
 
-                _udpClient.Dispose();
+                _udpService.Dispose();
             }
 
             _isDisposed = true;
@@ -355,7 +358,7 @@ namespace Imp.PosiStageDotNet
                 var data = packet.ToByteArray();
                 Debug.Assert(data.Length <= MaxPacketLength);
 
-                _udpClient.SendAsync(data);
+                _udpService.SendAsync(data, _targetEndPoint).Wait();
             }
         }
 
@@ -404,7 +407,7 @@ namespace Imp.PosiStageDotNet
                 var data = packet.ToByteArray();
                 Debug.Assert(data.Length <= MaxPacketLength);
 
-                _udpClient.SendAsync(data);
+                _udpService.SendAsync(data, _targetEndPoint).Wait();
             }
 
             ++_frameId;
