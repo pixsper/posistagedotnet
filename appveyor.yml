@@ -38,7 +38,7 @@ after_build:
 - dotnet pack "src\Imp.PosiStageDotNet" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 
 test_script:
-- appveyor-retry dotnet restore "src\Imp.PosiStageDotNet.Tests" -v Minimal
+- appveyor-retry dotnet restore "tests\Imp.PosiStageDotNet.Tests" -v Minimal
 - dotnet test "tests\Imp.PosiStageDotNet.Tests" -c %CONFIGURATION%
 
 artifacts:
