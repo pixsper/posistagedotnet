@@ -9,6 +9,11 @@
     "System.Collections.Immutable": "1.2.0"
   },
   "frameworks": {
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Xml.Linq": "4.0.0.0"
+      }
+    },
     "netstandard1.3": {
       "imports": "dnxcore50"
     }

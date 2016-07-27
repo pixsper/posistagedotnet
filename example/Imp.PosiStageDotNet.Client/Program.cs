@@ -17,6 +17,7 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading;
+using System.Xml.Linq;
 
 namespace Imp.PosiStageDotNet.Client
 {

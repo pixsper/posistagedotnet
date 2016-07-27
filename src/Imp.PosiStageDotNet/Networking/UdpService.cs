@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -16,8 +17,6 @@ namespace Imp.PosiStageDotNet.Networking
 
 		private readonly UdpClient _udpClient;
 		private CancellationTokenSource _cancellationTokenSource;
-
-		private readonly HashSet<IPAddress> _multicastGroups = new HashSet<IPAddress>();
 
 		public UdpService(IPEndPoint localEndPoint)
 		{
@@ -43,7 +42,9 @@ namespace Imp.PosiStageDotNet.Networking
 			if (IsListening)
 				StopListening();
 
+#if NETCORE
 			_udpClient.Dispose();
+#endif
 
 			_isDisposed = true;
 		}
@@ -55,7 +56,7 @@ namespace Imp.PosiStageDotNet.Networking
 
 		public IPEndPoint LocalEndPoint { get; }
 
-		public IReadOnlyCollection<IPAddress> MulticastGroups => _multicastGroups;
+		public ImmutableHashSet<IPAddress> MulticastGroups { get; private set; } = ImmutableHashSet<IPAddress>.Empty;
 
 		public void StartListening()
 		{
@@ -98,11 +99,11 @@ namespace Imp.PosiStageDotNet.Networking
 			if (_isDisposed)
 				throw new ObjectDisposedException(GetType().Name);
 
-			if (_multicastGroups.Contains(multicastIp))
+			if (MulticastGroups.Contains(multicastIp))
 				throw new ArgumentException($"Already a member of multicast group {multicastIp}", nameof(multicastIp));
 
 			_udpClient.JoinMulticastGroup(multicastIp);
-			_multicastGroups.Add(multicastIp);
+			MulticastGroups = MulticastGroups.Add(multicastIp);
 		}
 
 		public void DropMulticastGroup(IPAddress multicastIp)
@@ -117,11 +118,11 @@ namespace Imp.PosiStageDotNet.Networking
 			if (_isDisposed)
 				throw new ObjectDisposedException(GetType().Name);
 
-			if (!_multicastGroups.Contains(multicastIp))
+			if (!MulticastGroups.Contains(multicastIp))
 				throw new ArgumentException($"Not a member of multicast group {multicastIp}", nameof(multicastIp));
 
 			_udpClient.DropMulticastGroup(multicastIp);
-			_multicastGroups.Remove(multicastIp);
+			MulticastGroups = MulticastGroups.Remove(multicastIp);
 		}
 
 		public Task<int> SendAsync(byte[] data, IPEndPoint endPoint)
