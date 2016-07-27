@@ -42,7 +42,7 @@ namespace Imp.PosiStageDotNet.Networking
 			if (IsListening)
 				StopListening();
 
-#if NETCORE
+#if !NET45
 			_udpClient.Dispose();
 #endif
 
