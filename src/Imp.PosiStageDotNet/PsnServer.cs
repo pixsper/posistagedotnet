@@ -127,18 +127,19 @@ namespace Imp.PosiStageDotNet
 	    public PsnServer([NotNull] string systemName, [NotNull] IPAddress customMulticastIp, int customPort, IPAddress localIp = null)
             : this(systemName, customMulticastIp, customPort, DefaultDataSendFrequency, DefaultInfoSendFrequency, localIp) { }
 
-        /// <summary>
-        ///     Constructs with custom values for all parameters
-        /// </summary>
-        /// <param name="systemName">Name used to identify this server</param>
-        /// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
-        /// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
-        /// <param name="customMulticastIp">Custom multicast IP to send data to</param>
-        /// <param name="customPort">Custom UDP port number to send data to</param>
-        /// <exception cref="ArgumentNullException"></exception>
-        /// <exception cref="ArgumentException"></exception>
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency,
+	    /// <summary>
+	    ///     Constructs with custom values for all parameters
+	    /// </summary>
+	    /// <param name="systemName">Name used to identify this server</param>
+	    /// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
+	    /// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
+	    /// <param name="customMulticastIp">Custom multicast IP to send data to</param>
+	    /// <param name="customPort">Custom UDP port number to send data to</param>
+	    /// <param name="localIp"></param>
+	    /// <exception cref="ArgumentNullException"></exception>
+	    /// <exception cref="ArgumentException"></exception>
+	    /// <exception cref="ArgumentOutOfRangeException"></exception>
+	    public PsnServer([NotNull] string systemName, double dataSendFrequency, double infoSendFrequency,
             [NotNull] IPAddress customMulticastIp, int customPort, IPAddress localIp = null)
             : this(systemName, customMulticastIp, customPort, dataSendFrequency, infoSendFrequency, localIp) { }
 

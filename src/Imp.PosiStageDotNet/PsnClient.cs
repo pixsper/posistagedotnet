@@ -20,7 +20,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using Imp.PosiStageDotNet.Chunks;
 using Imp.PosiStageDotNet.Networking;
 using JetBrains.Annotations;
@@ -87,7 +86,7 @@ namespace Imp.PosiStageDotNet
             LocalIp = localIp ?? IPAddress.Any;
             IsStrict = isStrict;
 
-			_udpService = new UdpService(new IPEndPoint(LocalIp, 0));
+			_udpService = new UdpService(new IPEndPoint(LocalIp, Port));
         }
 
 	    /// <summary>
@@ -118,7 +117,7 @@ namespace Imp.PosiStageDotNet
             LocalIp = localIp ?? IPAddress.Any;
             IsStrict = isStrict;
 
-			_udpService = new UdpService(new IPEndPoint(LocalIp, 0));
+			_udpService = new UdpService(new IPEndPoint(LocalIp, Port));
         }
 
         /// <summary>
@@ -220,9 +219,8 @@ namespace Imp.PosiStageDotNet
                 throw new ObjectDisposedException(nameof(PsnClient));
 
             _udpService.JoinMulticastGroup(MulticastIp);
+			_udpService.MessageReceived += messageReceived;
 			_udpService.StartListening();
-	        _udpService.MessageReceived += messageReceived;
-
 
 			IsListening = true;
            

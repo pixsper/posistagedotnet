@@ -15,14 +15,13 @@
 
 using FluentAssertions;
 using Imp.PosiStageDotNet.Chunks;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Xunit;
 
 namespace Imp.PosiStageDotNet.Tests
 {
-    [TestClass]
     public class PsnPacketChunkTests
     {
-        [TestMethod]
+        [Fact]
         public void CanSerializeAndDeserialize()
         {
             var infoPacket1 =

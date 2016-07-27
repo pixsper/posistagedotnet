@@ -19,31 +19,41 @@ nuget:
 #       build configuration       #
 #---------------------------------#
 
-build:
-  project: Imp.PosiStageDotNet.sln
-  publish_nuget: true
-  publish_nuget_symbols: true
+version: '1.1.{build}'
 
+configuration: Release
+
+platform: Any CPU
+
+init:
+- ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+
+before_build:
+- appveyor-retry dotnet restore -v Minimal
+
+build_script:
+- dotnet build "src\Imp.PosiStageDotNet" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+
+after_build:
+- dotnet pack "src\Imp.PosiStageDotNet"" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
+
+test_script:
+- dotnet test "tests\Imp.PosiStageDotNet.Tests" -c %CONFIGURATION%
+
+artifacts:
+- path: artifacts\**\*.*
 
 #---------------------------------#
 #           build events          #
 #---------------------------------#
-
-before_build:
-  - ps: if (Test-Path 'C:\Tools\NuGet3') { $nugetDir = 'C:\Tools\NuGet3' } else { $nugetDir = 'C:\Tools\NuGet' }
-  - ps: (New-Object Net.WebClient).DownloadFile('https://dist.nuget.org/win-x86-commandline/v3.4.3/nuget.exe', "$nugetDir\NuGet.exe")
-  - nuget sources add -Name DotNet-Core -Source https://dotnet.myget.org/f/dotnet-core/api/v3/index.json
-  - nuget restore
   
-#---------------------------------#
-#              deploy             #
-#---------------------------------#
- 
 deploy:
-  provider: NuGet
-  api_key:
-    secure: rWUYkrDdoedwz/r2XGss/gQ4j9+oRVw/4t5j48vDRFN9sM9Tyl0zlUAby5MMm3ME
-  skip_symbols: false
-  on:
-    branch: master
-    appveyor_repo_tag: true
+  - provider: NuGet
+    release: Imp.PosiStageDotNet-v$(appveyor_build_version)
+    on:
+      branch: master
+      appveyor_repo_tag: true
+    api_key:
+      secure: rWUYkrDdoedwz/r2XGss/gQ4j9+oRVw/4t5j48vDRFN9sM9Tyl0zlUAby5MMm3ME
+    skip_symbols: false
+    artifact: /.*\.nupkg/

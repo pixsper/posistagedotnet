@@ -24,10 +24,15 @@ namespace Imp.PosiStageDotNet.Networking
 			if (localEndPoint == null)
 				throw new ArgumentNullException(nameof(localEndPoint));
 
+			LocalEndPoint = localEndPoint;
+
 			_udpClient = new UdpClient
 			{
 				EnableBroadcast = true
 			};
+
+			_udpClient.Client.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.ReuseAddress, true);
+			_udpClient.Client.Bind(LocalEndPoint);
 		}
 
 		public void Dispose()
@@ -47,6 +52,8 @@ namespace Imp.PosiStageDotNet.Networking
 
 
 		public bool IsListening { get; private set; }
+
+		public IPEndPoint LocalEndPoint { get; }
 
 		public IReadOnlyCollection<IPAddress> MulticastGroups => _multicastGroups;
 

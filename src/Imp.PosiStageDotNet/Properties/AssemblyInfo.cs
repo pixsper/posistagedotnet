@@ -14,25 +14,21 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Reflection;
-using System.Resources;
 using System.Runtime.CompilerServices;
-[assembly: AssemblyTitle("Imp.PosiStageDotNet")]
-[assembly:
-    AssemblyDescription(
-        "C# PCL for sending/receiving PosiStageNet positional data over Ethernet for entertainment control applications."
-        )]
+using System.Runtime.InteropServices;
 
 #if DEBUG
-
 [assembly: AssemblyConfiguration("Debug")]
 #else
-
 [assembly: AssemblyConfiguration("Release")]
 #endif
 
 [assembly: AssemblyCompany("The Impersonal Stereo")]
 [assembly: AssemblyProduct("Imp.PosiStageDotNet")]
-[assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2016")]
-[assembly: NeutralResourcesLanguage("en")]
+
+[assembly: ComVisible(false)]
+[assembly: Guid("c5f4e821-ea70-425e-b823-d1311ef8c0c2")]
+
 [assembly: InternalsVisibleTo("Imp.PosiStageDotNet.Tests")]
-[assembly: AssemblyMetadataAttribute("ImplicitNullability.AppliesTo", "InputParameters, RefParameters, OutParametersAndResult")]
+
+[assembly: AssemblyMetadata("ImplicitNullability.AppliesTo", "InputParameters, RefParameters, OutParametersAndResult")]
