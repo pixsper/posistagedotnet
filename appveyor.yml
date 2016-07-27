@@ -29,7 +29,7 @@ init:
 - ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
 
 before_build:
-- appveyor-retry dotnet restore -v Minimal
+- appveyor-retry dotnet restore "src\Imp.PosiStageDotNet" -v Minimal
 
 build_script:
 - dotnet build "src\Imp.PosiStageDotNet" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
@@ -38,6 +38,7 @@ after_build:
 - dotnet pack "src\Imp.PosiStageDotNet"" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
 
 test_script:
+- appveyor-retry dotnet restore "src\Imp.PosiStageDotNet.Tests" -v Minimal
 - dotnet test "tests\Imp.PosiStageDotNet.Tests" -c %CONFIGURATION%
 
 artifacts:
