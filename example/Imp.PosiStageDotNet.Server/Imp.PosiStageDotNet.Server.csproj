@@ -38,9 +38,9 @@
   <ItemGroup>
     <Reference Include="Imp.PosiStageDotNet">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">..\..\src\Imp.PosiStageDotNet\bin\Release\net451\Imp.PosiStageDotNet.dll</HintPath>
+      <HintPath Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">..\..\src\Imp.PosiStageDotNet\bin\Release\net45\Imp.PosiStageDotNet.dll</HintPath>
       <Private>True</Private>
-      <HintPath Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">..\..\src\Imp.PosiStageDotNet\bin\Debug\net451\Imp.PosiStageDotNet.dll</HintPath>
+      <HintPath Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">..\..\src\Imp.PosiStageDotNet\bin\Debug\net45\Imp.PosiStageDotNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
