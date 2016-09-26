@@ -24,7 +24,7 @@ using JetBrains.Annotations;
 namespace Imp.PosiStageDotNet.Chunks
 {
 	/// <summary>
-	///     PosiStageNet chunk containing a list of data trackers
+	///     PosiStageNet data packet chunk containing a list of data trackers
 	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerListChunk : PsnDataPacketSubChunk
@@ -36,12 +36,15 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		private PsnDataTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
+		/// <inheritdoc/>
 		public override int DataLength => 0;
 
+		/// <inheritdoc/>
 		public override PsnDataPacketChunkId ChunkId => PsnDataPacketChunkId.PsnDataTrackerList;
 
 		public IEnumerable<PsnDataTrackerChunk> SubChunks => RawSubChunks.OfType<PsnDataTrackerChunk>();
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerListChunk),
@@ -63,7 +66,9 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		PosiStageNet data packet chunk containing data for one data tracker. Only valid as sub-chunk of a <see cref="PsnDataTrackerListChunk"/>.
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
 	{
@@ -83,13 +88,20 @@ namespace Imp.PosiStageDotNet.Chunks
 			RawChunkId = (ushort)trackerId;
 		}
 
+		/// <inheritdoc/>
 		public override ushort RawChunkId { get; }
+
+		/// <inheritdoc/>
 		public override int DataLength => 0;
 
+		/// <summary>
+		///		ID for this data tracker
+		/// </summary>
 		public int TrackerId => RawChunkId;
 
 		public IEnumerable<PsnDataTrackerSubChunk> SubChunks => RawSubChunks.OfType<PsnDataTrackerSubChunk>();
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnDataTrackerChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -99,6 +111,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && RawChunkId == other.RawChunkId;
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -108,6 +121,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnDataTrackerChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -116,6 +130,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerChunk),
@@ -169,6 +184,8 @@ namespace Imp.PosiStageDotNet.Chunks
 		protected PsnDataTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
 		public abstract PsnDataTrackerChunkId ChunkId { get; }
+
+		/// <inheritdoc/>
 		public override ushort RawChunkId => (ushort)ChunkId;
 	}
 
@@ -191,10 +208,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
+		/// <inheritdoc/>
 		public override int DataLength => 12;
 
+		/// <inheritdoc/>
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerPos;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnDataTrackerPosChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -204,6 +224,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -213,6 +234,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnDataTrackerPosChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -225,6 +247,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerPosChunk),
@@ -269,10 +292,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
+		/// <inheritdoc/>
 		public override int DataLength => 12;
 
+		/// <inheritdoc/>
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerSpeed;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnDataTrackerSpeedChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -282,6 +308,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -291,6 +318,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnDataTrackerSpeedChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -303,6 +331,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerSpeedChunk),
@@ -347,10 +376,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
+		/// <inheritdoc/>
 		public override int DataLength => 12;
 
+		/// <inheritdoc/>
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerOri;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnDataTrackerOriChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -360,6 +392,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -369,6 +402,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnDataTrackerOriChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -381,6 +415,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerOriChunk),
@@ -419,10 +454,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public float Validity { get; }
 
+		/// <inheritdoc/>
 		public override int DataLength => 4;
 
+		/// <inheritdoc/>
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerStatus;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnDataTrackerStatusChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -432,6 +470,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && Validity.Equals(other.Validity);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -441,6 +480,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnDataTrackerStatusChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -449,6 +489,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerStatusChunk),
@@ -487,10 +528,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
+		/// <inheritdoc/>
 		public override int DataLength => 12;
 
+		/// <inheritdoc/>
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerAccel;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnDataTrackerAccelChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -500,6 +544,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -509,6 +554,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnDataTrackerAccelChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -521,6 +567,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerAccelChunk),
@@ -565,10 +612,13 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
+		/// <inheritdoc/>
 		public override int DataLength => 12;
 
+		/// <inheritdoc/>
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerTrgtPos;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnDataTrackerTrgtPosChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -578,6 +628,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && X.Equals(other.X) && Y.Equals(other.Y) && Z.Equals(other.Z);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -587,6 +638,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnDataTrackerTrgtPosChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -599,6 +651,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnDataTrackerTrgtPosChunk),

@@ -188,9 +188,14 @@ namespace Imp.PosiStageDotNet.Chunks
 		/// </summary>
 		public byte[] Data { get; }
 
+		/// <inheritdoc/>
 		public override ushort RawChunkId { get; }
+
+		/// <inheritdoc/>
 		public override int DataLength => 0;
 
+
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnUnknownChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -200,12 +205,14 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && Data.SequenceEqual(other.Data);
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnUnknownChunk),
 				new XAttribute("DataLength", Data.Length));
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -215,6 +222,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnUnknownChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked

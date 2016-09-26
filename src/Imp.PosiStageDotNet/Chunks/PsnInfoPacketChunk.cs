@@ -29,19 +29,39 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnInfoPacketChunk : PsnPacketChunk
 	{
+		/// <summary>
+		///		Info packet chunk constructor
+		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnInfoPacketSubChunk> subChunks)
 			: this((IEnumerable<PsnChunk>)subChunks) { }
 
+		/// <summary>
+		///		Info packet chunk constructor
+		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnInfoPacketChunk(params PsnInfoPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
 		private PsnInfoPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
+		/// <summary>
+		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
+		/// </summary>
 		public override int DataLength => 0;
 
+		/// <summary>
+		///		Typed chunk id for this packet chunk
+		/// </summary>
 		public override PsnPacketChunkId ChunkId => PsnPacketChunkId.PsnInfoPacket;
 
+		/// <summary>
+		///		Enumerable of typed sub-chunks contained within this chunk
+		/// </summary>
 		public IEnumerable<PsnInfoPacketSubChunk> SubChunks => RawSubChunks.OfType<PsnInfoPacketSubChunk>();
 
+		/// <summary>
+		///		Converts chunk and sub-chunks to an XML representation
+		/// </summary>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoPacketChunk),
@@ -79,23 +99,45 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 
+	/// <summary>
+	///		Base class for sub-chunks of a PosiStageNet info packet chunk
+	/// </summary>
 	[PublicAPI]
 	public abstract class PsnInfoPacketSubChunk : PsnChunk
 	{
+		/// <summary>
+		///		Base constructor for info packet sub-chunk
+		/// </summary>
+		/// <param name="subChunks"></param>
 		protected PsnInfoPacketSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
+		/// <summary>
+		///		Typed chunk ID for data packet sub-chunk
+		/// </summary>
 		public abstract PsnInfoPacketChunkId ChunkId { get; }
+
+		/// <inheritdoc/>
 		public override ushort RawChunkId => (ushort)ChunkId;
 	}
 
 
-
+	/// <summary>
+	///		Chunk containing header data for a PosiStageNet info packet
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnInfoHeaderChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoHeaderChunk>
 	{
-		public const int StaticChunkAndHeaderLength = ChunkHeaderLength + StaticDataLength;
-		public const int StaticDataLength = 12;
+		internal const int StaticChunkAndHeaderLength = ChunkHeaderLength + StaticDataLength;
+		internal const int StaticDataLength = 12;
 
+		/// <summary>
+		///		Constructs a header chunk for a info packet
+		/// </summary>
+		/// <param name="timestamp">Time in microseconds at which the info contained in this packet is valid</param>
+		/// <param name="versionHigh">High byte of PosiStageNet version</param>
+		/// <param name="versionLow">Low byte of PosiStageNet version</param>
+		/// <param name="frameId">Frame ID byte</param>
+		/// <param name="framePacketCount">Frame packet count byte</param>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
 		public PsnInfoHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
 			: base(null)
@@ -124,17 +166,39 @@ namespace Imp.PosiStageDotNet.Chunks
 			FramePacketCount = framePacketCount;
 		}
 
+		/// <summary>
+		///		Time in microseconds at which the info contained in this packet is valid
+		/// </summary>
 		public ulong TimeStamp { get; }
 
+
+		/// <summary>
+		///		High byte of the PosiStageNet version of the packet
+		/// </summary>
 		public int VersionHigh { get; }
+
+		/// <summary>
+		///		Low byte of the PosiStageNet version of this packet
+		/// </summary>
 		public int VersionLow { get; }
+
+		/// <summary>
+		///		Frame ID value used for collating info from multiple packets
+		/// </summary>
 		public int FrameId { get; }
+
+		/// <summary>
+		///		Number of individual info packets for this <see cref="FrameId"/>
+		/// </summary>
 		public int FramePacketCount { get; }
 
+		/// <inheritdoc/>
 		public override int DataLength => StaticDataLength;
 
+		/// <inheritdoc/>
 		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoHeader;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnInfoHeaderChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -146,6 +210,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				   && FramePacketCount == other.FramePacketCount;
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoHeaderChunk),
@@ -155,6 +220,7 @@ namespace Imp.PosiStageDotNet.Chunks
 				new XAttribute(nameof(FramePacketCount), FramePacketCount));
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -164,6 +230,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnInfoHeaderChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked

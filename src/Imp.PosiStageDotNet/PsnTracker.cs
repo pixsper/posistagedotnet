@@ -289,6 +289,7 @@ namespace Imp.PosiStageDotNet
 				yield return new PsnInfoTrackerNameChunk(TrackerName);
 		}
 
+		/// <inheritdoc/>
 		public bool Equals(PsnTracker other)
 		{
 			return TrackerId == other.TrackerId && string.Equals(TrackerName, other.TrackerName)
@@ -298,6 +299,7 @@ namespace Imp.PosiStageDotNet
 				   && Validity.Equals(other.Validity);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -305,6 +307,7 @@ namespace Imp.PosiStageDotNet
 			return obj is PsnTracker && Equals((PsnTracker)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -321,6 +324,7 @@ namespace Imp.PosiStageDotNet
 			}
 		}
 
+		/// <inheritdoc/>
 		public override string ToString()
 		{
 			return

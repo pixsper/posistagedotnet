@@ -36,20 +36,18 @@ namespace Imp.PosiStageDotNet.Chunks
 		protected PsnPacketChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
 		/// <summary>
-		///		Typed chunk id for this packet chunk
+		///		Typed chunk ID for this packet chunk
 		/// </summary>
 		public abstract PsnPacketChunkId ChunkId { get; }
 
-		/// <summary>
-		///		Untyped chunk if for this packet chunk
-		/// </summary>
+		/// <inheritdoc/>
 		public override ushort RawChunkId => (ushort)ChunkId;
 
 		/// <summary>
-		///		Deserializes a PSN packet from a byte array
+		///		Deserializes a PosiStageNet packet from a byte array
 		/// </summary>
 		/// <param name="data">Byte array containing PSN data</param>
-		/// <returns>Chunk serialized within <see cref="data"/></returns>
+		/// <returns>Chunk serialized within data</returns>
 		[CanBeNull]
 		public static PsnPacketChunk FromByteArray(byte[] data)
 		{
@@ -117,12 +115,21 @@ namespace Imp.PosiStageDotNet.Chunks
 			Data = data ?? new byte[0];
 		}
 
+		/// <summary>
+		///		Un-deserialized data within chunk. May contain sub-chunks.
+		/// </summary>
 		public byte[] Data { get; }
 
+		/// <inheritdoc/>
 		public override PsnPacketChunkId ChunkId => PsnPacketChunkId.UnknownPacket;
+
+		/// <inheritdoc/>
 		public override ushort RawChunkId { get; }
+
+		/// <inheritdoc/>
 		public override int DataLength => 0;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnUnknownPacketChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -132,12 +139,14 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && Data.SequenceEqual(other.Data);
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnUnknownPacketChunk),
 				new XAttribute("DataLength", Data.Length));
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -147,6 +156,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnUnknownPacketChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked

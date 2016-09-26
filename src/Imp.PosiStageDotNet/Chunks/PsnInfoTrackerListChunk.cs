@@ -37,6 +37,10 @@ namespace Imp.PosiStageDotNet.Chunks
 		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
 		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoTrackerList;
+
+		/// <summary>
+		/// <inheritdoc cref="DataLength"/>
+		/// </summary>
 		public override int DataLength => 0;
 
 		public IEnumerable<PsnInfoTrackerChunk> SubChunks => RawSubChunks.OfType<PsnInfoTrackerChunk>();
@@ -83,6 +87,10 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		public override ushort RawChunkId { get; }
+
+		/// <summary>
+		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
+		/// </summary>
 		public override int DataLength => 0;
 
 		public int TrackerId => RawChunkId;
@@ -147,6 +155,9 @@ namespace Imp.PosiStageDotNet.Chunks
 
 		public string TrackerName { get; }
 
+		/// <summary>
+		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
+		/// </summary>
 		public override int DataLength => TrackerName.Length;
 
 		public override PsnInfoTrackerChunkId ChunkId => PsnInfoTrackerChunkId.PsnInfoTrackerName;

@@ -41,6 +41,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		/// </summary>
 		public string SystemName { get; }
 
+		/// <summary>
+		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
+		/// </summary>
 		public override int DataLength => SystemName.Length;
 
 		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoSystemName;
