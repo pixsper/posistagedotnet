@@ -566,7 +566,8 @@ namespace Imp.PosiStageDotNet
             OnPacketReceived(chunk);
         }
 
-        private TChunk getSingleChunk<TChunk, TPacketChunk>(TPacketChunk packet, ushort chunkId, string packetType,
+	    [CanBeNull]
+	    private TChunk getSingleChunk<TChunk, TPacketChunk>(TPacketChunk packet, ushort chunkId, string packetType,
             string chunkType, bool isAllowMultiple = false, bool isMandatory = true) where TChunk : PsnChunk
             where TPacketChunk : PsnPacketChunk
         {

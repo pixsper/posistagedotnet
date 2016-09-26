@@ -98,7 +98,7 @@ namespace Imp.PosiStageDotNet.Chunks
         public abstract XElement ToXml();
 
 
-        public override bool Equals(object obj)
+        public override bool Equals([CanBeNull] object obj)
         {
             if (ReferenceEquals(null, obj))
                 return false;

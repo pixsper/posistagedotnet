@@ -91,7 +91,7 @@ namespace Imp.PosiStageDotNet
 
         /// <exception cref="ArgumentNullException"><paramref name="trackerName"/> is <see langword="null" />.</exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public PsnTracker(int trackerId, string trackerName,
+        public PsnTracker(int trackerId, [CanBeNull] string trackerName,
             Tuple<float, float, float> position = null,
             Tuple<float, float, float> speed = null,
             Tuple<float, float, float> orientation = null,
@@ -104,9 +104,6 @@ namespace Imp.PosiStageDotNet
                     $"trackerId must be in range {ushort.MinValue}-{ushort.MaxValue}");
 
             TrackerId = trackerId;
-
-            if (trackerName == null)
-                throw new ArgumentNullException(nameof(trackerName));
 
             TrackerName = trackerName;
 
@@ -301,7 +298,7 @@ namespace Imp.PosiStageDotNet
                    && Validity.Equals(other.Validity);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals([CanBeNull] object obj)
         {
             if (ReferenceEquals(null, obj))
                 return false;

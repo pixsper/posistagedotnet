@@ -14,6 +14,7 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
@@ -48,7 +49,7 @@ namespace Imp.PosiStageDotNet.Chunks
             return ChunkId == other.ChunkId && DataLength == other.DataLength && HasSubChunks == other.HasSubChunks;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals([CanBeNull] object obj)
         {
             if (ReferenceEquals(null, obj))
                 return false;
