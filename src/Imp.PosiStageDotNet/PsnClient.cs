@@ -148,11 +148,6 @@ namespace Imp.PosiStageDotNet
 		public bool IsListening { get; private set; }
 
 		/// <summary>
-		///     True if data from a remote PosiStageNet server is being received
-		/// </summary>
-		public bool IsReceivingData { get; private set; }
-
-		/// <summary>
 		///     Dictionary of trackers keyed by tracker index
 		/// </summary>
 		public ReadOnlyDictionary<int, PsnTracker> Trackers { get; }
@@ -172,10 +167,7 @@ namespace Imp.PosiStageDotNet
 			GC.SuppressFinalize(this);
 		}
 
-		/// <summary>
-		///     Called when the value of <see cref="IsReceivingData" /> is updated
-		/// </summary>
-		public event EventHandler<bool> IsReceivingDataUpdated;
+
 
 		/// <summary>
 		///     Called when the value of <see cref="RemoteSystemName" /> is updated
