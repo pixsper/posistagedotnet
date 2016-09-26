@@ -23,179 +23,179 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
-    /// <summary>
-    ///     Root chunk of a PosiStageNet info packet
-    /// </summary>
-    [PublicAPI]
-    public sealed class PsnInfoPacketChunk : PsnPacketChunk
-    {
-        public PsnInfoPacketChunk([NotNull] IEnumerable<PsnInfoPacketSubChunk> subChunks)
-            : this((IEnumerable<PsnChunk>)subChunks) { }
+	/// <summary>
+	///     Root chunk of a PosiStageNet info packet
+	/// </summary>
+	[PublicAPI]
+	public sealed class PsnInfoPacketChunk : PsnPacketChunk
+	{
+		public PsnInfoPacketChunk([NotNull] IEnumerable<PsnInfoPacketSubChunk> subChunks)
+			: this((IEnumerable<PsnChunk>)subChunks) { }
 
-        public PsnInfoPacketChunk(params PsnInfoPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+		public PsnInfoPacketChunk(params PsnInfoPacketSubChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
-        private PsnInfoPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+		private PsnInfoPacketChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-        public override int DataLength => 0;
+		public override int DataLength => 0;
 
-        public override PsnPacketChunkId ChunkId => PsnPacketChunkId.PsnInfoPacket;
+		public override PsnPacketChunkId ChunkId => PsnPacketChunkId.PsnInfoPacket;
 
-        public IEnumerable<PsnInfoPacketSubChunk> SubChunks => RawSubChunks.OfType<PsnInfoPacketSubChunk>();
+		public IEnumerable<PsnInfoPacketSubChunk> SubChunks => RawSubChunks.OfType<PsnInfoPacketSubChunk>();
 
-        public override XElement ToXml()
-        {
-            return new XElement(nameof(PsnInfoPacketChunk),
-                RawSubChunks.Select(c => c.ToXml()));
-        }
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoPacketChunk),
+				RawSubChunks.Select(c => c.ToXml()));
+		}
 
-        internal static PsnInfoPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-        {
-            var subChunks = new List<PsnChunk>();
+		internal static PsnInfoPacketChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			var subChunks = new List<PsnChunk>();
 
-            foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
-            {
-                reader.Seek(pair.Item2, SeekOrigin.Begin);
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
 
-                switch ((PsnInfoPacketChunkId)pair.Item1.ChunkId)
-                {
-                    case PsnInfoPacketChunkId.PsnInfoHeader:
-                        subChunks.Add(PsnInfoHeaderChunk.Deserialize(pair.Item1, reader));
-                        break;
-                    case PsnInfoPacketChunkId.PsnInfoSystemName:
-                        subChunks.Add(PsnInfoSystemNameChunk.Deserialize(pair.Item1, reader));
-                        break;
-                    case PsnInfoPacketChunkId.PsnInfoTrackerList:
-                        subChunks.Add(PsnInfoTrackerListChunk.Deserialize(pair.Item1, reader));
-                        break;
-                    default:
-                        subChunks.Add(PsnUnknownChunk.Deserialize(pair.Item1, reader));
-                        break;
-                }
-            }
+				switch ((PsnInfoPacketChunkId)pair.Item1.ChunkId)
+				{
+					case PsnInfoPacketChunkId.PsnInfoHeader:
+						subChunks.Add(PsnInfoHeaderChunk.Deserialize(pair.Item1, reader));
+						break;
+					case PsnInfoPacketChunkId.PsnInfoSystemName:
+						subChunks.Add(PsnInfoSystemNameChunk.Deserialize(pair.Item1, reader));
+						break;
+					case PsnInfoPacketChunkId.PsnInfoTrackerList:
+						subChunks.Add(PsnInfoTrackerListChunk.Deserialize(pair.Item1, reader));
+						break;
+					default:
+						subChunks.Add(PsnUnknownChunk.Deserialize(pair.Item1, reader));
+						break;
+				}
+			}
 
-            return new PsnInfoPacketChunk(subChunks);
-        }
-    }
-
-
-
-    [PublicAPI]
-    public abstract class PsnInfoPacketSubChunk : PsnChunk
-    {
-        protected PsnInfoPacketSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
-
-        public abstract PsnInfoPacketChunkId ChunkId { get; }
-        public override ushort RawChunkId => (ushort)ChunkId;
-    }
+			return new PsnInfoPacketChunk(subChunks);
+		}
+	}
 
 
 
-    [PublicAPI]
-    public sealed class PsnInfoHeaderChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoHeaderChunk>
-    {
-        public const int StaticChunkAndHeaderLength = ChunkHeaderLength + StaticDataLength;
-        public const int StaticDataLength = 12;
+	[PublicAPI]
+	public abstract class PsnInfoPacketSubChunk : PsnChunk
+	{
+		protected PsnInfoPacketSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-        /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public PsnInfoHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
-            : base(null)
-        {
-            TimeStamp = timestamp;
+		public abstract PsnInfoPacketChunkId ChunkId { get; }
+		public override ushort RawChunkId => (ushort)ChunkId;
+	}
 
-            if (versionHigh < 0 || versionHigh > 255)
-                throw new ArgumentOutOfRangeException(nameof(versionHigh), "versionHigh must be between 0 and 255");
 
-            VersionHigh = versionHigh;
 
-            if (versionLow < 0 || versionLow > 255)
-                throw new ArgumentOutOfRangeException(nameof(versionLow), "versionLow must be between 0 and 255");
+	[PublicAPI]
+	public sealed class PsnInfoHeaderChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoHeaderChunk>
+	{
+		public const int StaticChunkAndHeaderLength = ChunkHeaderLength + StaticDataLength;
+		public const int StaticDataLength = 12;
 
-            VersionLow = versionLow;
+		/// <exception cref="ArgumentOutOfRangeException"></exception>
+		public PsnInfoHeaderChunk(ulong timestamp, int versionHigh, int versionLow, int frameId, int framePacketCount)
+			: base(null)
+		{
+			TimeStamp = timestamp;
 
-            if (frameId < 0 || frameId > 255)
-                throw new ArgumentOutOfRangeException(nameof(frameId), "frameId must be between 0 and 255");
+			if (versionHigh < 0 || versionHigh > 255)
+				throw new ArgumentOutOfRangeException(nameof(versionHigh), "versionHigh must be between 0 and 255");
 
-            FrameId = frameId;
+			VersionHigh = versionHigh;
 
-            if (framePacketCount < 0 || framePacketCount > 255)
-                throw new ArgumentOutOfRangeException(nameof(framePacketCount),
-                    "framePacketCount must be between 0 and 255");
+			if (versionLow < 0 || versionLow > 255)
+				throw new ArgumentOutOfRangeException(nameof(versionLow), "versionLow must be between 0 and 255");
 
-            FramePacketCount = framePacketCount;
-        }
+			VersionLow = versionLow;
 
-        public ulong TimeStamp { get; }
+			if (frameId < 0 || frameId > 255)
+				throw new ArgumentOutOfRangeException(nameof(frameId), "frameId must be between 0 and 255");
 
-        public int VersionHigh { get; }
-        public int VersionLow { get; }
-        public int FrameId { get; }
-        public int FramePacketCount { get; }
+			FrameId = frameId;
 
-        public override int DataLength => StaticDataLength;
+			if (framePacketCount < 0 || framePacketCount > 255)
+				throw new ArgumentOutOfRangeException(nameof(framePacketCount),
+					"framePacketCount must be between 0 and 255");
 
-        public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoHeader;
+			FramePacketCount = framePacketCount;
+		}
 
-        public bool Equals([CanBeNull] PsnInfoHeaderChunk other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return base.Equals(other) && TimeStamp == other.TimeStamp && VersionHigh == other.VersionHigh
-                   && VersionLow == other.VersionLow && FrameId == other.FrameId
-                   && FramePacketCount == other.FramePacketCount;
-        }
+		public ulong TimeStamp { get; }
 
-        public override XElement ToXml()
-        {
-            return new XElement(nameof(PsnInfoHeaderChunk),
-                new XAttribute(nameof(TimeStamp), TimeStamp),
-                new XAttribute(nameof(VersionHigh), VersionHigh),
-                new XAttribute(nameof(FrameId), FrameId),
-                new XAttribute(nameof(FramePacketCount), FramePacketCount));
-        }
+		public int VersionHigh { get; }
+		public int VersionLow { get; }
+		public int FrameId { get; }
+		public int FramePacketCount { get; }
 
-        public override bool Equals([CanBeNull] object obj)
-        {
-            if (ReferenceEquals(null, obj))
-                return false;
-            if (ReferenceEquals(this, obj))
-                return true;
-            return obj.GetType() == GetType() && Equals((PsnInfoHeaderChunk)obj);
-        }
+		public override int DataLength => StaticDataLength;
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                int hashCode = base.GetHashCode();
-                hashCode = (hashCode * 397) ^ TimeStamp.GetHashCode();
-                hashCode = (hashCode * 397) ^ VersionHigh;
-                hashCode = (hashCode * 397) ^ VersionLow;
-                hashCode = (hashCode * 397) ^ FrameId;
-                hashCode = (hashCode * 397) ^ FramePacketCount;
-                return hashCode;
-            }
-        }
+		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoHeader;
 
-        internal static PsnInfoHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-        {
-            ulong timeStamp = reader.ReadUInt64();
-            int versionHigh = reader.ReadByte();
-            int versionLow = reader.ReadByte();
-            int frameId = reader.ReadByte();
-            int framePacketCount = reader.ReadByte();
+		public bool Equals([CanBeNull] PsnInfoHeaderChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && TimeStamp == other.TimeStamp && VersionHigh == other.VersionHigh
+				   && VersionLow == other.VersionLow && FrameId == other.FrameId
+				   && FramePacketCount == other.FramePacketCount;
+		}
 
-            return new PsnInfoHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
-        }
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoHeaderChunk),
+				new XAttribute(nameof(TimeStamp), TimeStamp),
+				new XAttribute(nameof(VersionHigh), VersionHigh),
+				new XAttribute(nameof(FrameId), FrameId),
+				new XAttribute(nameof(FramePacketCount), FramePacketCount));
+		}
 
-        internal override void SerializeData(PsnBinaryWriter writer)
-        {
-            writer.Write(TimeStamp);
-            writer.Write((byte)VersionHigh);
-            writer.Write((byte)VersionLow);
-            writer.Write((byte)FrameId);
-            writer.Write((byte)FramePacketCount);
-        }
-    }
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == GetType() && Equals((PsnInfoHeaderChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hashCode = base.GetHashCode();
+				hashCode = (hashCode * 397) ^ TimeStamp.GetHashCode();
+				hashCode = (hashCode * 397) ^ VersionHigh;
+				hashCode = (hashCode * 397) ^ VersionLow;
+				hashCode = (hashCode * 397) ^ FrameId;
+				hashCode = (hashCode * 397) ^ FramePacketCount;
+				return hashCode;
+			}
+		}
+
+		internal static PsnInfoHeaderChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			ulong timeStamp = reader.ReadUInt64();
+			int versionHigh = reader.ReadByte();
+			int versionLow = reader.ReadByte();
+			int frameId = reader.ReadByte();
+			int framePacketCount = reader.ReadByte();
+
+			return new PsnInfoHeaderChunk(timeStamp, versionHigh, versionLow, frameId, framePacketCount);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(TimeStamp);
+			writer.Write((byte)VersionHigh);
+			writer.Write((byte)VersionLow);
+			writer.Write((byte)FrameId);
+			writer.Write((byte)FramePacketCount);
+		}
+	}
 }

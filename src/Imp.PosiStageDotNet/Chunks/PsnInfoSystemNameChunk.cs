@@ -20,71 +20,71 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
-    /// <summary>
-    ///     PosiStageNet chunk containing the name of the system sending data
-    /// </summary>
-    [PublicAPI]
-    public sealed class PsnInfoSystemNameChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoSystemNameChunk>
-    {
-        /// <exception cref="ArgumentNullException"><paramref name="systemName"/> is <see langword="null" />.</exception>
-        public PsnInfoSystemNameChunk([NotNull] string systemName)
-            : base(null)
-        {
-            if (systemName == null)
-                throw new ArgumentNullException(nameof(systemName));
+	/// <summary>
+	///     PosiStageNet chunk containing the name of the system sending data
+	/// </summary>
+	[PublicAPI]
+	public sealed class PsnInfoSystemNameChunk : PsnInfoPacketSubChunk, IEquatable<PsnInfoSystemNameChunk>
+	{
+		/// <exception cref="ArgumentNullException"><paramref name="systemName"/> is <see langword="null" />.</exception>
+		public PsnInfoSystemNameChunk([NotNull] string systemName)
+			: base(null)
+		{
+			if (systemName == null)
+				throw new ArgumentNullException(nameof(systemName));
 
-            SystemName = systemName;
-        }
+			SystemName = systemName;
+		}
 
-        /// <summary>
-        ///     Name of system sending PosiStageNet data
-        /// </summary>
-        public string SystemName { get; }
+		/// <summary>
+		///     Name of system sending PosiStageNet data
+		/// </summary>
+		public string SystemName { get; }
 
-        public override int DataLength => SystemName.Length;
+		public override int DataLength => SystemName.Length;
 
-        public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoSystemName;
+		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoSystemName;
 
-        public bool Equals([CanBeNull] PsnInfoSystemNameChunk other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return base.Equals(other) && string.Equals(SystemName, other.SystemName);
-        }
+		public bool Equals([CanBeNull] PsnInfoSystemNameChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && string.Equals(SystemName, other.SystemName);
+		}
 
-        public override XElement ToXml()
-        {
-            return new XElement(nameof(PsnInfoSystemNameChunk),
-                new XAttribute(nameof(SystemName), SystemName));
-        }
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoSystemNameChunk),
+				new XAttribute(nameof(SystemName), SystemName));
+		}
 
-        public override bool Equals([CanBeNull] object obj)
-        {
-            if (ReferenceEquals(null, obj))
-                return false;
-            if (ReferenceEquals(this, obj))
-                return true;
-            return obj.GetType() == GetType() && Equals((PsnInfoSystemNameChunk)obj);
-        }
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == GetType() && Equals((PsnInfoSystemNameChunk)obj);
+		}
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (base.GetHashCode() * 397) ^ SystemName.GetHashCode();
-            }
-        }
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (base.GetHashCode() * 397) ^ SystemName.GetHashCode();
+			}
+		}
 
-        internal static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-        {
-            return new PsnInfoSystemNameChunk(reader.ReadString(chunkHeader.DataLength));
-        }
+		internal static PsnInfoSystemNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			return new PsnInfoSystemNameChunk(reader.ReadString(chunkHeader.DataLength));
+		}
 
-        internal override void SerializeData(PsnBinaryWriter writer)
-        {
-            writer.Write(SystemName);
-        }
-    }
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(SystemName);
+		}
+	}
 }

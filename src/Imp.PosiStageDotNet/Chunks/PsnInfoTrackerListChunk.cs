@@ -23,174 +23,174 @@ using JetBrains.Annotations;
 
 namespace Imp.PosiStageDotNet.Chunks
 {
-    /// <summary>
-    ///     PosiStageNet chunk containing a list of info trackers
-    /// </summary>
-    [PublicAPI]
-    public sealed class PsnInfoTrackerListChunk : PsnInfoPacketSubChunk
-    {
-        public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnInfoTrackerChunk> subChunks)
-            : this((IEnumerable<PsnChunk>)subChunks) { }
+	/// <summary>
+	///     PosiStageNet chunk containing a list of info trackers
+	/// </summary>
+	[PublicAPI]
+	public sealed class PsnInfoTrackerListChunk : PsnInfoPacketSubChunk
+	{
+		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnInfoTrackerChunk> subChunks)
+			: this((IEnumerable<PsnChunk>)subChunks) { }
 
-        public PsnInfoTrackerListChunk(params PsnInfoTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+		public PsnInfoTrackerListChunk(params PsnInfoTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
-        public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-        public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoTrackerList;
-        public override int DataLength => 0;
+		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoTrackerList;
+		public override int DataLength => 0;
 
-        public IEnumerable<PsnInfoTrackerChunk> SubChunks => RawSubChunks.OfType<PsnInfoTrackerChunk>();
+		public IEnumerable<PsnInfoTrackerChunk> SubChunks => RawSubChunks.OfType<PsnInfoTrackerChunk>();
 
-        public override XElement ToXml()
-        {
-            return new XElement(nameof(PsnInfoTrackerListChunk),
-                RawSubChunks.Select(c => c.ToXml()));
-        }
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoTrackerListChunk),
+				RawSubChunks.Select(c => c.ToXml()));
+		}
 
-        internal static PsnInfoTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-        {
-            var subChunks = new List<PsnChunk>();
+		internal static PsnInfoTrackerListChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			var subChunks = new List<PsnChunk>();
 
-            foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
-            {
-                reader.Seek(pair.Item2, SeekOrigin.Begin);
-                subChunks.Add(PsnInfoTrackerChunk.Deserialize(pair.Item1, reader));
-            }
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+				subChunks.Add(PsnInfoTrackerChunk.Deserialize(pair.Item1, reader));
+			}
 
-            return new PsnInfoTrackerListChunk(subChunks);
-        }
-    }
-
-
-
-    [PublicAPI]
-    public class PsnInfoTrackerChunk : PsnChunk
-    {
-        public PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnInfoTrackerSubChunk> subChunks)
-            : this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
-
-        public PsnInfoTrackerChunk(int trackerId, params PsnInfoTrackerSubChunk[] subChunks)
-            : this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
-
-        private PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
-            : base(subChunks)
-        {
-            if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
-                throw new ArgumentOutOfRangeException(nameof(trackerId), trackerId,
-                    $"trackerId must be in the range {ushort.MinValue}-{ushort.MaxValue}");
-
-            RawChunkId = (ushort)trackerId;
-        }
-
-        public override ushort RawChunkId { get; }
-        public override int DataLength => 0;
-
-        public int TrackerId => RawChunkId;
-
-        public IEnumerable<PsnInfoTrackerSubChunk> SubChunks => RawSubChunks.OfType<PsnInfoTrackerSubChunk>();
-
-        public override XElement ToXml()
-        {
-            return new XElement(nameof(PsnInfoTrackerChunk),
-                new XAttribute("TrackerId", RawChunkId),
-                RawSubChunks.Select(c => c.ToXml()));
-        }
-
-        internal static PsnInfoTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-        {
-            var subChunks = new List<PsnChunk>();
-
-            foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
-            {
-                reader.Seek(pair.Item2, SeekOrigin.Begin);
-
-                switch ((PsnInfoTrackerChunkId)pair.Item1.ChunkId)
-                {
-                    case PsnInfoTrackerChunkId.PsnInfoTrackerName:
-                        subChunks.Add(PsnInfoTrackerNameChunk.Deserialize(pair.Item1, reader));
-                        break;
-                    default:
-                        subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
-                        break;
-                }
-            }
-
-            return new PsnInfoTrackerChunk(chunkHeader.ChunkId, subChunks);
-        }
-    }
+			return new PsnInfoTrackerListChunk(subChunks);
+		}
+	}
 
 
 
-    [PublicAPI]
-    public abstract class PsnInfoTrackerSubChunk : PsnChunk
-    {
-        protected PsnInfoTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+	[PublicAPI]
+	public class PsnInfoTrackerChunk : PsnChunk
+	{
+		public PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnInfoTrackerSubChunk> subChunks)
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
 
-        public abstract PsnInfoTrackerChunkId ChunkId { get; }
-        public override ushort RawChunkId => (ushort)ChunkId;
-    }
+		public PsnInfoTrackerChunk(int trackerId, params PsnInfoTrackerSubChunk[] subChunks)
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
+
+		private PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
+			: base(subChunks)
+		{
+			if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
+				throw new ArgumentOutOfRangeException(nameof(trackerId), trackerId,
+					$"trackerId must be in the range {ushort.MinValue}-{ushort.MaxValue}");
+
+			RawChunkId = (ushort)trackerId;
+		}
+
+		public override ushort RawChunkId { get; }
+		public override int DataLength => 0;
+
+		public int TrackerId => RawChunkId;
+
+		public IEnumerable<PsnInfoTrackerSubChunk> SubChunks => RawSubChunks.OfType<PsnInfoTrackerSubChunk>();
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoTrackerChunk),
+				new XAttribute("TrackerId", RawChunkId),
+				RawSubChunks.Select(c => c.ToXml()));
+		}
+
+		internal static PsnInfoTrackerChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			var subChunks = new List<PsnChunk>();
+
+			foreach (var pair in FindSubChunkHeaders(reader, chunkHeader.DataLength))
+			{
+				reader.Seek(pair.Item2, SeekOrigin.Begin);
+
+				switch ((PsnInfoTrackerChunkId)pair.Item1.ChunkId)
+				{
+					case PsnInfoTrackerChunkId.PsnInfoTrackerName:
+						subChunks.Add(PsnInfoTrackerNameChunk.Deserialize(pair.Item1, reader));
+						break;
+					default:
+						subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
+						break;
+				}
+			}
+
+			return new PsnInfoTrackerChunk(chunkHeader.ChunkId, subChunks);
+		}
+	}
 
 
 
-    [PublicAPI]
-    public class PsnInfoTrackerNameChunk : PsnInfoTrackerSubChunk, IEquatable<PsnInfoTrackerNameChunk>
-    {
-        /// <exception cref="ArgumentNullException"><paramref name="trackerName"/> is <see langword="null" />.</exception>
-        public PsnInfoTrackerNameChunk([NotNull] string trackerName)
-            : base(null)
-        {
-            if (trackerName == null)
-                throw new ArgumentNullException(nameof(trackerName));
+	[PublicAPI]
+	public abstract class PsnInfoTrackerSubChunk : PsnChunk
+	{
+		protected PsnInfoTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
-            TrackerName = trackerName;
-        }
+		public abstract PsnInfoTrackerChunkId ChunkId { get; }
+		public override ushort RawChunkId => (ushort)ChunkId;
+	}
 
-        public string TrackerName { get; }
 
-        public override int DataLength => TrackerName.Length;
 
-        public override PsnInfoTrackerChunkId ChunkId => PsnInfoTrackerChunkId.PsnInfoTrackerName;
+	[PublicAPI]
+	public class PsnInfoTrackerNameChunk : PsnInfoTrackerSubChunk, IEquatable<PsnInfoTrackerNameChunk>
+	{
+		/// <exception cref="ArgumentNullException"><paramref name="trackerName"/> is <see langword="null" />.</exception>
+		public PsnInfoTrackerNameChunk([NotNull] string trackerName)
+			: base(null)
+		{
+			if (trackerName == null)
+				throw new ArgumentNullException(nameof(trackerName));
 
-        public bool Equals([CanBeNull] PsnInfoTrackerNameChunk other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return base.Equals(other) && string.Equals(TrackerName, other.TrackerName);
-        }
+			TrackerName = trackerName;
+		}
 
-        public override bool Equals([CanBeNull] object obj)
-        {
-            if (ReferenceEquals(null, obj))
-                return false;
-            if (ReferenceEquals(this, obj))
-                return true;
-            return obj.GetType() == GetType() && Equals((PsnInfoTrackerNameChunk)obj);
-        }
+		public string TrackerName { get; }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return (base.GetHashCode() * 397) ^ TrackerName.GetHashCode();
-            }
-        }
+		public override int DataLength => TrackerName.Length;
 
-        public override XElement ToXml()
-        {
-            return new XElement(nameof(PsnInfoTrackerNameChunk),
-                new XAttribute(nameof(TrackerName), TrackerName));
-        }
+		public override PsnInfoTrackerChunkId ChunkId => PsnInfoTrackerChunkId.PsnInfoTrackerName;
 
-        internal static PsnInfoTrackerNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
-        {
-            return new PsnInfoTrackerNameChunk(reader.ReadString(chunkHeader.DataLength));
-        }
+		public bool Equals([CanBeNull] PsnInfoTrackerNameChunk other)
+		{
+			if (ReferenceEquals(null, other))
+				return false;
+			if (ReferenceEquals(this, other))
+				return true;
+			return base.Equals(other) && string.Equals(TrackerName, other.TrackerName);
+		}
 
-        internal override void SerializeData(PsnBinaryWriter writer)
-        {
-            writer.Write(TrackerName);
-        }
-    }
+		public override bool Equals([CanBeNull] object obj)
+		{
+			if (ReferenceEquals(null, obj))
+				return false;
+			if (ReferenceEquals(this, obj))
+				return true;
+			return obj.GetType() == GetType() && Equals((PsnInfoTrackerNameChunk)obj);
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				return (base.GetHashCode() * 397) ^ TrackerName.GetHashCode();
+			}
+		}
+
+		public override XElement ToXml()
+		{
+			return new XElement(nameof(PsnInfoTrackerNameChunk),
+				new XAttribute(nameof(TrackerName), TrackerName));
+		}
+
+		internal static PsnInfoTrackerNameChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+		{
+			return new PsnInfoTrackerNameChunk(reader.ReadString(chunkHeader.DataLength));
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+		{
+			writer.Write(TrackerName);
+		}
+	}
 }
