@@ -1,0 +1,37 @@
+﻿{
+	"title": "Imp.PosiStageDotNet",
+	"description": "C# .NET platform standard library for sending/receiving PosiStageNet positional data over Ethernet for entertainment control applications.",
+	"copyright": "David Butler / The Impersonal Stereo 2016",
+	"authors": [ "David Butler" ],
+
+	"version": "0.2.0-*",
+
+	"dependencies": {
+		"NETStandard.Library": "1.6.0",
+		"System.Collections.Immutable": "1.2.0"
+	},
+	"frameworks": {
+		"net45": {
+			"frameworkAssemblies": {
+				"System.Xml": "4.0.0.0",
+				"System.Xml.Linq": "4.0.0.0"
+			}
+		},
+		"netstandard1.3": {
+			"imports": "dnxcore50"
+		}
+	},
+	"buildOptions": {
+		"xmlDoc": true
+	},
+	"packOptions": {
+		"iconUrl": "https://raw.githubusercontent.com/impsnldavid/posistagedotnet/master/resources/logo.png",
+		"projectUrl": "http://www.theimpersonalstereo.com/posistagedotnet/",
+		"licenseUrl": "http://www.gnu.org/licenses/lgpl-3.0-standalone.html",
+		"requireLicenseAcceptance": true,
+		"repository": {
+			"type": "git",
+			"url": "https://github.com/impsnldavid/posistagedotnet"
+		}
+	}
+}

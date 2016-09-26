@@ -19,32 +19,41 @@ nuget:
 #       build configuration       #
 #---------------------------------#
 
-platform: Any CPU
+version: '0.2.{build}'
 
 configuration: Release
 
-build:
-  project: Imp.PosiStageDotNet.sln
-  publish_nuget: true
-  publish_nuget_symbols: true
+platform: Any CPU
 
+init:
+- ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+
+before_build:
+- appveyor-retry dotnet restore -v Minimal
+
+build_script:
+- dotnet build "src\Imp.PosiStageDotNet" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
+
+after_build:
+- dotnet pack "src\Imp.PosiStageDotNet" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
+
+test_script:
+- dotnet test "test\Imp.PosiStageDotNet.Tests" -c %CONFIGURATION%
+
+artifacts:
+- path: artifacts\**\*.*
 
 #---------------------------------#
 #           build events          #
 #---------------------------------#
-
-before_build:
-  - nuget restore
   
-#---------------------------------#
-#              deploy             #
-#---------------------------------#
- 
 deploy:
-  provider: NuGet
-  api_key:
-    secure: rWUYkrDdoedwz/r2XGss/gQ4j9+oRVw/4t5j48vDRFN9sM9Tyl0zlUAby5MMm3ME
-  skip_symbols: false
-  on:
-    branch: master
-    appveyor_repo_tag: true
+  - provider: NuGet
+    release: Imp.PosiStageDotNet-v$(appveyor_build_version)
+    on:
+      branch: master
+      appveyor_repo_tag: true
+    api_key:
+      secure: rWUYkrDdoedwz/r2XGss/gQ4j9+oRVw/4t5j48vDRFN9sM9Tyl0zlUAby5MMm3ME
+    skip_symbols: false
+    artifact: /.*\.nupkg/
