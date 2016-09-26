@@ -173,12 +173,34 @@ namespace Imp.PosiStageDotNet
 		public ulong? InfoTimeStamp { get; }
 
 
-
+		/// <summary>
+		///		Tracker position vector in m
+		/// </summary>
 		public Tuple<float, float, float> Position { get; }
+
+		/// <summary>
+		///		Tracker speed vector in m/s
+		/// </summary>
 		public Tuple<float, float, float> Speed { get; }
+
+		/// <summary>
+		///		Tracker absolute orientation around rotation axis in radians
+		/// </summary>
 		public Tuple<float, float, float> Orientation { get; }
+
+		/// <summary>
+		///		Tracker acceleration vector in m/s^2
+		/// </summary>
 		public Tuple<float, float, float> Acceleration { get; }
+
+		/// <summary>
+		///		Tracker target position vector in m
+		/// </summary>
 		public Tuple<float, float, float> TargetPosition { get; }
+
+		/// <summary>
+		///		Tracker validity
+		/// </summary>
 		public float? Validity { get; }
 
 

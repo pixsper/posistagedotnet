@@ -29,22 +29,34 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnInfoTrackerListChunk : PsnInfoPacketSubChunk
 	{
+		/// <summary>
+		///		Info tracker list chunk constructor
+		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnInfoTrackerChunk> subChunks)
-			: this((IEnumerable<PsnChunk>)subChunks) { }
-
-		public PsnInfoTrackerListChunk(params PsnInfoTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
-
-		public PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
-
-		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoTrackerList;
+			: this((IEnumerable<PsnChunk>)subChunks)
+		{ }
 
 		/// <summary>
-		/// <inheritdoc cref="DataLength"/>
+		///		Info tracker list chunk constructor
 		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
+		public PsnInfoTrackerListChunk(params PsnInfoTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
+
+		private PsnInfoTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
+
+		/// <inheritdoc/>
+		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoTrackerList;
+
+		/// <inheritdoc/>
 		public override int DataLength => 0;
 
+		/// <summary>
+		///		Typed sub-chunks of this chunk
+		/// </summary>
 		public IEnumerable<PsnInfoTrackerChunk> SubChunks => RawSubChunks.OfType<PsnInfoTrackerChunk>();
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoTrackerListChunk),
@@ -65,16 +77,29 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 	}
 
-
-
+	/// <summary>
+	///		PosiStageNet info packet chunk containing info for one info tracker. Only valid as sub-chunk of a <see cref="PsnInfoTrackerListChunk"/>.
+	/// </summary>
 	[PublicAPI]
 	public class PsnInfoTrackerChunk : PsnChunk
 	{
+		/// <summary>
+		///		Info tracker chunk constructor
+		/// </summary>
+		/// <param name="trackerId">ID of this tracker</param>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnInfoTrackerSubChunk> subChunks)
-			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
+		{ }
 
+		/// <summary>
+		///		Info tracker chunk constructor
+		/// </summary>
+		/// /// <param name="trackerId">ID of this tracker</param>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnInfoTrackerChunk(int trackerId, params PsnInfoTrackerSubChunk[] subChunks)
-			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
+			: this(trackerId, (IEnumerable<PsnChunk>)subChunks)
+		{ }
 
 		private PsnInfoTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnChunk> subChunks)
 			: base(subChunks)
@@ -86,17 +111,26 @@ namespace Imp.PosiStageDotNet.Chunks
 			RawChunkId = (ushort)trackerId;
 		}
 
+		/// <summary><inheritdoc/></summary>
+		/// <remarks>
+		///		Trackers have no specific chunk ID and use this value to store the tracker ID
+		/// </remarks>
 		public override ushort RawChunkId { get; }
 
-		/// <summary>
-		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
-		/// </summary>
+		/// <inheritdoc/>
 		public override int DataLength => 0;
 
+		/// <summary>
+		///		ID of this tracker, stored in <see cref="RawChunkId"/>
+		/// </summary>
 		public int TrackerId => RawChunkId;
 
+		/// <summary>
+		///		Typed sub-chunks of this chunk
+		/// </summary>
 		public IEnumerable<PsnInfoTrackerSubChunk> SubChunks => RawSubChunks.OfType<PsnInfoTrackerSubChunk>();
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoTrackerChunk),
@@ -129,20 +163,39 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 
+	/// <summary>
+	///		Base class for sub-chunks of <see cref="PsnInfoTrackerChunk"/>
+	/// </summary>
 	[PublicAPI]
 	public abstract class PsnInfoTrackerSubChunk : PsnChunk
 	{
+		/// <summary>
+		///		Base info tracker sub-chunk constructor
+		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		protected PsnInfoTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
+		/// <summary>
+		///		Typed chunk ID
+		/// </summary>
 		public abstract PsnInfoTrackerChunkId ChunkId { get; }
+
+		/// <inheritdoc/>
 		public override ushort RawChunkId => (ushort)ChunkId;
 	}
 
 
 
+	/// <summary>
+	///		Info tracker sub-chunk containing tracker name
+	/// </summary>
 	[PublicAPI]
 	public class PsnInfoTrackerNameChunk : PsnInfoTrackerSubChunk, IEquatable<PsnInfoTrackerNameChunk>
 	{
+		/// <summary>
+		///		Tracker name chunk constructor
+		/// </summary>
+		/// <param name="trackerName">Name for tracker with this tracker ID</param>
 		/// <exception cref="ArgumentNullException"><paramref name="trackerName"/> is <see langword="null" />.</exception>
 		public PsnInfoTrackerNameChunk([NotNull] string trackerName)
 			: base(null)
@@ -153,15 +206,18 @@ namespace Imp.PosiStageDotNet.Chunks
 			TrackerName = trackerName;
 		}
 
+		/// <summary>
+		///		Name for tracker with this tracker ID
+		/// </summary>
 		public string TrackerName { get; }
 
-		/// <summary>
-		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
-		/// </summary>
+		/// <inheritdoc/>
 		public override int DataLength => TrackerName.Length;
 
+		/// <inheritdoc/>
 		public override PsnInfoTrackerChunkId ChunkId => PsnInfoTrackerChunkId.PsnInfoTrackerName;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnInfoTrackerNameChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -171,6 +227,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && string.Equals(TrackerName, other.TrackerName);
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -180,6 +237,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnInfoTrackerNameChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
@@ -188,6 +246,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			}
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoTrackerNameChunk),

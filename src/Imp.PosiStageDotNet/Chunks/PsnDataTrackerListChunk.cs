@@ -29,9 +29,17 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerListChunk : PsnDataPacketSubChunk
 	{
+		/// <summary>
+		///		Data tracker list chunk constructor
+		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnDataTrackerListChunk([NotNull] IEnumerable<PsnDataTrackerChunk> subChunks)
 			: this((IEnumerable<PsnChunk>)subChunks) { }
 
+		/// <summary>
+		///		Data tracker list chunk constructor
+		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnDataTrackerListChunk(params PsnDataTrackerChunk[] subChunks) : this((IEnumerable<PsnChunk>)subChunks) { }
 
 		private PsnDataTrackerListChunk([NotNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
@@ -42,6 +50,9 @@ namespace Imp.PosiStageDotNet.Chunks
 		/// <inheritdoc/>
 		public override PsnDataPacketChunkId ChunkId => PsnDataPacketChunkId.PsnDataTrackerList;
 
+		/// <summary>
+		///		Typed sub-chunks of this chunk
+		/// </summary>
 		public IEnumerable<PsnDataTrackerChunk> SubChunks => RawSubChunks.OfType<PsnDataTrackerChunk>();
 
 		/// <inheritdoc/>
@@ -72,9 +83,19 @@ namespace Imp.PosiStageDotNet.Chunks
 	[PublicAPI]
 	public sealed class PsnDataTrackerChunk : PsnChunk, IEquatable<PsnDataTrackerChunk>
 	{
+		/// <summary>
+		///		Data tracker chunk constructor
+		/// </summary>
+		/// <param name="trackerId">ID of this tracker</param>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnDataTrackerChunk(int trackerId, [NotNull] IEnumerable<PsnDataTrackerSubChunk> subChunks)
 			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
 
+		/// <summary>
+		///		Data tracker chunk constructor
+		/// </summary>
+		/// <param name="trackerId">ID of this tracker</param>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		public PsnDataTrackerChunk(int trackerId, params PsnDataTrackerSubChunk[] subChunks)
 			: this(trackerId, (IEnumerable<PsnChunk>)subChunks) { }
 
@@ -88,17 +109,23 @@ namespace Imp.PosiStageDotNet.Chunks
 			RawChunkId = (ushort)trackerId;
 		}
 
-		/// <inheritdoc/>
+		/// <summary><inheritdoc/></summary>
+		/// <remarks>
+		///		Trackers have no specific chunk ID and use this value to store the tracker ID
+		/// </remarks>
 		public override ushort RawChunkId { get; }
 
 		/// <inheritdoc/>
 		public override int DataLength => 0;
 
 		/// <summary>
-		///		ID for this data tracker
+		///		ID of this tracker, stored in <see cref="RawChunkId"/>
 		/// </summary>
 		public int TrackerId => RawChunkId;
 
+		/// <summary>
+		///		Typed sub-chunks of this chunk
+		/// </summary>
 		public IEnumerable<PsnDataTrackerSubChunk> SubChunks => RawSubChunks.OfType<PsnDataTrackerSubChunk>();
 
 		/// <inheritdoc/>
@@ -177,12 +204,21 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		Base class for sub-chunks of <see cref="PsnDataTrackerChunk"/>
+	/// </summary>
 	[PublicAPI]
 	public abstract class PsnDataTrackerSubChunk : PsnChunk
 	{
+		/// <summary>
+		///		Base data tracker sub-chunk constructor
+		/// </summary>
+		/// <param name="subChunks">Typed sub-chunks of this chunk</param>
 		protected PsnDataTrackerSubChunk([CanBeNull] IEnumerable<PsnChunk> subChunks) : base(subChunks) { }
 
+		/// <summary>
+		///		Typed chunk ID
+		/// </summary>
 		public abstract PsnDataTrackerChunkId ChunkId { get; }
 
 		/// <inheritdoc/>
@@ -190,10 +226,18 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		Data tracker sub-chunk containing tracker position
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerPosChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerPosChunk>
 	{
+		/// <summary>
+		///		Tracker position chunk constructor
+		/// </summary>
+		/// <param name="x">X axis position in m</param>
+		/// <param name="y">Y axis position in m</param>
+		/// <param name="z">Z axis position in m</param>
 		public PsnDataTrackerPosChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -202,10 +246,24 @@ namespace Imp.PosiStageDotNet.Chunks
 			Z = z;
 		}
 
+		/// <summary>
+		///		X axis position in m
+		/// </summary>
 		public float X { get; }
+
+		/// <summary>
+		///		Y axis position in m
+		/// </summary>
 		public float Y { get; }
+
+		/// <summary>
+		///		Z axis position in m
+		/// </summary>
 		public float Z { get; }
 
+		/// <summary>
+		///		Axis position in m as vector
+		/// </summary>
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
 		/// <inheritdoc/>
@@ -274,10 +332,18 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		Data tracker sub-chunk containing tracker speed
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerSpeedChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerSpeedChunk>
 	{
+		/// <summary>
+		///		Tracker speed chunk constructor
+		/// </summary>
+		/// <param name="x">X axis speed in m/s</param>
+		/// <param name="y">Y axis speed in m/s</param>
+		/// <param name="z">Z axis speed in m/s</param>
 		public PsnDataTrackerSpeedChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -286,10 +352,24 @@ namespace Imp.PosiStageDotNet.Chunks
 			Z = z;
 		}
 
+		/// <summary>
+		///		X axis speed in m/s
+		/// </summary>
 		public float X { get; }
+
+		/// <summary>
+		///		Y axis speed in m/s
+		/// </summary>
 		public float Y { get; }
+
+		/// <summary>
+		///		Z axis speed in m/s
+		/// </summary>
 		public float Z { get; }
 
+		/// <summary>
+		///		Axis speed in m/s as vector
+		/// </summary>
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
 		/// <inheritdoc/>
@@ -358,10 +438,18 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		Data tracker sub-chunk containing tracker orientation
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerOriChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerOriChunk>
 	{
+		/// <summary>
+		///		Tracker orientation chunk constructor
+		/// </summary>
+		/// <param name="x">X component of vector indicating absolute orientation around rotation axis in radians</param>
+		/// <param name="y">Y component of vector indicating absolute orientation around rotation axis in radians</param>
+		/// <param name="z">Z component of vector indicating absolute orientation around rotation axis in radians</param>
 		public PsnDataTrackerOriChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -370,10 +458,24 @@ namespace Imp.PosiStageDotNet.Chunks
 			Z = z;
 		}
 
+		/// <summary>
+		///		X component of vector indicating absolute orientation around rotation axis in radians
+		/// </summary>
 		public float X { get; }
+
+		/// <summary>
+		///		Y component of vector indicating absolute orientation around rotation axis in radians
+		/// </summary>
 		public float Y { get; }
+
+		/// <summary>
+		///		Z component of vector indicating absolute orientation around rotation axis in radians
+		/// </summary>
 		public float Z { get; }
 
+		/// <summary>
+		///		Vector indicating absolute orientation around rotation axis in radians
+		/// </summary>
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
 		/// <inheritdoc/>
@@ -442,16 +544,25 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		Data tracker sub-chunk containing tracker status
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerStatusChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerStatusChunk>
 	{
+		/// <summary>
+		///		Tracker status chunk constructor
+		/// </summary>
+		/// <param name="validity">Validity of tracker data</param>
 		public PsnDataTrackerStatusChunk(float validity)
 			: base(null)
 		{
 			Validity = validity;
 		}
 
+		/// <summary>
+		///		Validity value for tracker
+		/// </summary>
 		public float Validity { get; }
 
 		/// <inheritdoc/>
@@ -510,10 +621,18 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		Data tracker sub-chunk containing tracker acceleration
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerAccelChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerAccelChunk>
 	{
+		/// <summary>
+		///		Tracker acceleration chunk constructor 
+		/// </summary>
+		/// <param name="x">X axis acceleration in m/s^2</param>
+		/// <param name="y">Y axis acceleration in m/s^2</param>
+		/// <param name="z">Z axis acceleration in m/s^2</param>
 		public PsnDataTrackerAccelChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -522,10 +641,24 @@ namespace Imp.PosiStageDotNet.Chunks
 			Z = z;
 		}
 
+		/// <summary>
+		///		X axis acceleration in m/s^2
+		/// </summary>
 		public float X { get; }
+
+		/// <summary>
+		///		Y axis acceleration in m/s^2
+		/// </summary>
 		public float Y { get; }
+
+		/// <summary>
+		///		Z axis acceleration in m/s^2
+		/// </summary>
 		public float Z { get; }
 
+		/// <summary>
+		///		Axis acceleration in m/s^2 as vector
+		/// </summary>
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
 		/// <inheritdoc/>
@@ -594,10 +727,18 @@ namespace Imp.PosiStageDotNet.Chunks
 	}
 
 
-
+	/// <summary>
+	///		Data tracker sub-chunk containing tracker target position
+	/// </summary>
 	[PublicAPI]
 	public sealed class PsnDataTrackerTrgtPosChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerTrgtPosChunk>
 	{
+		/// <summary>
+		///		Tracker target position chunk constructor
+		/// </summary>
+		/// <param name="x">X axis position in m</param>
+		/// <param name="y">Y axis position in m</param>
+		/// <param name="z">Z axis position in m</param>
 		public PsnDataTrackerTrgtPosChunk(float x, float y, float z)
 			: base(null)
 		{
@@ -606,10 +747,24 @@ namespace Imp.PosiStageDotNet.Chunks
 			Z = z;
 		}
 
+		/// <summary>
+		///		X axis target position in m
+		/// </summary>
 		public float X { get; }
+
+		/// <summary>
+		///		Y axis target position in m
+		/// </summary>
 		public float Y { get; }
+
+		/// <summary>
+		///		Z axis target position in m
+		/// </summary>
 		public float Z { get; }
 
+		/// <summary>
+		///		Axis target position in m as vector
+		/// </summary>
 		public Tuple<float, float, float> Vector => Tuple.Create(X, Y, Z);
 
 		/// <inheritdoc/>

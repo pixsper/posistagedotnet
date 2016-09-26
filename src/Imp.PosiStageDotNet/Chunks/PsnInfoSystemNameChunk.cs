@@ -41,13 +41,13 @@ namespace Imp.PosiStageDotNet.Chunks
 		/// </summary>
 		public string SystemName { get; }
 
-		/// <summary>
-		///     The length of the data contained within this chunk, excluding sub-chunks and the local chunk header.
-		/// </summary>
+		/// <inheritdoc/>
 		public override int DataLength => SystemName.Length;
 
+		/// <inheritdoc/>
 		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoSystemName;
 
+		/// <inheritdoc/>
 		public bool Equals([CanBeNull] PsnInfoSystemNameChunk other)
 		{
 			if (ReferenceEquals(null, other))
@@ -57,12 +57,14 @@ namespace Imp.PosiStageDotNet.Chunks
 			return base.Equals(other) && string.Equals(SystemName, other.SystemName);
 		}
 
+		/// <inheritdoc/>
 		public override XElement ToXml()
 		{
 			return new XElement(nameof(PsnInfoSystemNameChunk),
 				new XAttribute(nameof(SystemName), SystemName));
 		}
 
+		/// <inheritdoc/>
 		public override bool Equals([CanBeNull] object obj)
 		{
 			if (ReferenceEquals(null, obj))
@@ -72,6 +74,7 @@ namespace Imp.PosiStageDotNet.Chunks
 			return obj.GetType() == GetType() && Equals((PsnInfoSystemNameChunk)obj);
 		}
 
+		/// <inheritdoc/>
 		public override int GetHashCode()
 		{
 			unchecked
