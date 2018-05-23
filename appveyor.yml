@@ -49,7 +49,7 @@ artifacts:
   
 deploy:
   - provider: NuGet
-    release: Imp.PosiStageDotNet-v$(appveyor_build_version)
+    release: Imp.PosiStageDotNet-$(appveyor_repo_tag_name)
     on:
       branch: master
       appveyor_repo_tag: true

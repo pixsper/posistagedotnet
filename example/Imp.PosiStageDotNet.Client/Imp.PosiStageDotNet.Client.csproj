@@ -36,18 +36,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Imp.PosiStageDotNet">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">..\..\src\Imp.PosiStageDotNet\bin\Release\net45\Imp.PosiStageDotNet.dll</HintPath>
-      <Private>True</Private>
-      <HintPath Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">..\..\src\Imp.PosiStageDotNet\bin\Debug\net45\Imp.PosiStageDotNet.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net.Sockets, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\System.Net.Sockets.4.1.0\lib\net46\System.Net.Sockets.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="System.Collections.Immutable, Version=1.2.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Collections.Immutable.1.4.0\lib\netstandard2.0\System.Collections.Immutable.dll</HintPath>
     </Reference>
+    <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Program.cs" />
@@ -56,6 +49,12 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Imp.PosiStageDotNet\Imp.PosiStageDotNet.csproj">
+      <Project>{1a24b27b-533b-4fb4-ab23-3da0e63e1a91}</Project>
+      <Name>Imp.PosiStageDotNet</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

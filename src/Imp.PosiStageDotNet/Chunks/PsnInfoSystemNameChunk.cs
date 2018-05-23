@@ -30,7 +30,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public PsnInfoSystemNameChunk([NotNull] string systemName)
 			: base(null)
 		{
-			if (systemName == null)
+			if (systemName is null)
 				throw new ArgumentNullException(nameof(systemName));
 
 			SystemName = systemName;
@@ -48,7 +48,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnInfoPacketChunkId ChunkId => PsnInfoPacketChunkId.PsnInfoSystemName;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnInfoSystemNameChunk other)
+		public bool Equals(PsnInfoSystemNameChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -65,7 +65,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;

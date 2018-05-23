@@ -147,7 +147,7 @@ namespace Imp.PosiStageDotNet
 		private PsnServer([NotNull] string systemName, [NotNull] IPAddress multicastIp, int port, double dataSendFrequency,
 			double infoSendFrequency, [CanBeNull] IPAddress localIp)
 		{
-			if (systemName == null)
+			if (systemName is null)
 				throw new ArgumentNullException(nameof(systemName));
 	        SystemName = systemName;
 

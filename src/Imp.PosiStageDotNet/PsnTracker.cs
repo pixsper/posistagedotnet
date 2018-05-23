@@ -322,11 +322,11 @@ namespace Imp.PosiStageDotNet
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
-			return obj is PsnTracker && Equals((PsnTracker)obj);
+			return obj is PsnTracker tracker && Equals(tracker);
 		}
 
 		/// <inheritdoc/>
