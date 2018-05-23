@@ -129,7 +129,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public IEnumerable<PsnDataTrackerSubChunk> SubChunks => RawSubChunks.OfType<PsnDataTrackerSubChunk>();
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataTrackerChunk other)
+		public bool Equals(PsnDataTrackerChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -139,7 +139,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
@@ -273,7 +273,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerPos;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataTrackerPosChunk other)
+		public bool Equals(PsnDataTrackerPosChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -283,7 +283,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
@@ -379,7 +379,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerSpeed;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataTrackerSpeedChunk other)
+		public bool Equals(PsnDataTrackerSpeedChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -389,7 +389,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
@@ -485,7 +485,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerOri;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataTrackerOriChunk other)
+		public bool Equals(PsnDataTrackerOriChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -495,7 +495,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
@@ -572,7 +572,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerStatus;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataTrackerStatusChunk other)
+		public bool Equals(PsnDataTrackerStatusChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -582,7 +582,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
@@ -668,7 +668,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerAccel;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataTrackerAccelChunk other)
+		public bool Equals(PsnDataTrackerAccelChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -678,7 +678,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
@@ -774,7 +774,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerTrgtPos;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataTrackerTrgtPosChunk other)
+		public bool Equals(PsnDataTrackerTrgtPosChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -784,7 +784,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;

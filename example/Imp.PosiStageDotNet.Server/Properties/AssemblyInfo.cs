@@ -28,6 +28,6 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyCompany("The Impersonal Stereo")]
 [assembly: AssemblyProduct("Imp.PosiStageDotNet")]
-[assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2016")]
+[assembly: AssemblyCopyright("Copyright © David Butler / The Impersonal Stereo 2018")]
 [assembly: ComVisible(false)]
 [assembly: Guid("2794a196-a859-44e3-9a44-725e3c94fe63")]

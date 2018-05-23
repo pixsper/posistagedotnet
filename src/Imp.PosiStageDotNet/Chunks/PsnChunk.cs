@@ -102,7 +102,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		/// </summary>
 		/// <param name="obj">Chunk to compare to this chunk</param>
 		/// <returns>True if chunks are equal</returns>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;
@@ -196,7 +196,7 @@ namespace Imp.PosiStageDotNet.Chunks
 
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnUnknownChunk other)
+		public bool Equals(PsnUnknownChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -213,7 +213,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;

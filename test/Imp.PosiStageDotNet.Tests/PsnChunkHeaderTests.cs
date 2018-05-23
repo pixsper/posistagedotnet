@@ -15,13 +15,14 @@
 
 using FluentAssertions;
 using Imp.PosiStageDotNet.Chunks;
-using Xunit;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Imp.PosiStageDotNet.Tests
 {
+	[TestClass]
 	public class PsnChunkHeaderTests
 	{
-		[Fact]
+		[TestMethod]
 		public void CanConvertToInt32AndBack()
 		{
 			var header1 = new PsnChunkHeader(56, 63, true);

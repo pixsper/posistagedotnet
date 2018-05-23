@@ -200,7 +200,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public PsnInfoTrackerNameChunk([NotNull] string trackerName)
 			: base(null)
 		{
-			if (trackerName == null)
+			if (trackerName is null)
 				throw new ArgumentNullException(nameof(trackerName));
 
 			TrackerName = trackerName;
@@ -218,7 +218,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnInfoTrackerChunkId ChunkId => PsnInfoTrackerChunkId.PsnInfoTrackerName;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnInfoTrackerNameChunk other)
+		public bool Equals(PsnInfoTrackerNameChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -228,7 +228,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;

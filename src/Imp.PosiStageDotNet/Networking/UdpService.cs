@@ -19,7 +19,7 @@ namespace Imp.PosiStageDotNet.Networking
 
 		public UdpService(IPEndPoint localEndPoint)
 		{
-			if (localEndPoint == null)
+			if (localEndPoint is null)
 				throw new ArgumentNullException(nameof(localEndPoint));
 
 			LocalEndPoint = localEndPoint;

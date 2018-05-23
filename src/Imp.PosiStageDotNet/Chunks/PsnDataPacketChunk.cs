@@ -190,7 +190,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		public override PsnDataPacketChunkId ChunkId => PsnDataPacketChunkId.PsnDataHeader;
 
 		/// <inheritdoc/>
-		public bool Equals([CanBeNull] PsnDataHeaderChunk other)
+		public bool Equals(PsnDataHeaderChunk other)
 		{
 			if (ReferenceEquals(null, other))
 				return false;
@@ -212,7 +212,7 @@ namespace Imp.PosiStageDotNet.Chunks
 		}
 
 		/// <inheritdoc/>
-		public override bool Equals([CanBeNull] object obj)
+		public override bool Equals(object obj)
 		{
 			if (ReferenceEquals(null, obj))
 				return false;

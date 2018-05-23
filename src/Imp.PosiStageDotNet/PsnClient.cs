@@ -400,9 +400,7 @@ namespace Imp.PosiStageDotNet
 					continue;
 				}
 
-				PsnTracker tracker;
-
-				if (!_trackers.TryGetValue(chunk.TrackerId, out tracker))
+				if (!_trackers.TryGetValue(chunk.TrackerId, out var tracker))
 				{
 					tracker = new PsnTracker(chunk.TrackerId, trackerNameChunk.TrackerName, null, header.TimeStamp);
 					_trackers.TryAdd(chunk.TrackerId, tracker);
@@ -488,9 +486,7 @@ namespace Imp.PosiStageDotNet
 
 			foreach (var chunk in dataTrackerChunks)
 			{
-				PsnTracker tracker;
-
-				if (!_trackers.TryGetValue(chunk.TrackerId, out tracker))
+				if (!_trackers.TryGetValue(chunk.TrackerId, out var tracker))
 					tracker = new PsnTracker(chunk.TrackerId);
 
 				Tuple<float, float, float> position = null;

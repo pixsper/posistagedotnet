@@ -17,15 +17,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-#if DEBUG
-[assembly: AssemblyConfiguration("Debug")]
-#else
-[assembly: AssemblyConfiguration("Release")]
-#endif
-
-[assembly: AssemblyCompany("The Impersonal Stereo")]
-[assembly: AssemblyProduct("Imp.PosiStageDotNet")]
-
 [assembly: ComVisible(false)]
 [assembly: Guid("c5f4e821-ea70-425e-b823-d1311ef8c0c2")]
 
