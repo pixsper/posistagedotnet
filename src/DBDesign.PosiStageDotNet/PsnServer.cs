@@ -14,6 +14,7 @@
 // along with PosiStageDotNet.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -88,7 +89,7 @@ namespace DBDesign.PosiStageDotNet
 		private bool _isDisposed;
 		private Stopwatch _timeStampReference = new Stopwatch();
 
-		private IEnumerable<PsnTracker> _trackers;
+		private readonly ConcurrentDictionary<int, PsnTracker> _trackers = new ConcurrentDictionary<int, PsnTracker>();
 
 	    /// <summary>
 	    ///     Constructs with default multicast IP, port number and data/info packet send frequencies
@@ -229,15 +230,69 @@ namespace DBDesign.PosiStageDotNet
 			GC.SuppressFinalize(this);
 		}
 
-		/// <summary>
-		///     Set the collection of trackers to send data and info packets for
-		/// </summary>
-		public void SetTrackers([CanBeNull] IEnumerable<PsnTracker> trackers) => _trackers = trackers;
 
 		/// <summary>
-		///     Set the collection of trackers to send data and info packets for
+		///     Clears any existing trackers and adds new trackers from collection
 		/// </summary>
-		public void SetTrackers(params PsnTracker[] trackers) => _trackers = trackers;
+		public void SetTrackers([CanBeNull] IEnumerable<PsnTracker> trackers)
+        {
+            _trackers.Clear();
+
+            if (trackers == null)
+                return;
+
+            foreach (var t in trackers)
+                _trackers[t.TrackerId] = t;
+        }
+
+        /// <summary>
+        ///     Clears any existing trackers and adds new trackers from collection
+        /// </summary>
+        public void SetTrackers(params PsnTracker[] trackers) => SetTrackers((IEnumerable<PsnTracker>)trackers);
+
+        /// <summary>
+        ///		Updates values for existing trackers. If trackers do not exist they will be added
+        /// </summary>
+        public void UpdateTrackers(IEnumerable<PsnTracker> trackers)
+        {
+            foreach (var t in trackers)
+                _trackers[t.TrackerId] = t;
+        }
+
+        /// <summary>
+        ///		Updates values for existing trackers. If trackers do not exist they will be added
+        /// </summary>
+        public void UpdateTrackers(params PsnTracker[] trackers) => UpdateTrackers((IEnumerable<PsnTracker>)trackers);
+
+        /// <summary>
+        ///     Removes trackers with specified indexes. Return false if any trackers indexes were not found.
+        /// </summary>
+        public bool RemoveTrackers(IEnumerable<int> trackerIndexes)
+        {
+            bool isSuccess = true;
+
+            foreach (var i in trackerIndexes)
+            {
+                if (!_trackers.TryRemove(i, out var value))
+                    isSuccess = false;
+            }
+
+            return isSuccess;
+        }
+
+        /// <summary>
+        ///     Removes trackers with specified indexes. Return false if any trackers indexes were not found.
+        /// </summary>
+        public bool RemoveTrackers(params int[] trackerIndexes) => RemoveTrackers((IEnumerable<int>)trackerIndexes);
+
+		/// <summary>
+		///		Removes all existing trackers
+		/// </summary>
+        public void RemoveAllTrackers()
+        {
+			_trackers.Clear();
+        }
+
 
 		/// <summary>
 		///     Send a custom PsnPacketChunk
@@ -446,24 +501,18 @@ namespace DBDesign.PosiStageDotNet
 
 		private void sendInfo()
 		{
-			// Copy local reference for threading reasons
-			var trackers = _trackers;
-
-			if (trackers == null)
+            if (_trackers == null)
 				return;
 
-			OnSendInfo(trackers);
+			OnSendInfo(_trackers.Values);
 		}
 
 		private void sendData()
 		{
-			// Copy local reference for threading reasons
-			var trackers = _trackers;
-
-			if (trackers == null)
+            if (_trackers == null)
 				return;
 
-			OnSendData(trackers);
+			OnSendData(_trackers.Values);
 		}
 
 
