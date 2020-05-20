@@ -193,6 +193,9 @@ namespace DBDesign.PosiStageDotNet.Chunks
 					case PsnDataTrackerChunkId.PsnDataTrackerTrgtPos:
 						subChunks.Add(PsnDataTrackerTrgtPosChunk.Deserialize(chunkHeader, reader));
 						break;
+                    case PsnDataTrackerChunkId.PsnDataTrackerTimestamp:
+                        subChunks.Add(PsnDataTrackerTimestampChunk.Deserialize(chunkHeader, reader));
+                        break;
 					default:
 						subChunks.Add(PsnUnknownChunk.Deserialize(chunkHeader, reader));
 						break;
@@ -830,5 +833,76 @@ namespace DBDesign.PosiStageDotNet.Chunks
 			writer.Write(Y);
 			writer.Write(Z);
 		}
+	}
+
+
+	/// <summary>
+	///		Data tracker sub-chunk containing tracker target position
+	/// </summary>
+	[PublicAPI]
+	public sealed class PsnDataTrackerTimestampChunk : PsnDataTrackerSubChunk, IEquatable<PsnDataTrackerTimestampChunk>
+	{
+		/// <summary>
+		///		Tracker target position chunk constructor
+		/// </summary>
+		/// <param name="timestamp">Time in microseconds at which the data in this tracker was measured</param>
+		public PsnDataTrackerTimestampChunk(ulong timestamp)
+			: base(null)
+        {
+            Timestamp = timestamp;
+        }
+
+		/// <summary>
+		///		Time in microseconds at which the data in this tracker was measured
+		/// </summary>
+		public ulong Timestamp { get; }
+
+        /// <inheritdoc/>
+		public override int DataLength => sizeof(ulong);
+
+		/// <inheritdoc/>
+		public override PsnDataTrackerChunkId ChunkId => PsnDataTrackerChunkId.PsnDataTrackerTimestamp;
+
+		/// <inheritdoc/>
+		public bool Equals(PsnDataTrackerTimestampChunk other)
+		{
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return base.Equals(other) && Timestamp == other.Timestamp;
+        }
+
+		/// <inheritdoc/>
+		public override bool Equals(object obj)
+		{
+            return ReferenceEquals(this, obj) || obj is PsnDataTrackerTimestampChunk other && Equals(other);
+        }
+
+		/// <inheritdoc/>
+		public override int GetHashCode()
+		{
+            unchecked
+            {
+                return (base.GetHashCode() * 397) ^ Timestamp.GetHashCode();
+            }
+        }
+
+		/// <inheritdoc/>
+		public override XElement ToXml()
+        {
+            return new XElement(nameof(PsnDataTrackerTimestampChunk),
+                new XAttribute(nameof(Timestamp), Timestamp));
+        }
+
+		internal static PsnDataTrackerTimestampChunk Deserialize(PsnChunkHeader chunkHeader, PsnBinaryReader reader)
+        {
+            ulong timestamp = reader.ReadUInt64();
+
+			return new PsnDataTrackerTimestampChunk(timestamp);
+		}
+
+		internal override void SerializeData(PsnBinaryWriter writer)
+        {
+            writer.Write(Timestamp);
+        }
 	}
 }

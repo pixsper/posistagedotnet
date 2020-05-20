@@ -24,41 +24,45 @@ namespace DBDesign.PosiStageDotNet
 	///     Immutable class representing the entire state of a single PosiStageNet tracker
 	/// </summary>
 	[PublicAPI]
-	public struct PsnTracker : IEquatable<PsnTracker>
+	public readonly struct PsnTracker : IEquatable<PsnTracker>
 	{
-		/// <summary>
-		///     Creates a copy of a PsnTracker with updated values
-		/// </summary>
-		/// <param name="sourceTracker">Tracker to use as clone source</param>
-		/// <param name="trackerName">New tracker name value, or null to use source value</param>
-		/// <param name="clearPosition">If true, ignores new position value and clears value in clone</param>
-		/// <param name="position">New position value, or null to use source value</param>
-		/// <param name="clearSpeed">If true, ignores new speed value and clears value in clone</param>
-		/// <param name="speed">New speed value, or null to use source value</param>
-		/// <param name="clearOrientation">If true, ignores new orientation value and clears value in clone</param>
-		/// <param name="orientation">New orientation value, or null to use source value</param>
-		/// <param name="clearAcceleration">If true, ignores new acceleration value and clears value in clone</param>
-		/// <param name="acceleration">New acceleration value, or null to use source value</param>
-		/// <param name="clearTargetPosition">If true, ignores new target position value and clears value in clone</param>
-		/// <param name="targetposition">New targetposition value, or null to use source value</param>
-		/// <param name="clearValidity">If true, ignores new validity value and clears value in clone</param>
-		/// <param name="validity">New validity value, or null to use source value</param>
-		public static PsnTracker Clone(PsnTracker sourceTracker,
+        /// <summary>
+        ///     Creates a copy of a PsnTracker with updated values
+        /// </summary>
+        /// <param name="sourceTracker">Tracker to use as clone source</param>
+        /// <param name="trackerName">New tracker name value, or null to use source value</param>
+        /// <param name="clearPosition">If true, ignores new position value and clears value in clone</param>
+        /// <param name="position">New position value, or null to use source value</param>
+        /// <param name="clearSpeed">If true, ignores new speed value and clears value in clone</param>
+        /// <param name="speed">New speed value, or null to use source value</param>
+        /// <param name="clearOrientation">If true, ignores new orientation value and clears value in clone</param>
+        /// <param name="orientation">New orientation value, or null to use source value</param>
+        /// <param name="clearAcceleration">If true, ignores new acceleration value and clears value in clone</param>
+        /// <param name="acceleration">New acceleration value, or null to use source value</param>
+        /// <param name="clearTargetPosition">If true, ignores new target position value and clears value in clone</param>
+        /// <param name="targetPosition">New target position value, or null to use source value</param>
+        /// <param name="clearTimestamp">If true, ignores new timestamp value and clears value in clone</param>
+        /// <param name="timestamp">New timestamp value, or null to use source value</param>
+        /// <param name="clearValidity">If true, ignores new validity value and clears value in clone</param>
+        /// <param name="validity">New validity value, or null to use source value</param>
+        public static PsnTracker Clone(PsnTracker sourceTracker,
 			string trackerName = null,
 			bool clearPosition = false, Tuple<float, float, float> position = null,
 			bool clearSpeed = false, Tuple<float, float, float> speed = null,
 			bool clearOrientation = false, Tuple<float, float, float> orientation = null,
 			bool clearAcceleration = false, Tuple<float, float, float> acceleration = null,
-			bool clearTargetPosition = false, Tuple<float, float, float> targetposition = null,
+			bool clearTargetPosition = false, Tuple<float, float, float> targetPosition = null,
+            bool clearTimestamp = false, ulong? timestamp = null,
 			bool clearValidity = false, float? validity = null)
-		{
-			return new PsnTracker(sourceTracker.TrackerId,
-				trackerName ?? sourceTracker.TrackerName,
-				clearPosition ? null : position ?? sourceTracker.Position,
-				clearSpeed ? null : speed ?? sourceTracker.Speed,
-				clearOrientation ? null : orientation ?? sourceTracker.Orientation,
-				clearAcceleration ? null : acceleration ?? sourceTracker.Acceleration,
-				clearTargetPosition ? null : targetposition ?? sourceTracker.TargetPosition,
+        {
+            return new PsnTracker(sourceTracker.TrackerId,
+                trackerName ?? sourceTracker.TrackerName,
+                clearPosition ? null : position ?? sourceTracker.Position,
+                clearSpeed ? null : speed ?? sourceTracker.Speed,
+                clearOrientation ? null : orientation ?? sourceTracker.Orientation,
+                clearAcceleration ? null : acceleration ?? sourceTracker.Acceleration,
+                clearTargetPosition ? null : targetPosition ?? sourceTracker.TargetPosition,
+                clearTimestamp ? null : timestamp ?? sourceTracker.Timestamp,
 				clearValidity ? null : validity ?? sourceTracker.Validity);
 		}
 
@@ -68,24 +72,26 @@ namespace DBDesign.PosiStageDotNet
 		/// </summary>
 		internal static PsnTracker CloneInternal(PsnTracker sourceTracker,
 			bool clearTrackerName = false, string trackerName = null,
-			bool clearDataTimeStamp = false, ulong? dataTimeStamp = null,
-			bool clearInfoTimeStamp = false, ulong? infoTimeStamp = null,
+			bool clearDataLastReceived = false, ulong? dataLastReceived = null,
+			bool clearInfoLastReceived = false, ulong? infoLastReceived = null,
 			bool clearPosition = false, Tuple<float, float, float> position = null,
 			bool clearSpeed = false, Tuple<float, float, float> speed = null,
 			bool clearOrientation = false, Tuple<float, float, float> orientation = null,
 			bool clearAcceleration = false, Tuple<float, float, float> acceleration = null,
-			bool clearTargetPosition = false, Tuple<float, float, float> targetposition = null,
+			bool clearTargetPosition = false, Tuple<float, float, float> targetPosition = null,
+			bool clearTimestamp = false, ulong? timestamp = null,
 			bool clearValidity = false, float? validity = null)
 		{
 			return new PsnTracker(sourceTracker.TrackerId,
 				clearTrackerName ? null : trackerName ?? sourceTracker.TrackerName,
-				clearDataTimeStamp ? null : dataTimeStamp ?? sourceTracker.DataTimeStamp,
-				clearInfoTimeStamp ? null : infoTimeStamp ?? sourceTracker.InfoTimeStamp,
+				clearDataLastReceived ? null : dataLastReceived ?? sourceTracker.DataLastReceived,
+				clearInfoLastReceived ? null : infoLastReceived ?? sourceTracker.InfoLastReceived,
 				clearPosition ? null : position ?? sourceTracker.Position,
 				clearSpeed ? null : speed ?? sourceTracker.Speed,
 				clearOrientation ? null : orientation ?? sourceTracker.Orientation,
 				clearAcceleration ? null : acceleration ?? sourceTracker.Acceleration,
-				clearTargetPosition ? null : targetposition ?? sourceTracker.TargetPosition,
+				clearTargetPosition ? null : targetPosition ?? sourceTracker.TargetPosition,
+				clearTimestamp ? null : timestamp ?? sourceTracker.Timestamp,
 				clearValidity ? null : validity ?? sourceTracker.Validity);
 		}
 
@@ -97,6 +103,7 @@ namespace DBDesign.PosiStageDotNet
 			Tuple<float, float, float> orientation = null,
 			Tuple<float, float, float> acceleration = null,
 			Tuple<float, float, float> targetPosition = null,
+			ulong? timestamp = null,
 			float? validity = null)
 		{
 			if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
@@ -107,14 +114,15 @@ namespace DBDesign.PosiStageDotNet
 
 			TrackerName = trackerName;
 
-			DataTimeStamp = null;
-			InfoTimeStamp = null;
+			DataLastReceived = null;
+			InfoLastReceived = null;
 
 			Position = position;
 			Speed = speed;
 			Orientation = orientation;
 			Acceleration = acceleration;
 			TargetPosition = targetPosition;
+            Timestamp = timestamp;
 			Validity = validity;
 		}
 
@@ -123,13 +131,14 @@ namespace DBDesign.PosiStageDotNet
 		///     packets received from a remote server)
 		/// </summary>
 		/// <exception cref="ArgumentOutOfRangeException"></exception>
-		internal PsnTracker(int trackerId, string trackerName = null, ulong? dataTimeStamp = null,
-			ulong? infoTimeStamp = null,
+		internal PsnTracker(int trackerId, string trackerName = null, ulong? dataLastReceived = null,
+			ulong? infoLastReceived = null,
 			Tuple<float, float, float> position = null,
 			Tuple<float, float, float> speed = null,
 			Tuple<float, float, float> orientation = null,
 			Tuple<float, float, float> acceleration = null,
 			Tuple<float, float, float> targetPosition = null,
+			ulong? timestamp = null,
 			float? validity = null)
 		{
 			if (trackerId < ushort.MinValue || trackerId > ushort.MaxValue)
@@ -137,8 +146,8 @@ namespace DBDesign.PosiStageDotNet
 					$"trackerId must be in range {ushort.MinValue}-{ushort.MaxValue}");
 
 			TrackerId = trackerId;
-			DataTimeStamp = dataTimeStamp;
-			InfoTimeStamp = infoTimeStamp;
+			DataLastReceived = dataLastReceived;
+			InfoLastReceived = infoLastReceived;
 			TrackerName = trackerName;
 
 			Position = position;
@@ -146,6 +155,7 @@ namespace DBDesign.PosiStageDotNet
 			Orientation = orientation;
 			Acceleration = acceleration;
 			TargetPosition = targetPosition;
+            Timestamp = timestamp;
 			Validity = validity;
 		}
 
@@ -161,16 +171,16 @@ namespace DBDesign.PosiStageDotNet
 		public string TrackerName { get; }
 
 		/// <summary>
-		///     Time stamp of last time data received from remote server, or null if tracker has not been received from remote
+		///     Timestamp of last time data received from remote server, or null if tracker has not been received from remote
 		///     server
 		/// </summary>
-		public ulong? DataTimeStamp { get; }
+		public ulong? DataLastReceived { get; }
 
 		/// <summary>
-		///     Time stamp of last time info received from remote server, or null if tracker has not been received from remote
+		///     Timestamp of last time info received from remote server, or null if tracker has not been received from remote
 		///     server
 		/// </summary>
-		public ulong? InfoTimeStamp { get; }
+		public ulong? InfoLastReceived { get; }
 
 
 		/// <summary>
@@ -199,6 +209,11 @@ namespace DBDesign.PosiStageDotNet
 		public Tuple<float, float, float> TargetPosition { get; }
 
 		/// <summary>
+		///		Time in microseconds at which the data in this tracker was measured
+		/// </summary>
+		public ulong? Timestamp { get; }
+
+		/// <summary>
 		///		Tracker validity
 		/// </summary>
 		public float? Validity { get; }
@@ -209,22 +224,22 @@ namespace DBDesign.PosiStageDotNet
 		///     Creates a copy of this tracker with an updated tracker name value, or clears value if null
 		/// </summary>
 		[Pure]
-		internal PsnTracker SetTrackerNameInternal([CanBeNull] string trackerName)
+		internal PsnTracker WithTrackerNameInternal([CanBeNull] string trackerName)
 			=> CloneInternal(this, clearTrackerName: trackerName == null, trackerName: trackerName);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated data time stamp value
 		/// </summary>
 		[Pure]
-		internal PsnTracker SetDataTimeStamp([CanBeNull] ulong? dataTimeStamp)
-			=> CloneInternal(this, clearDataTimeStamp: dataTimeStamp == null, dataTimeStamp: dataTimeStamp);
+		internal PsnTracker WithDataTimeStamp([CanBeNull] ulong? dataTimeStamp)
+			=> CloneInternal(this, clearDataLastReceived: dataTimeStamp == null, dataLastReceived: dataTimeStamp);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated info time stamp value, or clears value if null
 		/// </summary>
 		[Pure]
-		internal PsnTracker SetInfoTimeStamp([CanBeNull] ulong? infoTimeStamp)
-			=> CloneInternal(this, clearInfoTimeStamp: infoTimeStamp == null, infoTimeStamp: infoTimeStamp);
+		internal PsnTracker WithInfoTimeStamp([CanBeNull] ulong? infoTimeStamp)
+			=> CloneInternal(this, clearInfoLastReceived: infoTimeStamp == null, infoLastReceived: infoTimeStamp);
 
 
 
@@ -232,48 +247,55 @@ namespace DBDesign.PosiStageDotNet
 		///     Creates a copy of this tracker with an updated tracker name value
 		/// </summary>
 		[Pure]
-		public PsnTracker SetTrackerName([NotNull] string trackerName) => Clone(this, trackerName: trackerName);
+		public PsnTracker WithTrackerName([NotNull] string trackerName) => Clone(this, trackerName: trackerName);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated position value, or clears value if null
 		/// </summary>
 		[Pure]
-		public PsnTracker SetPosition([CanBeNull] Tuple<float, float, float> position)
+		public PsnTracker WithPosition([CanBeNull] Tuple<float, float, float> position)
 			=> Clone(this, clearPosition: position == null, position: position);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated speed value, or clears value if null
 		/// </summary>
 		[Pure]
-		public PsnTracker SetSpeed([CanBeNull] Tuple<float, float, float> speed)
+		public PsnTracker WithSpeed([CanBeNull] Tuple<float, float, float> speed)
 			=> Clone(this, clearSpeed: speed == null, speed: speed);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated orientation value, or clears value if null
 		/// </summary>
 		[Pure]
-		public PsnTracker SetOrientation([CanBeNull] Tuple<float, float, float> orientation)
+		public PsnTracker WithOrientation([CanBeNull] Tuple<float, float, float> orientation)
 			=> Clone(this, clearOrientation: orientation == null, orientation: orientation);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated acceleration value, or clears value if null
 		/// </summary>
 		[Pure]
-		public PsnTracker SetAcceleration([CanBeNull] Tuple<float, float, float> acceleration)
+		public PsnTracker WithAcceleration([CanBeNull] Tuple<float, float, float> acceleration)
 			=> Clone(this, clearAcceleration: acceleration == null, acceleration: acceleration);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated target position value, or clears value if null
 		/// </summary>
 		[Pure]
-		public PsnTracker SetTargetPosition([CanBeNull] Tuple<float, float, float> targetPosition)
-			=> Clone(this, clearTargetPosition: targetPosition == null, targetposition: targetPosition);
+		public PsnTracker WithTargetPosition([CanBeNull] Tuple<float, float, float> targetPosition)
+			=> Clone(this, clearTargetPosition: targetPosition == null, targetPosition: targetPosition);
+
+        /// <summary>
+        ///     Creates a copy of this tracker with an updated timestamp value, or clears value if null
+        /// </summary>
+        [Pure]
+        public PsnTracker WithTargetPosition([CanBeNull] ulong? timestamp)
+            => Clone(this, clearTimestamp: timestamp == null, timestamp: timestamp);
 
 		/// <summary>
 		///     Creates a copy of this tracker with an updated validity value, or clears value if null
 		/// </summary>
 		[Pure]
-		public PsnTracker SetValidity([CanBeNull] float? validity)
+		public PsnTracker WithValidity([CanBeNull] float? validity)
 			=> Clone(this, clearValidity: validity == null, validity: validity);
 
 
@@ -297,6 +319,9 @@ namespace DBDesign.PosiStageDotNet
 			if (TargetPosition != null)
 				yield return
 					new PsnDataTrackerTrgtPosChunk(TargetPosition.Item1, TargetPosition.Item2, TargetPosition.Item3);
+
+            if (Timestamp != null)
+                yield return new PsnDataTrackerTimestampChunk(Timestamp.Value);
 
 			if (Validity.HasValue)
 				yield return new PsnDataTrackerStatusChunk(Validity.Value);
@@ -352,15 +377,16 @@ namespace DBDesign.PosiStageDotNet
 			return
 				$"PsnTracker: Id {TrackerId}" +
 				", Name " + (TrackerName ?? "(Unknown)") +
-				", InfoTimeStamp "
-				+ (InfoTimeStamp.HasValue ? TimeSpan.FromMilliseconds(InfoTimeStamp.Value).ToString() : "None") +
-				", DataTimeStamp "
-				+ (DataTimeStamp.HasValue ? TimeSpan.FromMilliseconds(DataTimeStamp.Value).ToString() : "None") +
+				", InfoLastReceived "
+				+ (InfoLastReceived.HasValue ? TimeSpan.FromMilliseconds(InfoLastReceived.Value).ToString() : "None") +
+				", DataLastReceived "
+				+ (DataLastReceived.HasValue ? TimeSpan.FromMilliseconds(DataLastReceived.Value).ToString() : "None") +
 				(Position != null ? $", Position {Position}" : string.Empty) +
 				(Speed != null ? $", Speed {Speed}" : string.Empty) +
 				(Orientation != null ? $", Orientation {Orientation}" : string.Empty) +
 				(Acceleration != null ? $", Acceleration {Acceleration}" : string.Empty) +
 				(TargetPosition != null ? $", Target Position {TargetPosition}" : string.Empty) +
+				(Timestamp != null ? $", Timestamp {TargetPosition}" : string.Empty) +
 				(Validity != null ? $", Validity {Validity}" : string.Empty);
 		}
 	}

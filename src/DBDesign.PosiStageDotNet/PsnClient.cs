@@ -75,15 +75,15 @@ namespace DBDesign.PosiStageDotNet
 		/// <summary>
 		///     Constructs with the PosiStageNet default multicast IP and port number
 		/// </summary>
-		/// <param name="localIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
+		/// <param name="localIp">IP of local network adapter to listen for multicast packets using</param>
 		/// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
-		public PsnClient(IPAddress localIp = null, bool isStrict = true)
+		public PsnClient([NotNull] IPAddress localIp, bool isStrict = true)
 		{
 			Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
 
 			MulticastIp = DefaultMulticastIp;
 			Port = DefaultPort;
-			LocalIp = localIp ?? IPAddress.Any;
+            LocalIp = localIp;
 			IsStrict = isStrict;
 
 			_udpService = new UdpService(new IPEndPoint(LocalIp, Port));
@@ -92,13 +92,13 @@ namespace DBDesign.PosiStageDotNet
 	    /// <summary>
 	    ///     Constructs with a custom multicast IP and port number
 	    /// </summary>
+	    /// /// <param name="localIp">IP of local network adapter to listen for multicast packets using</param>
 	    /// <param name="customMulticastIp"></param>
 	    /// <param name="customPort"></param>
-	    /// <param name="localIp">The IP of the local network adapter to be used by the client, or null for all adapters</param>
-	    /// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
+        /// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
 	    /// <exception cref="ArgumentException"></exception>
 	    /// <exception cref="ArgumentOutOfRangeException"></exception>
-	    public PsnClient([NotNull] IPAddress customMulticastIp, int customPort, IPAddress localIp = null, bool isStrict = true)
+	    public PsnClient([NotNull] IPAddress localIp, [NotNull] IPAddress customMulticastIp, int customPort, bool isStrict = true)
 		{
 	        Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
 
@@ -114,8 +114,8 @@ namespace DBDesign.PosiStageDotNet
 
 			Port = customPort;
 
-			LocalIp = localIp ?? IPAddress.Any;
-			IsStrict = isStrict;
+            LocalIp = localIp;
+            IsStrict = isStrict;
 
 			_udpService = new UdpService(new IPEndPoint(LocalIp, Port));
 		}
@@ -211,7 +211,7 @@ namespace DBDesign.PosiStageDotNet
 				throw new ObjectDisposedException(nameof(PsnClient));
 
 			_udpService.JoinMulticastGroup(MulticastIp);
-			_udpService.MessageReceived += messageReceived;
+			_udpService.PacketReceived += packetReceived;
 			_udpService.StartListening();
 
 			IsListening = true;
@@ -231,8 +231,8 @@ namespace DBDesign.PosiStageDotNet
 			if (!IsListening)
 				throw new InvalidOperationException("Cannot stop listening, client is not currently listening");
 
-			_udpService.MessageReceived -= messageReceived;
-			_udpService.StopListening();
+			_udpService.PacketReceived -= packetReceived;
+			_udpService.StopListeningAsync().Wait();
 			_udpService.DropMulticastGroup(MulticastIp);
 
 			IsListening = false;
@@ -363,9 +363,9 @@ namespace DBDesign.PosiStageDotNet
 			{
 				PsnInfoTrackerNameChunk trackerNameChunk = null;
 
-				foreach (var subchunk in chunk.SubChunks)
+				foreach (var subChunk in chunk.SubChunks)
 				{
-					switch (subchunk.ChunkId)
+					switch (subChunk.ChunkId)
 					{
 						case PsnInfoTrackerChunkId.PsnInfoTrackerName:
 
@@ -379,7 +379,7 @@ namespace DBDesign.PosiStageDotNet
 									return;
 							}
 
-							trackerNameChunk = (PsnInfoTrackerNameChunk)subchunk;
+							trackerNameChunk = (PsnInfoTrackerNameChunk)subChunk;
 
 							break;
 
@@ -407,8 +407,8 @@ namespace DBDesign.PosiStageDotNet
 				}
 				else
 				{
-					tracker = tracker.SetTrackerName(trackerNameChunk.TrackerName);
-					tracker = tracker.SetInfoTimeStamp(header.TimeStamp);
+					tracker = tracker.WithTrackerName(trackerNameChunk.TrackerName);
+					tracker = tracker.WithInfoTimeStamp(header.TimeStamp);
 				}
 
 				_trackers[chunk.TrackerId] = tracker;
@@ -494,41 +494,46 @@ namespace DBDesign.PosiStageDotNet
 				Tuple<float, float, float> orientation = null;
 				Tuple<float, float, float> acceleration = null;
 				Tuple<float, float, float> targetPosition = null;
+				ulong? timestamp = null;
 				float? validity = null;
 
-				foreach (var subchunk in chunk.SubChunks)
+				foreach (var subChunk in chunk.SubChunks)
 				{
-					switch (subchunk.ChunkId)
+					switch (subChunk.ChunkId)
 					{
 						case PsnDataTrackerChunkId.PsnDataTrackerPos:
-							position = ((PsnDataTrackerPosChunk)subchunk).Vector;
+							position = ((PsnDataTrackerPosChunk)subChunk).Vector;
 							break;
 						case PsnDataTrackerChunkId.PsnDataTrackerSpeed:
-							speed = ((PsnDataTrackerSpeedChunk)subchunk).Vector;
+							speed = ((PsnDataTrackerSpeedChunk)subChunk).Vector;
 							break;
 						case PsnDataTrackerChunkId.PsnDataTrackerOri:
-							orientation = ((PsnDataTrackerOriChunk)subchunk).Vector;
+							orientation = ((PsnDataTrackerOriChunk)subChunk).Vector;
 							break;
 						case PsnDataTrackerChunkId.PsnDataTrackerStatus:
-							validity = ((PsnDataTrackerStatusChunk)subchunk).Validity;
+							validity = ((PsnDataTrackerStatusChunk)subChunk).Validity;
 							break;
 						case PsnDataTrackerChunkId.PsnDataTrackerAccel:
-							acceleration = ((PsnDataTrackerAccelChunk)subchunk).Vector;
+							acceleration = ((PsnDataTrackerAccelChunk)subChunk).Vector;
 							break;
 						case PsnDataTrackerChunkId.PsnDataTrackerTrgtPos:
-							targetPosition = ((PsnDataTrackerTrgtPosChunk)subchunk).Vector;
+							targetPosition = ((PsnDataTrackerTrgtPosChunk)subChunk).Vector;
 							break;
+                        case PsnDataTrackerChunkId.PsnDataTrackerTimestamp:
+                            timestamp = ((PsnDataTrackerTimestampChunk)subChunk).Timestamp;
+                            break;
 						default:
-							throw new ArgumentOutOfRangeException(nameof(subchunk.ChunkId));
+							throw new ArgumentOutOfRangeException(nameof(subChunk.ChunkId));
 					}
 				}
 
-				tracker = PsnTracker.CloneInternal(tracker, dataTimeStamp: header.TimeStamp,
+				tracker = PsnTracker.CloneInternal(tracker, dataLastReceived: header.TimeStamp,
 					position: position, clearPosition: position == null,
 					speed: speed, clearSpeed: speed == null,
 					orientation: orientation, clearOrientation: orientation == null,
 					acceleration: acceleration, clearAcceleration: acceleration == null,
-					targetposition: targetPosition, clearTargetPosition: targetPosition == null,
+					targetPosition: targetPosition, clearTargetPosition: targetPosition == null,
+					timestamp: timestamp, clearTimestamp: timestamp == null,
 					validity: validity, clearValidity: validity == null);
 
 				_trackers[chunk.TrackerId] = tracker;
@@ -544,8 +549,11 @@ namespace DBDesign.PosiStageDotNet
 
 
 
-		private void messageReceived(object sender, UdpReceiveResult receiveResult)
-		{
+		private void packetReceived(object sender, UdpReceiveResult receiveResult)
+        {
+            if (receiveResult.Buffer == null)
+                return;
+
 			var chunk = PsnPacketChunk.FromByteArray(receiveResult.Buffer);
 
 			if (chunk == null)

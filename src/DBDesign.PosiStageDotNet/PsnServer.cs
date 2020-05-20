@@ -48,9 +48,9 @@ namespace DBDesign.PosiStageDotNet
 		public const int VersionHigh = 2;
 
 		/// <summary>
-		///     Low byte of PosiStagenet version number
+		///     Low byte of PosiStageNet version number
 		/// </summary>
-		public const int VersionLow = 1;
+		public const int VersionLow = 3;
 
 		/// <summary>
 		///     Maximum PosiStageNet packet length
@@ -94,7 +94,7 @@ namespace DBDesign.PosiStageDotNet
 	    ///     Constructs with default multicast IP, port number and data/info packet send frequencies
 	    /// </summary>
 	    /// <param name="systemName">Name used to identify this server</param>
-	    /// <param name="localIp"></param>
+	    /// <param name="localIp">IP of local network adapter to listen for multicast packets using, or null to send on all network adapters</param>
 	    /// <exception cref="ArgumentNullException"></exception>
 	    /// <exception cref="ArgumentException"></exception>
 	    /// <exception cref="ArgumentOutOfRangeException"></exception>
@@ -105,9 +105,9 @@ namespace DBDesign.PosiStageDotNet
 	    ///     Constructs with default multicast IP and port number
 	    /// </summary>
 	    /// <param name="systemName">Name used to identify this server</param>
-	    /// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent</param>
-	    /// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
-	    /// <param name="localIp"></param>
+	    /// <param name="dataSendFrequency">Custom frequency in Hz at which data packets are sent upon calling <see cref="StartSending"/></param>
+	    /// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent upon calling <see cref="StartSending"/></param>
+        /// <param name="localIp">IP of local network adapter to listen for multicast packets using, or null to send on all network adapters</param>
 	    /// <exception cref="ArgumentNullException"></exception>
 	    /// <exception cref="ArgumentException"></exception>
 	    /// <exception cref="ArgumentOutOfRangeException"></exception>
@@ -120,7 +120,7 @@ namespace DBDesign.PosiStageDotNet
 	    /// <param name="systemName">Name used to identify this server</param>
 	    /// <param name="customMulticastIp">Custom multicast IP to send data to</param>
 	    /// <param name="customPort">Custom UDP port number to send data to</param>
-	    /// <param name="localIp"></param>
+        /// <param name="localIp">IP of local network adapter to listen for multicast packets using, or null to send on all network adapters</param>
 	    /// <exception cref="ArgumentNullException"></exception>
 	    /// <exception cref="ArgumentException"></exception>
 	    /// <exception cref="ArgumentOutOfRangeException"></exception>
@@ -135,7 +135,7 @@ namespace DBDesign.PosiStageDotNet
 	    /// <param name="infoSendFrequency">Custom frequency in Hz at which info packets are sent</param>
 	    /// <param name="customMulticastIp">Custom multicast IP to send data to</param>
 	    /// <param name="customPort">Custom UDP port number to send data to</param>
-	    /// <param name="localIp"></param>
+        /// <param name="localIp">IP of local network adapter to listen for multicast packets using, or null to send on all network adapters</param>
 	    /// <exception cref="ArgumentNullException"></exception>
 	    /// <exception cref="ArgumentException"></exception>
 	    /// <exception cref="ArgumentOutOfRangeException"></exception>
@@ -147,9 +147,7 @@ namespace DBDesign.PosiStageDotNet
 		private PsnServer([NotNull] string systemName, [NotNull] IPAddress multicastIp, int port, double dataSendFrequency,
 			double infoSendFrequency, [CanBeNull] IPAddress localIp)
 		{
-			if (systemName is null)
-				throw new ArgumentNullException(nameof(systemName));
-	        SystemName = systemName;
+            SystemName = systemName ?? throw new ArgumentNullException(nameof(systemName));
 
 			if (multicastIp == null)
 				throw new ArgumentNullException(nameof(multicastIp));
@@ -176,6 +174,8 @@ namespace DBDesign.PosiStageDotNet
 	        LocalIp = localIp ?? IPAddress.Any;
 
 			_udpService = new UdpService(new IPEndPoint(LocalIp, 0));
+
+            _timeStampReference.Start();
 		}
 
 	    /// <summary>
@@ -203,7 +203,7 @@ namespace DBDesign.PosiStageDotNet
 		/// <summary>
 		///     The current state of the server
 		/// </summary>
-		public bool IsSending { get; private set; }
+		public bool IsSendingAutomatic { get; private set; }
 
 		/// <summary>
 		///     The current time stamp referenced from the time the server started sending data
@@ -259,22 +259,24 @@ namespace DBDesign.PosiStageDotNet
 		}
 
 		/// <summary>
-		///     Joins the server to the multicast IP and starts sending PosiStageNet packets
+		///     Starts automatically sending PosiStageNet packets using <see cref="DataSendFrequency"/> and <see cref="InfoSendFrequency"/> rates.
 		/// </summary>
 		/// <exception cref="ObjectDisposedException"></exception>
-		public void StartSending()
+		public void StartSending(bool isResetTimestampReference = false)
 		{
 			if (_isDisposed)
 				throw new ObjectDisposedException(nameof(PsnServer));
 
-			IsSending = true;
-			_timeStampReference.Restart();
-			_dataTimer = new Timer(sendData, 0, (int)(1000d / DataSendFrequency));
+			if (isResetTimestampReference)
+                _timeStampReference.Restart();
+
+			IsSendingAutomatic = true;
+            _dataTimer = new Timer(sendData, 0, (int)(1000d / DataSendFrequency));
 			_infoTimer = new Timer(sendInfo, 0, (int)(1000d / InfoSendFrequency));
 		}
 
 		/// <summary>
-		///     Removes the server from the multicast group and stops sending PosiStageNet packets
+		///     Stops automatically sending PosiStageNet packets
 		/// </summary>
 		/// <exception cref="ObjectDisposedException"></exception>
 		/// <exception cref="InvalidOperationException"></exception>
@@ -283,17 +285,45 @@ namespace DBDesign.PosiStageDotNet
 			if (_isDisposed)
 				throw new ObjectDisposedException(nameof(PsnServer));
 
-			if (!IsSending)
+			if (!IsSendingAutomatic)
 				throw new InvalidOperationException("Cannot stop sending, client is not currently sending");
 
 			_dataTimer.Dispose();
 			_dataTimer = null;
 			_infoTimer.Dispose();
 			_infoTimer = null;
-			_timeStampReference.Reset();
 
-			IsSending = false;
+			IsSendingAutomatic = false;
 		}
+
+		/// <summary>
+		///		Sends info data. Can only be used when <see cref="StartSending"/> has not been called and <see cref="IsSendingAutomatic"/> is false
+		/// </summary>
+        public void SendInfo()
+        {
+			if (IsSendingAutomatic)
+				throw new InvalidOperationException("Cannot send info when in automatic sending is active.");
+
+			sendInfo();
+        }
+
+        /// <summary>
+        ///		Sends info data. Can only be used when <see cref="StartSending"/> has not been called and <see cref="IsSendingAutomatic"/> is false
+        /// </summary>
+        public void SendData()
+        {if (IsSendingAutomatic)
+                throw new InvalidOperationException("Cannot send data when in automatic sending is active.");
+
+			sendData();
+        }
+
+        /// <summary>
+        ///		Resets timestamp reference used for data packet output to zero
+        /// </summary>
+        public void ResetTimestampReference()
+        {
+			_timeStampReference.Restart();
+        }
 
 		/// <summary>
 		///      Stops sending data and releases network resources
@@ -303,7 +333,7 @@ namespace DBDesign.PosiStageDotNet
 		{
 			if (isDisposing)
 			{
-	            if (IsSending)
+	            if (IsSendingAutomatic)
 		            StopSending();
 
 				_udpService.Dispose();

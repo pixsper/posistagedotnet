@@ -118,6 +118,10 @@ namespace DBDesign.PosiStageDotNet.Chunks
 		/// <summary>
 		///		Data tracker target position chunk ID
 		/// </summary>
-		PsnDataTrackerTrgtPos = 0x0005
+		PsnDataTrackerTrgtPos = 0x0005,
+        /// <summary>
+        ///		Data tracker timestamp chunk ID
+        /// </summary>
+        PsnDataTrackerTimestamp = 0x0006
 	}
 }

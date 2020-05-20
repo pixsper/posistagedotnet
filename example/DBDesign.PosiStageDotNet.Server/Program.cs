@@ -36,7 +36,7 @@ namespace DBDesign.PosiStageDotNet.Server
             switch (args.Length)
             {
                 case 0:
-                    server = new PsnServer(Environment.MachineName);
+                    server = new PsnServer(Environment.MachineName, IPAddress.Loopback);
                     Console.WriteLine(
                         $"Sending on default multicast IP '{PsnServer.DefaultMulticastIp}', default port {PsnServer.DefaultPort}");
                     break;

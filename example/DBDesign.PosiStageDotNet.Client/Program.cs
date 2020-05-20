@@ -35,7 +35,7 @@ namespace DBDesign.PosiStageDotNet.Client
             switch (args.Length)
             {
                 case 0:
-                    client = new PsnClient();
+                    client = new PsnClient(IPAddress.Loopback);
                     Console.WriteLine(
                         $"Listening on default multicast IP '{PsnClient.DefaultMulticastIp}', default port {PsnClient.DefaultPort}");
                     break;
@@ -72,7 +72,7 @@ namespace DBDesign.PosiStageDotNet.Client
                         port = PsnClient.DefaultPort;
                     }
 
-                    client = new PsnClient(ip, port);
+                    client = new PsnClient(ip, PsnClient.DefaultMulticastIp, port);
                     Console.WriteLine(
                         $"Listening on custom multicast IP '{PsnClient.DefaultMulticastIp}', custom port {PsnClient.DefaultPort}");
                 }

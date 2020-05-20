@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Collections.Immutable;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -15,7 +16,11 @@ namespace DBDesign.PosiStageDotNet.Networking
 		private bool _isDisposed;
 
 		private readonly UdpClient _udpClient;
-		private CancellationTokenSource _cancellationTokenSource;
+		
+        private Task _receiveTask = Task.CompletedTask;
+        private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
+        private readonly HashSet<IPAddress> _multicastGroups = new HashSet<IPAddress>();
 
 		public UdpService(IPEndPoint localEndPoint)
 		{
@@ -36,21 +41,23 @@ namespace DBDesign.PosiStageDotNet.Networking
 				return;
 
 			if (IsListening)
-				StopListening();
+				StopListeningAsync().Wait();
 
 			_udpClient.Dispose();
 
             _isDisposed = true;
 		}
 
-		public event EventHandler<UdpReceiveResult> MessageReceived;
+		public event EventHandler<UdpReceiveResult> PacketReceived;
 
 
 		public bool IsListening { get; private set; }
 
 		public IPEndPoint LocalEndPoint { get; }
 
-		public ImmutableHashSet<IPAddress> MulticastGroups { get; private set; } = ImmutableHashSet<IPAddress>.Empty;
+        public IReadOnlyCollection<IPAddress> MulticastGroups => _multicastGroups;
+
+
 
 		public void StartListening()
 		{
@@ -58,28 +65,31 @@ namespace DBDesign.PosiStageDotNet.Networking
 				throw new ObjectDisposedException(GetType().Name);
 
 			if (IsListening)
-				throw new InvalidOperationException("Cannot start listening, UdpReceiver is already listening");
+				throw new InvalidOperationException($"Cannot start listening, {nameof(UdpService)} is already listening");
 
-			_cancellationTokenSource = new CancellationTokenSource();
-			Task.Run(() => receiveMessages(_cancellationTokenSource.Token));
+            _receiveTask = listenAsync(_cancellationTokenSource.Token);
 
 			IsListening = true;
 		}
 
-		public void StopListening()
+		public async Task StopListeningAsync()
 		{
 			if (_isDisposed)
 				throw new ObjectDisposedException(GetType().Name);
 
 			if (!IsListening)
-				throw new InvalidOperationException("Cannot stop listening, UdpReceiver is not currently listening");
+				throw new InvalidOperationException($"Cannot stop listening, {nameof(UdpService)} is not currently listening");
 
-			_cancellationTokenSource.Cancel();
-			_cancellationTokenSource.Dispose();
-			_cancellationTokenSource = null;
+            _cancellationTokenSource.Cancel();
+            
+            await _receiveTask.ConfigureAwait(false);
+            _receiveTask = Task.CompletedTask;
 
-			IsListening = false;
-		}
+            _cancellationTokenSource.Dispose();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            IsListening = false;
+        }
 
 		public void JoinMulticastGroup(IPAddress multicastIp)
 		{
@@ -93,11 +103,15 @@ namespace DBDesign.PosiStageDotNet.Networking
 			if (_isDisposed)
 				throw new ObjectDisposedException(GetType().Name);
 
-			if (MulticastGroups.Contains(multicastIp))
+			if (_multicastGroups.Contains(multicastIp))
 				throw new ArgumentException($"Already a member of multicast group {multicastIp}", nameof(multicastIp));
 
-			_udpClient.JoinMulticastGroup(multicastIp);
-			MulticastGroups = MulticastGroups.Add(multicastIp);
+			if (LocalEndPoint.Address.Equals(IPAddress.Any))
+                _udpClient.JoinMulticastGroup(multicastIp);
+			else
+			    _udpClient.JoinMulticastGroup(multicastIp, LocalEndPoint.Address);
+
+            _multicastGroups.Add(multicastIp);
 		}
 
 		public void DropMulticastGroup(IPAddress multicastIp)
@@ -112,11 +126,11 @@ namespace DBDesign.PosiStageDotNet.Networking
 			if (_isDisposed)
 				throw new ObjectDisposedException(GetType().Name);
 
-			if (!MulticastGroups.Contains(multicastIp))
+			if (!_multicastGroups.Contains(multicastIp))
 				throw new ArgumentException($"Not a member of multicast group {multicastIp}", nameof(multicastIp));
 
 			_udpClient.DropMulticastGroup(multicastIp);
-			MulticastGroups = MulticastGroups.Remove(multicastIp);
+			_multicastGroups.Remove(multicastIp);
 		}
 
 		public Task<int> SendAsync(byte[] data, IPEndPoint endPoint)
@@ -135,31 +149,28 @@ namespace DBDesign.PosiStageDotNet.Networking
 			return _udpClient.SendAsync(data, length, endPoint);
 		}
 
-		private async void receiveMessages(CancellationToken cancellationToken)
-		{
-			while (!cancellationToken.IsCancellationRequested)
-			{
-				bool didReceive = false;
-				UdpReceiveResult message;
+        private async Task listenAsync(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var task = _udpClient.ReceiveAsync();
 
-				try
-				{
-					message = await _udpClient.ReceiveAsync().ConfigureAwait(false);
-					didReceive = true;
-				}
-				catch
-				{
-					// Exception may be thrown by cancellation
-					if (!cancellationToken.IsCancellationRequested)
-						throw;
-				}
+                    var tcs = new TaskCompletionSource<bool>();
+                    using (cancellationToken.Register(s => ((TaskCompletionSource<bool>) s).TrySetResult(true), tcs))
+                    {
+                        if (task != await Task.WhenAny(task, tcs.Task))
+                            return;
+                    }
 
-				// If nothing received, must have been cancelled
-				if (!didReceive)
-					return;
+                    PacketReceived?.Invoke(this, task.Result);
+                }
+                catch (SocketException ex)
+                {
 
-				MessageReceived?.Invoke(this, message);
-			}
-		}
+                }
+            }
+        }
 	}
 }

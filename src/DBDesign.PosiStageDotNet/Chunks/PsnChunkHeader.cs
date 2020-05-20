@@ -17,7 +17,7 @@ using System;
 
 namespace DBDesign.PosiStageDotNet.Chunks
 {
-	internal struct PsnChunkHeader : IEquatable<PsnChunkHeader>
+	internal readonly struct PsnChunkHeader : IEquatable<PsnChunkHeader>
 	{
 		public static PsnChunkHeader FromUInt32(uint value)
 		{

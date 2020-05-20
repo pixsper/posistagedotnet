@@ -30,10 +30,7 @@ namespace DBDesign.PosiStageDotNet.Chunks
 		public PsnInfoSystemNameChunk([NotNull] string systemName)
 			: base(null)
 		{
-			if (systemName is null)
-				throw new ArgumentNullException(nameof(systemName));
-
-			SystemName = systemName;
+            SystemName = systemName ?? throw new ArgumentNullException(nameof(systemName));
 		}
 
 		/// <summary>

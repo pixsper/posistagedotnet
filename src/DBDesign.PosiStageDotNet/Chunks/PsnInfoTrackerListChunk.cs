@@ -200,10 +200,7 @@ namespace DBDesign.PosiStageDotNet.Chunks
 		public PsnInfoTrackerNameChunk([NotNull] string trackerName)
 			: base(null)
 		{
-			if (trackerName is null)
-				throw new ArgumentNullException(nameof(trackerName));
-
-			TrackerName = trackerName;
+            TrackerName = trackerName ?? throw new ArgumentNullException(nameof(trackerName));
 		}
 
 		/// <summary>

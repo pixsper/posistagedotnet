@@ -50,7 +50,10 @@ namespace DBDesign.PosiStageDotNet.Chunks
 		/// <returns>Chunk serialized within data</returns>
 		[CanBeNull]
 		public static PsnPacketChunk FromByteArray(byte[] data)
-		{
+        {
+            if (data.Length == 0)
+                return null;
+
 			try
 			{
 				using (var ms = new MemoryStream(data))
