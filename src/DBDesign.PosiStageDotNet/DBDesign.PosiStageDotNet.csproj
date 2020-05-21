@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
+    <Title>PosiStageDotNet</Title>
     <Product>PosiStageDotNet</Product>
     <Company>David Butler Design</Company>
     <Authors>David Butler</Authors>
@@ -11,10 +13,15 @@
     <PackageProjectUrl>https://github.com/davidbutlerdesign/posistagedotnet</PackageProjectUrl>
     <RepositoryUrl>https://github.com/davidbutlerdesign/posistagedotnet</RepositoryUrl>
     <RepositoryType>Git</RepositoryType>
-    <Description>C# .Net Standard 1.3 library for sending/receiving PosiStageNet positional data over Ethernet for entertainment control applications. See http://www.posistage.net/ for more information on PosiStageNet.</Description>
+    <Description>
+        Library for sending/receiving PosiStageNet positional data over Ethernet for applications in entertainment lighting, sound, video and automation.
+        The protocol can be used to pass position, speed, orientation and other automation data between entertainment control systems, for example, between an automation controller or tracking system and a lighting desk or video server.
+        See http://www.posistage.net/ for more information on PosiStageNet.
+    </Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
     <PackageLicenseExpression>LGPL-3.0-or-later</PackageLicenseExpression>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>PosiStageNet;Coordinate;Tracking;Visualization;3D;Lighting;Video;Control;</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
