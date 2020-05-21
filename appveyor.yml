@@ -1,59 +1,33 @@
-#---------------------------------#
-#      general configuration      #
-#---------------------------------#
-
 branches:
   only:
     - master
     - develop
 
-#---------------------------------#
-#    environment configuration    #
-#---------------------------------#
+init:
+  - ps: >-
+      if ($env:APPVEYOR_REPO_TAG -eq "true")
+      {
+          Update-AppveyorBuild -Version "$($env:APPVEYOR_REPO_TAG_NAME.TrimStart("v"))"
+          $env:APPVEYOR_CACHE_SKIP_RESTORE = "true"
+      }
+      else
+      {
+          Update-AppveyorBuild -Version "dev-$($env:APPVEYOR_REPO_COMMIT.Substring(0, 7))"
+      }
 
-nuget:
-  account_feed: true
-  project_feed: true
-
-#---------------------------------#
-#       build configuration       #
-#---------------------------------#
-
-version: '0.2.{build}'
-
-configuration: Release
+image:
+  - Visual Studio 2019
 
 platform: Any CPU
-
-init:
-- ps: $Env:LABEL = "CI" + $Env:APPVEYOR_BUILD_NUMBER.PadLeft(5, "0")
+  
+configuration: Release
 
 before_build:
-- appveyor-retry dotnet restore -v Minimal
+  - nuget restore
 
-build_script:
-- dotnet build "src\Imp.PosiStageDotNet" -c %CONFIGURATION% --no-dependencies --version-suffix %LABEL%
-
-after_build:
-- dotnet pack "src\Imp.PosiStageDotNet" -c %CONFIGURATION% --no-build --version-suffix %LABEL% -o artifacts
-
-test_script:
-- dotnet test "test\Imp.PosiStageDotNet.Tests" -c %CONFIGURATION%
+build:
+  project: DBDesign.PosiStageDotNet.sln
 
 artifacts:
-- path: artifacts\**\*.*
-
-#---------------------------------#
-#           build events          #
-#---------------------------------#
-  
-deploy:
-  - provider: NuGet
-    release: Imp.PosiStageDotNet-$(appveyor_repo_tag_name)
-    on:
-      branch: master
-      appveyor_repo_tag: true
-    api_key:
-      secure: rWUYkrDdoedwz/r2XGss/gQ4j9+oRVw/4t5j48vDRFN9sM9Tyl0zlUAby5MMm3ME
-    skip_symbols: false
-    artifact: /.*\.nupkg/
+  - name: Build
+    path: src\DBDesign.PosiStageDotNet\bin\$(configuration)
