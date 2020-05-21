@@ -29,9 +29,18 @@ var psnServer = new PsnServer("Test PSN Server", adapterIp);
 
 var trackers = new []
 {
-    new PsnTracker(0, "Tracker 0", position: Tuple.Create(0f, 0f, 0f), Tuple.Create(0f, 0f, 0f), Tuple.Create(0f, 0f, 0f)),
-    new PsnTracker(1, "Tracker 1", Tuple.Create(10.4f, 0f, 0f), Tuple.Create(1.23f, 0f, 0f), Tuple.Create(0f, 85.34f, 0f)),
-    new PsnTracker(2, "Tracker 2", Tuple.Create(5.232f, 2.654f, 13.765f), Tuple.Create(1f, 3f, 0f), Tuple.Create(23.3f, 43.3f, 76.2f))
+    new PsnTracker(0, "Tracker 0", 
+        position: Tuple.Create(0f, 0f, 0f), 
+        speed: Tuple.Create(0f, 0f, 0f), 
+        orientation: Tuple.Create(0f, 0f, 0f)),
+    new PsnTracker(1, "Tracker 1", 
+        position: Tuple.Create(10.4f, 0f, 0f), 
+        speed: Tuple.Create(1.23f, 0f, 0f), 
+        orientation: Tuple.Create(0f, 85.34f, 0f)),
+    new PsnTracker(2, "Tracker 2", 
+        position: Tuple.Create(5.232f, 2.654f, 13.765f), 
+        speed: Tuple.Create(1f, 3f, 0f), 
+        orientation: Tuple.Create(23.3f, 43.3f, 76.2f))
 };
 
 psnServer.SetTrackers(trackers);
