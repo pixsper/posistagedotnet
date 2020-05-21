@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
     <Title>PosiStageDotNet</Title>
     <Product>PosiStageDotNet</Product>
