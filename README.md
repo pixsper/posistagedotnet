@@ -1,11 +1,7 @@
 <img src="/resources/PosiStageDotNet-Alpha.png" width="256" alt="PosiStageDotNet">
 PosiStageDotNet is a C# library for implementing the PosiStageNet protocol in any  project compatible with .Net 4.5 or .Net Platform Standard 1.3. The protocol is used to pass position, speed, orientation and other automation data between entertainment control systems, for example, between an automation controller and a lighting desk or media server.
 
-<<<<<<< HEAD
-<img src="/resources/psn%20logos/PSN_Black.svg" width="128">
-=======
 <img src="/resources/psn%20logos/PSN_Black.svg" width="128" alt="PSN Logo">
->>>>>>> master
 
 See <http://www.posistage.net/> for more information on PosiStageNet.
 
