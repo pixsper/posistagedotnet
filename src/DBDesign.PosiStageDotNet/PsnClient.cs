@@ -79,9 +79,7 @@ namespace DBDesign.PosiStageDotNet
 		/// <param name="isStrict">If true, packets which are imperfect in any way will not be processed</param>
 		public PsnClient([NotNull] IPAddress localIp, bool isStrict = true)
 		{
-			Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
-
-			MulticastIp = DefaultMulticastIp;
+            MulticastIp = DefaultMulticastIp;
 			Port = DefaultPort;
             LocalIp = localIp;
 			IsStrict = isStrict;
@@ -100,9 +98,7 @@ namespace DBDesign.PosiStageDotNet
 	    /// <exception cref="ArgumentOutOfRangeException"></exception>
 	    public PsnClient([NotNull] IPAddress localIp, [NotNull] IPAddress customMulticastIp, int customPort, bool isStrict = true)
 		{
-	        Trackers = new ReadOnlyDictionary<int, PsnTracker>(_trackers);
-
-			if (customMulticastIp == null)
+            if (customMulticastIp == null)
 				throw new ArgumentNullException(nameof(customMulticastIp));
 			if (!customMulticastIp.IsIPv4Multicast())
 				throw new ArgumentException("Not a valid IPv4 multicast address", nameof(customMulticastIp));
@@ -147,10 +143,10 @@ namespace DBDesign.PosiStageDotNet
 		/// </summary>
 		public bool IsListening { get; private set; }
 
-		/// <summary>
-		///     Dictionary of trackers keyed by tracker index
-		/// </summary>
-		public ReadOnlyDictionary<int, PsnTracker> Trackers { get; }
+        /// <summary>
+        ///     Dictionary of trackers keyed by tracker index
+        /// </summary>
+        public IReadOnlyDictionary<int, PsnTracker> Trackers => _trackers;
 
 		/// <summary>
 		///     System name of the remote PosiStageNet server, or null if no info packets have been received
@@ -177,7 +173,7 @@ namespace DBDesign.PosiStageDotNet
 		/// <summary>
 		///     Called when a PosiStageNet data or info packet is received
 		/// </summary>
-		public event EventHandler<ReadOnlyDictionary<int, PsnTracker>> TrackersUpdated;
+		public event EventHandler<IReadOnlyDictionary<int, PsnTracker>> TrackersUpdated;
 
 		/// <summary>
 		///     Called when a PosiStageNet info packet is received
