@@ -5,7 +5,7 @@ PosiStageDotNet is a C# library for implementing the PosiStageNet protocol in an
 
 See <http://www.posistage.net/> for more information on PosiStageNet.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/wmxp2dhtlv09yey3?svg=true)](https://ci.appveyor.com/project/DavidButlerDesign/posistagedotnet)
+[![Build status](https://ci.appveyor.com/api/projects/status/wmxp2dhtlv09yey3?svg=true)](https://ci.appveyor.com/project/Pixsper/posistagedotnet)
 
 ## NuGet
 
