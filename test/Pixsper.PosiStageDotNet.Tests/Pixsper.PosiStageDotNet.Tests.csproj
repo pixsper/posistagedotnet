@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+
+		<Product>PosiStageDotNet</Product>
+		<Company>David Butler Design</Company>
+		<Authors>David Butler</Authors>
+		<Copyright>Copyright © David Butler Design 2021</Copyright>
+		<Description>Demo client application for PosiStageDotNet</Description>
+
+		<IsPackable>false</IsPackable>
+	</PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentAssertions" Version="5.10.3" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+    <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Pixsper.PosiStageDotNet\Pixsper.PosiStageDotNet.csproj" />
+  </ItemGroup>
+
+</Project>

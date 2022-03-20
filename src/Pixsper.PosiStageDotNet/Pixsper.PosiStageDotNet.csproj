@@ -1,0 +1,46 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+
+		<Product>PosistageDotNet</Product>
+		<Company>Pixsper Ltd.</Company>
+		<Copyright>Copyright © 2022 Pixsper Ltd.</Copyright>
+		<PackageProjectUrl>https://github.com/pixsper/posistagedotnet</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/pixsper/posistagedotnet</RepositoryUrl>
+		<RepositoryType>Git</RepositoryType>
+		<Description>
+			Library for sending/receiving PosiStageNet positional data over Ethernet for applications in entertainment lighting, sound, video and automation.
+			The protocol can be used to pass position, speed, orientation and other automation data between entertainment control systems, for example, between an automation controller or tracking system and a lighting desk or video server.
+			See http://www.posistage.net/ for more information on PosiStageNet.
+		</Description>
+		<PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageTags>PosiStageNet;Coordinate;Tracking;Visualization;3D;Lighting;Video;Control;</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+			<_Parameter1>$(MSBuildProjectName).Tests</_Parameter1>
+		</AssemblyAttribute>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="..\..\resources\icon.png" Link="\Resources\icon.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="GitVersion.MsBuild" Version="5.9.0">
+			<PrivateAssets>all</PrivateAssets>
+			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+		</PackageReference>
+	</ItemGroup>
+
+</Project>
