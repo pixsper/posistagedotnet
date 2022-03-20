@@ -1,22 +1,24 @@
 <img src="/resources/PosiStageDotNet-Alpha.png" width="256" alt="PosiStageDotNet">
-PosiStageDotNet is a C# library for implementing the PosiStageNet protocol in any  project compatible with .Net 4.5 or .Net Platform Standard 1.3. The protocol is used to pass position, speed, orientation and other automation data between entertainment control systems, for example, between an automation controller and a lighting desk or media server.
+PosiStageDotNet is a C# library for implementing the PosiStageNet protocol. The protocol is used to pass position, speed, orientation and other automation data between entertainment control systems, for example, between an automation controller and a lighting desk or media server.
 
 <img src="/resources/psn%20logos/PSN_Black.svg" width="128" alt="PSN Logo">
 
 See <http://www.posistage.net/> for more information on PosiStageNet.
 
-[![Build status](https://ci.appveyor.com/api/projects/status/wmxp2dhtlv09yey3?svg=true)](https://ci.appveyor.com/project/DavidButlerDesign/posistagedotnet)
-
 ## NuGet
 
-![Nuget](https://img.shields.io/nuget/v/DBDesign.PosiStageDotNet?logo=nuget)
+![Nuget](https://img.shields.io/nuget/v/Pixsper.PosiStageDotNet?logo=nuget)
 
-The library is available from NuGet.org as [DBDesign.PosiStageDotNet](https://www.nuget.org/packages/DBDesign.PosiStageDotNet).
+The library is available from NuGet.org as [Pixsper.PosiStageDotNet](https://www.nuget.org/packages/Pixsper.PosiStageDotNet).
 
 ## License
 
-The library is [LGPL 3.0](http://www.gnu.org/licenses/lgpl-3.0.en.html) licensed, allowing use in non-GPL-licensed projects. Any modifications to the source however must be given back to the community under the same license.
+The library is release under the [MIT license](https://opensource.org/licenses/MIT), allowing use in commerical/non-commerical projects providing the copyright notice is reproduced.
 
+
+## Copyright
+
+Copyright (c) 2022 Pixsper Ltd.
 
 
 ## Simple Examples
