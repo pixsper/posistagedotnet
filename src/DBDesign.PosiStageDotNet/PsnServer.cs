@@ -467,18 +467,16 @@ namespace DBDesign.PosiStageDotNet
 
 			foreach (var chunk in trackerChunks)
 			{
-				if (trackerListLength <= maxTrackerListLength)
-				{
-					currentTrackerList.Add(chunk);
-					trackerListLength += chunk.ChunkAndHeaderLength;
-				}
-				else
-				{
-					trackerListChunks.Add(new PsnDataTrackerListChunk(currentTrackerList));
-					currentTrackerList = new List<PsnDataTrackerChunk>();
-					trackerListLength = 0;
-				}
-			}
+				if (trackerListLength + chunk.ChunkAndHeaderLength > maxTrackerListLength)
+                {
+                    trackerListChunks.Add(new PsnDataTrackerListChunk(currentTrackerList));
+                    currentTrackerList = new List<PsnDataTrackerChunk>();
+                    trackerListLength = 0;
+                }
+
+                currentTrackerList.Add(chunk);
+                trackerListLength += chunk.ChunkAndHeaderLength;
+            }
 
 			trackerListChunks.Add(new PsnDataTrackerListChunk(currentTrackerList));
 
